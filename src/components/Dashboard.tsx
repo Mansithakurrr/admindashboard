@@ -5,6 +5,7 @@ import React, {useState, useEffect} from 'react';
 import StatCard from './StatCard';
 import { columns, Ticket } from '../app/dashboard/columns'; // Import columns and type
 import {TicketsDataTable} from './TicketsDataTable';
+const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 type Stat = {
   title: string;
@@ -131,7 +132,8 @@ const Dashboard = () => {
 useEffect(() => {
   const fetchStats = async () => {
     try {
-      const res = await fetch('http://localhost:3001/api/tickets/stats');
+      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+      const res = await fetch(`${baseUrl}/api/tickets/stats`);
       const data = await res.json();
 
       if (data && typeof data === 'object') {
