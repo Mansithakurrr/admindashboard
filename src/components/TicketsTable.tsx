@@ -1,5 +1,11 @@
 import React from "react";
 import TicketSubject from "./TicketSubject";
+import {
+  ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
 
 interface Ticket {
   sno: number;
@@ -21,6 +27,56 @@ interface Ticket {
   createdAt?: Date;
   updatedAt?: Date;
 }
+
+const columns: ColumnDef<Ticket>[] = [
+  {
+    accessorKey: "sno",
+    header: "S.No",
+    accessorFn: (row) => row.sno,
+  },
+  {
+    accessorKey: "subject",
+    header: "Subject",
+    accessorFn: (row) => row.subject,
+    cell: ({ row }) => (
+      <TicketSubject
+        title={row.original.subject.title}
+        description={row.original.subject.description}
+      />
+    ),
+  },
+  {
+    accessorKey: "name",
+    header: "Name",
+    accessorFn: (row) => row.name,
+  },
+  {
+    accessorKey: "orgId",
+    header: "Organization",
+    accessorFn: (row) => row.orgId,
+  },
+  {
+    accessorKey: "platformId",
+    header: "Platform",
+    accessorFn: (row) => row.platformId,
+  },
+  {
+    accessorKey: "status",
+    header: "Status",
+    accessorFn: (row) => row.status,
+    cell: ({ row }) => <StatusBadge status={row.original.status} />,
+  },
+  {
+    accessorKey: "type",
+    header: "Type",
+    accessorFn: (row) => row.type,
+  },
+  {
+    accessorKey: "days",
+    header: "Days",
+    accessorFn: (row) => row.days,
+  },
+];
 
 interface TicketsTableProps {
   tickets: Ticket[];
@@ -56,38 +112,32 @@ const StatusBadge = ({ status }: { status: Ticket["status"] }) => {
 };
 
 const TicketsTable: React.FC<TicketsTableProps> = ({ tickets }) => {
+  const table = useReactTable({
+    data: tickets,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+  });
   return (
     <div className="mt-8 bg-white p-4 rounded-lg shadow-md">
       <h2 className="text-xl font-semibold mb-4">Recent Tickets</h2>
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                S.No
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Subject
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Name
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Organization
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Platform
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Status
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Type
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Days
-              </th>
-            </tr>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <tr key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <th
+                    key={header.id}
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    {flexRender(
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
+                  </th>
+                ))}
+              </tr>
+            ))}
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {tickets.map((ticket) => (

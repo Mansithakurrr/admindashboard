@@ -18,6 +18,7 @@ import TicketSubject from "@/components/TicketSubject"; // We'll reuse your exis
 
 // Re-defining the Ticket type here for clarity within this file
 export type Ticket = {
+
   sno: number;
   subject: {
     title: string;
@@ -45,22 +46,6 @@ const StatusBadge = ({ status }: { status: Ticket["status"] }) => {
       className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClasses[status]}`}
     >
       {status}
-    </span>
-  );
-};
-
-const CategoryBadge = ({ category }: { category: Ticket["category"] }) => {
-  const categoryClasses = {
-    bugs: "bg-red-100 text-red-800",
-    "Tech support": "bg-blue-100 text-blue-800",
-    "new feature": "bg-purple-100 text-purple-800",
-    others: "bg-gray-100 text-gray-800",
-  };
-  return (
-    <span
-      className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${categoryClasses[category]}`}
-    >
-      {category}
     </span>
   );
 };
@@ -136,6 +121,7 @@ export const columns: ColumnDef<Ticket>[] = [
     ),
   },
   {
+
     accessorKey: "category",
     header: ({ column }) => (
       <Button
