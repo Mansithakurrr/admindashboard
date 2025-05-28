@@ -1,8 +1,16 @@
 // src/components/Dashboard.tsx
-import React from 'react';
+'use client';
+
+import React, {useState, useEffect} from 'react';
 import StatCard from './StatCard';
 import { columns, Ticket } from '../app/dashboard/columns'; // Import columns and type
 import {TicketsDataTable} from './TicketsDataTable';
+
+type Stat = {
+  title: string;
+  value: number;
+};
+
 // --- MOCK DATA ---
 const stats = [
   { title: 'Total', value: 1250 },
@@ -116,16 +124,60 @@ const recentTickets: Ticket[] = [
 // --- END MOCK DATA ---
 
 const Dashboard = () => {
+  const [stats, setStats] = useState<Stat[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+useEffect(() => {
+  const fetchStats = async () => {
+    try {
+      const res = await fetch('http://localhost:3001/api/tickets/stats');
+      const data = await res.json();
+
+      if (data && typeof data === 'object') {
+        const formattedStats = [
+          { title: 'Total', value: data.total },
+          { title: 'Open', value: data.open },
+          { title: 'Resolved', value: data.resolved },
+          { title: 'Closed', value: data.closed },
+        ];
+        setStats(formattedStats);
+      } else {
+        throw new Error('Invalid stats data format');
+      }
+    } catch (err: any) {
+      console.error('Error fetching stats:', err);
+      setError('Failed to load stats.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchStats();
+}, []);
+
+  
+
+
   return (
     <div>
       <h1 className="text-2xl font-bold mb-6">Dashboard Overview</h1>
 
-      {/* Statistic Cards Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat) => (
-          <StatCard key={stat.title} title={stat.title} value={stat.value} />
-        ))}
+         {/* Statistic Cards Section */}
+         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {loading ? (
+          <p>Loading stats...</p>
+        ) : error ? (
+          <p className="text-red-500">{error}</p>
+        ) : stats.length > 0 ? (
+          stats.map((stat) => (
+            <StatCard key={stat.title} title={stat.title} value={stat.value} />
+          ))
+        ) : (
+          <p>No stats available.</p>
+        )}
       </div>
+
 
       {/* NEW Interactive Tickets Table Section */}
       <TicketsDataTable columns={columns} data={recentTickets} />

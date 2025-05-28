@@ -11,7 +11,7 @@ const Navbar = () => {
           href="/dashboard"
           className="text-xl font-bold hover:text-gray-300"
         >
-          HelpDesk
+          Bigpluto
         </Link>
 
         {/* Right side: Navigation links (can be added later) */}
