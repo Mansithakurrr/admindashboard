@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 const TicketSchema = new mongoose.Schema({
-    sno: { type: String, required: true, unique: true },
+    // serialNumber: { type: String, required: true, unique: true },
     name: { type: String, required: true },
     // subject: { type: String, required: true },
     // description: { type: String, required: true },
@@ -13,7 +13,7 @@ const TicketSchema = new mongoose.Schema({
       },      
     status: {
         type: String,
-        enum: ['New', 'Open', 'Hold', 'InProgress', 'Resolve', 'Closed'],
+        enum: ['New', 'Open', 'Hold', 'InProgress', 'Resolved', 'Closed'],
         default: 'Open'
     },
     category: {
