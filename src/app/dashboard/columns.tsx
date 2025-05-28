@@ -28,8 +28,8 @@ export type Ticket = {
   platformId: string;
   status: "New" | "Open" | "InProgress" | "Hold" | "Resolved" | "Closed";
   days: number;
+  category: "bugs" | "Tech support" | "new feature" | "others"; // ADD THIS LINE
 };
-
 // Re-defining the StatusBadge component here for local use
 const StatusBadge = ({ status }: { status: Ticket["status"] }) => {
   const statusClasses = {
@@ -47,6 +47,28 @@ const StatusBadge = ({ status }: { status: Ticket["status"] }) => {
       {status}
     </span>
   );
+};
+
+const CategoryBadge = ({ category }: { category: Ticket["category"] }) => {
+  const categoryClasses = {
+    bugs: "bg-red-100 text-red-800",
+    "Tech support": "bg-blue-100 text-blue-800",
+    "new feature": "bg-purple-100 text-purple-800",
+    others: "bg-gray-100 text-gray-800",
+  };
+  return (
+    <span
+      className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${categoryClasses[category]}`}
+    >
+      {category}
+    </span>
+  );
+};
+
+const type = {
+  Support: "bg-blue-100 text-blue-800",
+  Complaint: "bg-orange-100 text-orange-800",
+  Feedback: "bg-green-100 text-green-800",
 };
 
 export const columns: ColumnDef<Ticket>[] = [
@@ -112,6 +134,19 @@ export const columns: ColumnDef<Ticket>[] = [
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
+  },
+  {
+    accessorKey: "category",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        Category
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
+    cell: ({ row }) => <CategoryBadge category={row.getValue("category")} />,
   },
   {
     accessorKey: "orgId",
