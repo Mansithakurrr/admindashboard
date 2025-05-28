@@ -7,18 +7,25 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 
-export interface Ticket {
+interface Ticket {
   sno: number;
-  subject: {
-    title: string;
-    description: string;
-  };
+  serialNumber: string;
+  // subject: {
+  //   title: string;
+  //   description: string;
+  // };
+  subject: string;
   name: string;
-  orgId: string;
-  platformId: string;
-  status: "New" | "Open" | "In Progress" | "Hold" | "Resolved" | "Closed";
+  description: string;
+  platformName: string;
+  Organization: string;
+  status: "New" | "Open" | "Hold" | "InProgress" | "Resolved" | "Closed";
+  category: "bugs" | "Tech support" | "new feature" | "others";
+  priority: "low" | "medium" | "high";
   type: "Support" | "Complaint" | "Feedback";
   days: number;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 const columns: ColumnDef<Ticket>[] = [
@@ -80,7 +87,7 @@ interface TicketsTableProps {
 const rowColorClasses = {
   New: "bg-white",
   Open: "bg-orange-100",
-  "In Progress": "bg-purple-100",
+  InProgress: "bg-purple-100",
   Hold: "bg-red-100",
   Resolved: "bg-green-100",
   Closed: "bg-gray-300",
@@ -90,7 +97,7 @@ const StatusBadge = ({ status }: { status: Ticket["status"] }) => {
   const statusClasses = {
     New: "white",
     Open: "bg-orange-100 text-orange-800",
-    "In Progress": "bg-purple-100 text-purple-800",
+    InProgress: "bg-purple-100 text-purple-800",
     Hold: "bg-red-100 text-red-800",
     Resolved: "bg-green-100 text-green-800",
     Closed: "bg-gray-300 text-black",
@@ -133,16 +140,40 @@ const TicketsTable: React.FC<TicketsTableProps> = ({ tickets }) => {
             ))}
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {table.getRowModel().rows.map((row) => (
-              <tr key={row.id} className={rowColorClasses[row.original.status]}>
-                {row.getVisibleCells().map((cell) => (
-                  <td
-                    key={cell.id}
-                    className="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
-                  >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
-                ))}
+            {tickets.map((ticket) => (
+              // 2. APPLY THE DYNAMIC CLASS TO THE TABLE ROW
+              <tr key={ticket.serialNumber} className={rowColorClasses[ticket.status]}>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {ticket.serialNumber}
+                </td>
+                <td className="px-6 py-4 text-sm text-gray-500">
+                  {/* <TicketSubject
+                    title={ticket.subject.title}
+                    description={ticket.subject.description}
+                  /> */}
+                  <TicketSubject
+                    title={ticket.subject.title}           // was ticket.subject.title
+                    description={ticket.subject.description} // was ticket.subject.description
+                  />
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {ticket.name}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {ticket.Organization}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {ticket.platformName}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <StatusBadge status={ticket.status} />
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {ticket.type}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {ticket.days}
+                </td>
               </tr>
             ))}
           </tbody>

@@ -18,19 +18,19 @@ import TicketSubject from "@/components/TicketSubject"; // We'll reuse your exis
 
 // Re-defining the Ticket type here for clarity within this file
 export type Ticket = {
-    sno: number;
-    subject: {
-      title: string;
-      description: string;
-    };
-    name: string;
-    orgId: string;
-    platformId: string;
-    status: 'New' | 'Open' | 'InProgress' | 'Hold' | 'Resolved' | 'Closed';
-    days: number;
-    category: 'bugs' | 'Tech support' | 'new feature' | 'others'; // ADD THIS LINE
-    priority: 'Low' | 'Medium' | 'High' | 'Urgent';
-  }
+
+  sno: number;
+  subject: {
+    title: string;
+    description: string;
+  };
+  name: string;
+  Organization: string;
+  platformName: string;
+  status: "New" | "Open" | "InProgress" | "Hold" | "Resolved" | "Closed";
+  days: number;
+  category: "bugs" | "Tech support" | "new feature" | "others"; // ADD THIS LINE
+};
 // Re-defining the StatusBadge component here for local use
 const StatusBadge = ({ status }: { status: Ticket["status"] }) => {
   const statusClasses = {
@@ -121,19 +121,33 @@ export const columns: ColumnDef<Ticket>[] = [
     ),
   },
   {
-    accessorKey: "orgId",
+
+    accessorKey: "category",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        Category
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
+    cell: ({ row }) => <CategoryBadge category={row.getValue("category")} />,
+  },
+  {
+    accessorKey: "Organization",
     header: "Organization",
     cell: ({ row }) => {
-      const orgId = row.original.orgId;
-      return <span>{orgId}</span>;
+      const Organization = row.original.Organization;
+      return <span>{Organization}</span>;
     },
   },
   {
-    accessorKey: "platformId",
+    accessorKey: "platformName",
     header: "Platform",
     cell: ({ row }) => {
-      const platformId = row.original.platformId;
-      return <span>{platformId}</span>;
+      const platformName = row.original.platformName;
+      return <span>{platformName}</span>;
     },
   },
 
