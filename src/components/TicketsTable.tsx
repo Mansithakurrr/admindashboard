@@ -1,18 +1,25 @@
 import React from "react";
 import TicketSubject from "./TicketSubject";
 
-export interface Ticket {
+interface Ticket {
   sno: number;
-  subject: {
-    title: string;
-    description: string;
-  };
+  serialNumber: string;
+  // subject: {
+  //   title: string;
+  //   description: string;
+  // };
+  subject: string;
   name: string;
-  orgId: string;
-  platformId: string;
-  status: "New" | "Open" | "In Progress" | "Hold" | "Resolved" | "Closed";
+  description: string;
+  platformName: string;
+  Organization: string;
+  status: "New" | "Open" | "Hold" | "InProgress" | "Resolved" | "Closed";
+  category: "bugs" | "Tech support" | "new feature" | "others";
+  priority: "low" | "medium" | "high";
   type: "Support" | "Complaint" | "Feedback";
   days: number;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 interface TicketsTableProps {
@@ -24,7 +31,7 @@ interface TicketsTableProps {
 const rowColorClasses = {
   New: "bg-white",
   Open: "bg-orange-100",
-  "In Progress": "bg-purple-100",
+  InProgress: "bg-purple-100",
   Hold: "bg-red-100",
   Resolved: "bg-green-100",
   Closed: "bg-gray-300",
@@ -34,7 +41,7 @@ const StatusBadge = ({ status }: { status: Ticket["status"] }) => {
   const statusClasses = {
     New: "white",
     Open: "bg-orange-100 text-orange-800",
-    "In Progress": "bg-purple-100 text-purple-800",
+    InProgress: "bg-purple-100 text-purple-800",
     Hold: "bg-red-100 text-red-800",
     Resolved: "bg-green-100 text-green-800",
     Closed: "bg-gray-300 text-black",
@@ -85,24 +92,28 @@ const TicketsTable: React.FC<TicketsTableProps> = ({ tickets }) => {
           <tbody className="bg-white divide-y divide-gray-200">
             {tickets.map((ticket) => (
               // 2. APPLY THE DYNAMIC CLASS TO THE TABLE ROW
-              <tr key={ticket.sno} className={rowColorClasses[ticket.status]}>
+              <tr key={ticket.serialNumber} className={rowColorClasses[ticket.status]}>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {ticket.sno}
+                  {ticket.serialNumber}
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-500">
-                  <TicketSubject
+                  {/* <TicketSubject
                     title={ticket.subject.title}
                     description={ticket.subject.description}
+                  /> */}
+                  <TicketSubject
+                    title={ticket.subject.title}           // was ticket.subject.title
+                    description={ticket.subject.description} // was ticket.subject.description
                   />
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {ticket.name}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {ticket.orgId}
+                  {ticket.Organization}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {ticket.platformId}
+                  {ticket.platformName}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   <StatusBadge status={ticket.status} />

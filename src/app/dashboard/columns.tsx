@@ -24,8 +24,8 @@ export type Ticket = {
     description: string;
   };
   name: string;
-  orgId: string;
-  platformId: string;
+  Organization: string;
+  platformName: string;
   status: "New" | "Open" | "InProgress" | "Hold" | "Resolved" | "Closed";
   days: number;
   category: "bugs" | "Tech support" | "new feature" | "others"; // ADD THIS LINE
@@ -149,19 +149,19 @@ export const columns: ColumnDef<Ticket>[] = [
     cell: ({ row }) => <CategoryBadge category={row.getValue("category")} />,
   },
   {
-    accessorKey: "orgId",
+    accessorKey: "Organization",
     header: "Organization",
     cell: ({ row }) => {
-      const orgId = row.original.orgId;
-      return <span>{orgId}</span>;
+      const Organization = row.original.Organization;
+      return <span>{Organization}</span>;
     },
   },
   {
-    accessorKey: "platformId",
+    accessorKey: "platformName",
     header: "Platform",
     cell: ({ row }) => {
-      const platformId = row.original.platformId;
-      return <span>{platformId}</span>;
+      const platformName = row.original.platformName;
+      return <span>{platformName}</span>;
     },
   },
 
