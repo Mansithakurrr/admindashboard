@@ -21,7 +21,7 @@ export const getTicketStats = async () => {
   const [total, open, resolved, closed] = await Promise.all([
     Ticket.countDocuments(),
     Ticket.countDocuments({ status: 'Open' }),
-    Ticket.countDocuments({ status: 'Resolve' }),
+    Ticket.countDocuments({ status: 'Resolved' }),
     Ticket.countDocuments({ status: 'Closed' }),
   ]);
   return { total, open, resolved, closed };
