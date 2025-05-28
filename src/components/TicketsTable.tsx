@@ -1,5 +1,3 @@
-// src/components/TicketsTable.tsx
-
 import React from "react";
 import TicketSubject from "./TicketSubject";
 
@@ -13,6 +11,7 @@ export interface Ticket {
   orgId: string;
   platformId: string;
   status: "New" | "Open" | "In Progress" | "Hold" | "Resolved" | "Closed";
+  type: "Support" | "Complaint" | "Feedback";
   days: number;
 }
 
@@ -76,6 +75,9 @@ const TicketsTable: React.FC<TicketsTableProps> = ({ tickets }) => {
                 Status
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Type
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Days
               </th>
             </tr>
@@ -104,6 +106,9 @@ const TicketsTable: React.FC<TicketsTableProps> = ({ tickets }) => {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   <StatusBadge status={ticket.status} />
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {ticket.type}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {ticket.days}
