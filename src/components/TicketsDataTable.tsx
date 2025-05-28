@@ -1,19 +1,21 @@
+// src/components/TicketsDataTable.tsx
 "use client"
+
 import * as React from "react"
+import { useRouter } from 'next/navigation'; // 1. IMPORT useRouter
 import {
   ColumnDef,
-  ColumnFiltersState,
-  SortingState,
-  VisibilityState,
+  // ... other imports from @tanstack/react-table
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
+  Row, // Import Row type
 } from "@tanstack/react-table"
+// ... other imports (Button, DropdownMenu, Input, Table etc.)
 import { ChevronDown } from "lucide-react"
-
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -30,20 +32,23 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { Ticket } from "@/lib/mockData"; // Assuming Ticket type is needed here or passed via TData
 
-interface DataTableProps<TData, TValue> {
+interface DataTableProps<TData extends Ticket, TValue> { // Ensure TData extends Ticket
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
 }
 
-export function TicketsDataTable<TData, TValue>({
+export function TicketsDataTable<TData extends Ticket, TValue>({ // Ensure TData extends Ticket
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = React.useState<SortingState>([])
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
+  const router = useRouter(); // 2. INITIALIZE useRouter
+  const [sorting, setSorting] = React.useState<any>([]) // Use 'any' or define SortingState
+  const [columnFilters, setColumnFilters] = React.useState<any>([]) // Use 'any' or define ColumnFiltersState
+  const [columnVisibility, setColumnVisibility] = React.useState<any>({}) // Use 'any' or define VisibilityState
   const [rowSelection, setRowSelection] = React.useState({})
+
 
   const table = useReactTable({
     data,
@@ -64,13 +69,19 @@ export function TicketsDataTable<TData, TValue>({
     },
   })
 
+  // 3. CREATE THE CLICK HANDLER
+  const handleRowClick = (row: Row<TData>) => {
+    const ticketSno = row.original.sno; // Assuming 'sno' is the unique ID
+    router.push(`/dashboard/tickets/${ticketSno}`);
+  };
+
   return (
     <div className="w-full mt-8 bg-white p-4 rounded-lg shadow-md">
       <div className="flex items-center py-4">
         <Input
           placeholder="Filter by name..."
           value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-          onChange={(event: { target: { value: any } }) =>
+          onChange={(event) =>
             table.getColumn("name")?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
@@ -128,6 +139,8 @@ export function TicketsDataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  onClick={() => handleRowClick(row)} // 4. ADD onClick TO TableRow
+                  className="cursor-pointer hover:bg-gray-50" // Add hover effect
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
