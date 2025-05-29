@@ -1,4 +1,5 @@
 export type Ticket = {
+  sno: number;
     _id: string; // MongoDB document ID
     name: string;
     platformName: string;
