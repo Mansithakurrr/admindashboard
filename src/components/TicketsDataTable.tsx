@@ -1,8 +1,8 @@
 // src/components/TicketsDataTable.tsx
-"use client"
+"use client";
 
-import * as React from "react"
-import { useRouter } from 'next/navigation'; // 1. IMPORT useRouter
+import * as React from "react";
+import { useRouter } from "next/navigation"; // 1. IMPORT useRouter
 import {
   ColumnDef,
   // ... other imports from @tanstack/react-table
@@ -13,17 +13,17 @@ import {
   getSortedRowModel,
   useReactTable,
   Row, // Import Row type
-} from "@tanstack/react-table"
+} from "@tanstack/react-table";
 // ... other imports (Button, DropdownMenu, Input, Table etc.)
-import { ChevronDown } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { ChevronDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -31,25 +31,26 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@/components/ui/table";
 // import { Ticket } from "@/lib/mockData"; // Assuming Ticket type is needed here or passed via TData
-import {Ticket} from "../types/ticket";
+import { Ticket } from "../types/ticket";
 
-interface DataTableProps<TData extends Ticket, TValue> { // Ensure TData extends Ticket
-  columns: ColumnDef<TData, TValue>[]
-  data: TData[]
+interface DataTableProps<TData extends Ticket, TValue> {
+  // Ensure TData extends Ticket
+  columns: ColumnDef<TData, TValue>[];
+  data: TData[];
 }
 
-export function TicketsDataTable<TData extends Ticket, TValue>({ // Ensure TData extends Ticket
+export function TicketsDataTable<TData extends Ticket, TValue>({
+  // Ensure TData extends Ticket
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
   const router = useRouter(); // 2. INITIALIZE useRouter
-  const [sorting, setSorting] = React.useState<any>([]) // Use 'any' or define SortingState
-  const [columnFilters, setColumnFilters] = React.useState<any>([]) // Use 'any' or define ColumnFiltersState
-  const [columnVisibility, setColumnVisibility] = React.useState<any>({}) // Use 'any' or define VisibilityState
-  const [rowSelection, setRowSelection] = React.useState({})
-
+  const [sorting, setSorting] = React.useState<any>([]); // Use 'any' or define SortingState
+  const [columnFilters, setColumnFilters] = React.useState<any>([]); // Use 'any' or define ColumnFiltersState
+  const [columnVisibility, setColumnVisibility] = React.useState<any>({}); // Use 'any' or define VisibilityState
+  const [rowSelection, setRowSelection] = React.useState({});
 
   const table = useReactTable({
     data,
@@ -68,7 +69,7 @@ export function TicketsDataTable<TData extends Ticket, TValue>({ // Ensure TData
       columnVisibility,
       rowSelection,
     },
-  })
+  });
 
   // 3. CREATE THE CLICK HANDLER
   const handleRowClick = (row: Row<TData>) => {
@@ -109,7 +110,7 @@ export function TicketsDataTable<TData extends Ticket, TValue>({ // Ensure TData
                   >
                     {column.id}
                   </DropdownMenuCheckboxItem>
-                )
+                );
               })}
           </DropdownMenuContent>
         </DropdownMenu>
@@ -129,7 +130,7 @@ export function TicketsDataTable<TData extends Ticket, TValue>({ // Ensure TData
                             header.getContext()
                           )}
                     </TableHead>
-                  )
+                  );
                 })}
               </TableRow>
             ))}
@@ -191,5 +192,5 @@ export function TicketsDataTable<TData extends Ticket, TValue>({ // Ensure TData
         </div>
       </div>
     </div>
-  )
+  );
 }
