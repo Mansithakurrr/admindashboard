@@ -22,7 +22,7 @@ export default function SubmitTicketForm() {
         description: '',
         contactNumber: '',
         category: '',
-        priority: 'medium',
+        // priority: 'medium',
         type: '',
         days: '',
         attachment: null as File | null,
@@ -99,7 +99,7 @@ export default function SubmitTicketForm() {
                 description: '',
                 contactNumber: '',
                 category: '',
-                priority: 'medium',
+                // priority: 'medium',
                 type: '',
                 days: '',
                 attachment: null,
@@ -218,7 +218,7 @@ export default function SubmitTicketForm() {
                     {errors.category && <p className="text-red-500 text-sm">{errors.category}</p>}
                 </div>
 
-                <div>
+                {/* <div>
                     <Select onValueChange={(val) => handleSelectChange('priority', val)}>
                         <SelectTrigger>
                             <SelectValue placeholder="Select Priority" />
@@ -229,7 +229,7 @@ export default function SubmitTicketForm() {
                             <SelectItem value="high">High</SelectItem>
                         </SelectContent>
                     </Select>
-                </div>
+                </div> */}
 
                 <div>
                     <Select onValueChange={(val) => handleSelectChange('type', val)}>
