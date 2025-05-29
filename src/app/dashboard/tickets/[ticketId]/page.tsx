@@ -14,11 +14,15 @@ import { Ticket, Priority } from '@/types/ticket'; // Import Ticket type
 // This function would fetch from `${process.env.NEXT_PUBLIC_APP_URL}/api/tickets/${id}`
 import {fetchTicketById} from '@/lib/api';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { StatusBadge } from '../../columns';
+import { CategoryBadge } from '../../columns';
+import { PriorityBadge } from '../../columns';
+
 
 // Badge components (should be client components or pure)
-const StatusBadge = ({ status }: { status: Ticket['status'] }) => { /* ... */ };
-const CategoryBadge = ({ category }: { category: Ticket['category'] }) => { /* ... */ };
-const PriorityBadge = ({ priority }: { priority: Priority }) => { /* ... */ };
+// const StatusBadge = ({ status }: { status: Ticket['status'] }) => { /* ... */ };
+// const CategoryBadge = ({ category }: { category: Ticket['category'] }) => { /* ... */ };
+// const PriorityBadge = ({ priority }: { priority: Priority }) => { /* ... */ };
 
 const STATUS_OPTIONS: Ticket['status'][] = ["New", "Open", "InProgress", "Hold", "Resolved", "Closed"];
 const PRIORITY_OPTIONS: Priority[] = ["low", "medium", "high"];
@@ -58,7 +62,7 @@ export default async function TicketInfoPage({ params }: TicketInfoPageProps) {
         <Link href="/dashboard" className="text-blue-500 hover:underline text-sm">
           &larr; Back to Dashboard
         </Link>
-        <h2 className="text-xl font-semibold">Ticket #{ticket._id}</h2> {/* Use _id */}
+        <h2 className="text-xl font-semibold">Ticket #{ticket.serialNumber}</h2> {/* Use _id */}
         <div></div>
       </div>
 
