@@ -1,19 +1,31 @@
-"use client"
+"use client";
 
-import React from 'react';
-// import { ActivityLogEntry } from '@/lib/mockData'; 
-
+import React from "react";
+// import { ActivityLogEntry } from '@/lib/mockData';
+interface ActivityLogEntry {
+  id: string;
+  timestamp: string; // This is an ISO string
+  action: string;
+  user?: string;
+  from?: string;
+  to?: string;
+  details?: string;
+}
 interface ActivityTimelineProps {
-  activities: any[];
+  activities: ActivityLogEntry[];
 }
 
-export const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ activities }) => {
+export const ActivityTimeline: React.FC<ActivityTimelineProps> = ({
+  activities,
+}) => {
   if (!activities || activities.length === 0) {
     return <p className="text-gray-500">No activity recorded yet.</p>;
   }
 
   // Sort activities by timestamp, most recent first
-  const sortedActivities = [...activities].sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+  const sortedActivities = [...activities].sort(
+    (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+  );
 
   return (
     <div className="space-y-6">
@@ -24,18 +36,25 @@ export const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ activities }
             <span className="absolute left-[-5.5px] top-0 block h-3 w-3 rounded-full bg-blue-500 ring-4 ring-white dark:ring-gray-900"></span>
             <span className="absolute left-0 top-3 block h-full w-0.5 bg-gray-200 dark:bg-gray-700"></span>
           </div>
-          
+
           <div className="bg-white p-4 rounded-lg shadow-sm border">
             <div className="flex justify-between items-center mb-1">
               <p className="font-semibold text-gray-700">{activity.action}</p>
               <p className="text-xs text-gray-400">
-                {activity.timestamp.toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}
+                {new Date(activity.timestamp).toLocaleString("en-IN", {
+                  dateStyle: "medium",
+                  timeStyle: "short",
+                })}
               </p>
             </div>
-            {activity.user && <p className="text-xs text-gray-500 mb-2">by {activity.user}</p>}
+            {activity.user && (
+              <p className="text-xs text-gray-500 mb-2">by {activity.user}</p>
+            )}
             {activity.from && activity.to && (
               <p className="text-sm text-gray-600">
-                Changed from <span className="font-medium">{activity.from}</span> to <span className="font-medium">{activity.to}</span>
+                Changed from{" "}
+                <span className="font-medium">{activity.from}</span> to{" "}
+                <span className="font-medium">{activity.to}</span>
               </p>
             )}
             {activity.details && (

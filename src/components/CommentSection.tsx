@@ -14,6 +14,12 @@ interface Comment {
   timestamp: Date;
 }
 
+interface CommentSectionProps {
+  // This prop is crucial
+  onCommentAdded: (commentText: string, author: string) => void; 
+}
+
+
 // For now, we'll start with some mock comments
 const initialComments: Comment[] = [
   {
@@ -30,7 +36,9 @@ const initialComments: Comment[] = [
   }, // 55 minutes ago
 ];
 
-export const CommentSection = () => {
+export const CommentSection = ({
+  onCommentAdded,
+}: CommentSectionProps) => {
   const [comments, setComments] = useState<Comment[]>(initialComments);
   const [newComment, setNewComment] = useState("");
 
