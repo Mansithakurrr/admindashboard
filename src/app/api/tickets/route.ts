@@ -1,8 +1,52 @@
+
 // app/api/tickets/route.ts
-import { connectDB } from '@/lib/db';
-import { fetchTickets, postTicket } from '@/controllers/ticketController';
 import { NextRequest, NextResponse } from 'next/server';
+import { connectDB } from "@/lib/db";
 import Ticket from '@/models/Ticket';
+import { v4 as uuidv4 } from 'uuid';
+
+export async function POST(req: NextRequest) {
+    try {
+        await connectDB();
+
+        const formData = await req.formData();
+
+        const newTicket = new Ticket({
+            serialNumber: uuidv4(),
+            name: formData.get('name'),
+            email: formData.get('email'),
+            contactNumber: formData.get('contactNumber'),
+            platformName: formData.get('platform'),
+            Organization: formData.get('organization'),
+            subject: {
+                title: formData.get('subject'),
+                description: formData.get('description'),
+            },
+            category: formData.get('category'),
+            priority: formData.get('priority') || 'medium',
+            type: formData.get('type'),
+            days: parseInt(formData.get('days') as string, 10),
+            activityLog: [
+                {
+                    id: uuidv4(),
+                    timestamp: new Date(),
+                    user: formData.get('email'),
+                    action: 'Ticket Created',
+                    from: '',
+                    to: 'Open',
+                    details: 'Initial submission',
+                },
+            ],
+        });
+
+        await newTicket.save();
+
+        return NextResponse.json({ success: true, ticket: newTicket });
+    } catch (err: any) {
+        return NextResponse.json({ success: false, message: err.message }, { status: 500 });
+    }
+}
+
 
 
 export async function GET() {
@@ -16,9 +60,3 @@ export async function GET() {
   }
 }
 
-export async function POST(req: NextRequest) {
-  await connectDB();
-  const body = await req.json();
-  const ticket = await postTicket(body);
-  return NextResponse.json(ticket);
-}

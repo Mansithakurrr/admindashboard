@@ -19,6 +19,9 @@ const TicketSchema = new mongoose.Schema(
   {
     serialNumber: { type: String, required: true, unique: true },
     name: { type: String, required: true },
+    email: { type: String, required: true },
+    contactNumber: { type: String, required: true },
+    
     platformName: {
         type: String,
         enum: ['Lighthouse', 'Learn Tank', 'Home Certify'],
