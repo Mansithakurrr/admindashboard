@@ -32,7 +32,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Ticket } from "@/lib/mockData"; // Assuming Ticket type is needed here or passed via TData
+// import { Ticket } from "@/lib/mockData"; // Assuming Ticket type is needed here or passed via TData
+import { Ticket } from "../types/ticket";
 
 interface DataTableProps<TData extends Ticket, TValue> { // Ensure TData extends Ticket
   columns: ColumnDef<TData, TValue>[]
