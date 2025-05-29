@@ -3,8 +3,9 @@
 
 import React, { useState, useEffect } from "react";
 import StatCard from "./StatCard";
-import { columns, Ticket } from "../app/dashboard/columns";
+import { columns } from "../app/dashboard/columns";
 import { TicketsDataTable } from "./TicketsDataTable";
+import { Ticket } from "../types/ticket";
 
 type Stat = {
   title: string;
@@ -83,11 +84,11 @@ const Dashboard = () => {
     <div>
       <h1 className="text-2xl font-bold mb-6">Dashboard Overview</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard title="Total" value={stats.Total} />
-        <StatCard title="New" value={stats.New} />
-        <StatCard title="Resolved" value={stats.Resolved} />
-        <StatCard title="Closed" value={stats.Closed} />
-      </div>
+  {stats.map((stat) => (
+    <StatCard key={stat.title} title={stat.title} value={stat.value} />
+  ))}
+</div>
+
       <TicketsDataTable columns={columns} data={tickets} />
     </div>
   );

@@ -2,7 +2,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { recentTickets, Ticket, Priority } from "@/lib/mockData";
+// import { recentTickets, Ticket, Priority } from "@/lib/mockData";
+import { Ticket } from "@/types/ticket";
 import Link from "next/link";
 import { CommentSection } from "@/components/CommentSection";
 import { useParams } from "next/navigation";
@@ -12,55 +13,58 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input"; // Import Input for the title
+import { StatusBadge } from "@/app/dashboard/columns";
+import { CategoryBadge } from "@/app/dashboard/columns";
+import { PriorityBadge } from "@/app/dashboard/columns";
 
 // Badge components...
-const StatusBadge = ({ status }: { status: Ticket["status"] }) => {
-  const classes = {
-    New: "bg-blue-100 text-blue-800",
-    Open: "bg-orange-100 text-orange-800",
-    InProgress: "bg-purple-100 text-purple-800",
-    Hold: "bg-red-100 text-red-800",
-    Resolved: "bg-green-100 text-green-800",
-    Closed: "bg-gray-100 text-gray-800",
-  };
-  return (
-    <span
-      className={`px-2 py-1 text-xs font-semibold rounded-full ${classes[status]}`}
-    >
-      {status}
-    </span>
-  );
-};
-const CategoryBadge = ({ category }: { category: Ticket["category"] }) => {
-  const classes = {
-    bugs: "bg-red-100 text-red-800",
-    "Tech support": "bg-blue-100 text-blue-800",
-    "new feature": "bg-purple-100 text-purple-800",
-    others: "bg-gray-100 text-gray-800",
-  };
-  return (
-    <span
-      className={`px-2 py-1 text-xs font-semibold rounded-full ${classes[category]}`}
-    >
-      {category}
-    </span>
-  );
-};
-const PriorityBadge = ({ priority }: { priority: Priority }) => {
-  const classes = {
-    Low: "bg-gray-100 text-gray-800",
-    Medium: "bg-yellow-100 text-yellow-800",
-    High: "bg-orange-100 text-orange-800",
-    Urgent: "bg-red-100 text-red-800",
-  };
-  return (
-    <span
-      className={`px-2 py-1 text-xs font-semibold rounded-full ${classes[priority]}`}
-    >
-      {priority}
-    </span>
-  );
-};
+// const StatusBadge = ({ status }: { status: Ticket["status"] }) => {
+//   const classes = {
+//     New: "bg-blue-100 text-blue-800",
+//     Open: "bg-orange-100 text-orange-800",
+//     InProgress: "bg-purple-100 text-purple-800",
+//     Hold: "bg-red-100 text-red-800",
+//     Resolved: "bg-green-100 text-green-800",
+//     Closed: "bg-gray-100 text-gray-800",
+//   };
+//   return (
+//     <span
+//       className={`px-2 py-1 text-xs font-semibold rounded-full ${classes[status]}`}
+//     >
+//       {status}
+//     </span>
+//   );
+// };
+// const CategoryBadge = ({ category }: { category: Ticket["category"] }) => {
+//   const classes = {
+//     bugs: "bg-red-100 text-red-800",
+//     "Tech support": "bg-blue-100 text-blue-800",
+//     "new feature": "bg-purple-100 text-purple-800",
+//     others: "bg-gray-100 text-gray-800",
+//   };
+//   return (
+//     <span
+//       className={`px-2 py-1 text-xs font-semibold rounded-full ${classes[category]}`}
+//     >
+//       {category}
+//     </span>
+//   );
+// };
+// const PriorityBadge = ({ priority }: { priority: Ticket["priority"] }) => {
+//   const classes = {
+//     Low: "bg-gray-100 text-gray-800",
+//     Medium: "bg-yellow-100 text-yellow-800",
+//     High: "bg-orange-100 text-orange-800",
+//     Urgent: "bg-red-100 text-red-800",
+//   };
+//   return (
+//     <span
+//       className={`px-2 py-1 text-xs font-semibold rounded-full ${classes[priority]}`}
+//     >
+//       {priority}
+//     </span>
+//   );
+// };
 
 const STATUS_OPTIONS: Ticket["status"][] = [
   "New",
@@ -70,7 +74,7 @@ const STATUS_OPTIONS: Ticket["status"][] = [
   "Resolved",
   "Closed",
 ];
-const PRIORITY_OPTIONS: Priority[] = ["Low", "Medium", "High", "Urgent"];
+const PRIORITY_OPTIONS: Ticket["priority"][] = ["low", "medium", "high"];
 
 const TicketInfoPage = () => {
   const params = useParams();
@@ -86,20 +90,41 @@ const TicketInfoPage = () => {
   const [originalTitle, setOriginalTitle] = useState("");
   const [showTitleHistory, setShowTitleHistory] = useState(false);
 
-  useEffect(() => {
-    if (params.ticketId) {
-      const ticketId = parseInt(params.ticketId as string, 10);
-      const foundTicket = recentTickets.find((t) => t.sno === ticketId);
-      setTicket(foundTicket || null);
+  // useEffect(() => {
+  //   if (params.ticketId) {
+  //     const ticketId = parseInt(params.ticketId as string, 10);
+  //     const foundTicket = recentTickets.find((t) => t.sno === ticketId);
+  //     setTicket(foundTicket || null);
 
-      if (foundTicket) {
-        // 2. SAVE ORIGINAL STATE FOR BOTH TITLE AND DESCRIPTION
-        setOriginalTitle(foundTicket.subject.title);
-        setOriginalDescription(foundTicket.subject.description);
+  //     if (foundTicket) {
+  //       // 2. SAVE ORIGINAL STATE FOR BOTH TITLE AND DESCRIPTION
+  //       setOriginalTitle(foundTicket.subject.title);
+  //       setOriginalDescription(foundTicket.subject.description);
+  //     }
+  //   }
+  // }, [params.ticketId]);
+
+
+  useEffect(() => {
+    const fetchTicket = async () => {
+      try {
+        const res = await fetch(`/api/tickets/${params.ticketId}`);
+        const data = await res.json();
+        setTicket(data);
+  
+        setOriginalTitle(data.subject.title);
+        setOriginalDescription(data.subject.description);
+      } catch (err) {
+        console.error("Failed to fetch ticket", err);
       }
+    };
+  
+    if (params.ticketId) {
+      fetchTicket();
     }
   }, [params.ticketId]);
 
+  
   // --- DESCRIPTION HANDLERS ---
   const handleSaveDescription = () => {
     setIsEditingDescription(false);
@@ -359,7 +384,7 @@ const TicketInfoPage = () => {
             options={PRIORITY_OPTIONS}
             onValueChange={handlePriorityChange}
             renderValue={(value) => (
-              <PriorityBadge priority={value as Priority} />
+              <PriorityBadge priority={value as Ticket["priority"]} />
             )}
           />
           <div>
@@ -374,13 +399,13 @@ const TicketInfoPage = () => {
             <label className="text-xs font-semibold text-gray-500">
               Organization ID
             </label>
-            <p className="mt-1 text-sm">{ticket.orgId}</p>
+            <p className="mt-1 text-sm">{ticket.Organization}</p>
           </div>
           <div>
             <label className="text-xs font-semibold text-gray-500">
               Platform ID
             </label>
-            <p className="mt-1 text-sm">{ticket.platformId}</p>
+            <p className="mt-1 text-sm">{ticket.platformName}</p>
           </div>
         </aside>
       </div>

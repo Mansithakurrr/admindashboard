@@ -9,9 +9,9 @@ interface StatCardProps {
 // 1. Define the color mapping for the cards
 // Note: We are using the lighter '100' shades for consistency with the table rows.
 const cardColorClasses: { [key: string]: string } = {
-  New: "bg-blue-100",
+  Open: "bg-blue-100",
   Resolved: "bg-green-100",
-  Closed: "bg-gray-100",
+  Closed: "bg-gray-200",
   Total: "bg-red-100",
 };
 

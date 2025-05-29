@@ -14,38 +14,74 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import TicketSubject from "@/components/TicketSubject"; // We'll reuse your existing component
-
+import TicketSubject from "@/components/TicketSubject"; 
+import { Ticket } from "@/types/ticket";
 // Re-defining the Ticket type here for clarity within this file
-export type Ticket = {
 
-  sno: number;
-  subject: {
-    title: string;
-    description: string;
-  };
-  name: string;
-  Organization: string;
-  platformName: string;
-  status: "New" | "Open" | "InProgress" | "Hold" | "Resolved" | "Closed";
-  days: number;
-  category: "bugs" | "Tech support" | "new feature" | "others"; // ADD THIS LINE
-};
+// export type Ticket = {
+//   _id: string; // MongoDB document ID
+//   name: string;
+//   platformName: string;
+//   Organization: string;
+//   subject: {
+//     title: string;
+//     description: string;
+//   };
+//   status: "New" | "Open" | "Hold" | "InProgress" | "Resolved" | "Closed";
+//   category: "bugs" | "Tech support" | "new feature" | "others";
+//   priority: "low" | "medium" | "high";
+//   type: "Support" | "Complaint" | "Feedback";
+//   days: number;
+//   createdAt: string; // use string when working with JSON dates
+//   updatedAt: string;
+// };
 // Re-defining the StatusBadge component here for local use
-const StatusBadge = ({ status }: { status: Ticket["status"] }) => {
+export const StatusBadge = ({ status }: { status: Ticket["status"] }) => {
   const statusClasses = {
     New: "bg-blue-100 text-blue-800",
-    Open: "bg-orange-100 text-orange-800", // Using Orange as decided
+    Open: "bg-orange-100 text-orange-800",
     InProgress: "bg-purple-100 text-purple-800",
     Hold: "bg-red-100 text-red-800",
     Resolved: "bg-green-100 text-green-800",
-    Closed: "bg-gray-100 text-gray-800",
+    Closed: "bg-gray-200 text-black",
   };
   return (
     <span
       className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClasses[status]}`}
     >
       {status}
+    </span>
+  );
+};
+
+export const CategoryBadge = ({ category }: { category: Ticket["category"] }) => {
+  const classes = {
+    bugs: "bg-red-100 text-red-800",
+    "Tech support": "bg-blue-100 text-blue-800",
+    "new feature": "bg-purple-100 text-purple-800",
+    others: "bg-gray-200 text-gray-800",
+  };
+  return (
+    <span
+      className={`px-2 py-1 text-xs font-semibold rounded-full ${classes[category]}`}
+    >
+      {category}
+    </span>
+  );
+};
+
+export const PriorityBadge = ({ priority }: { priority: Ticket["priority"] }) => {
+  const classes = {
+    low: "bg-gray-100 text-gray-800",
+    medium: "bg-yellow-100 text-yellow-800",
+    high: "bg-orange-100 text-orange-800",
+    urgent: "bg-red-100 text-red-800",
+  };
+  return (
+    <span
+      className={`px-2 py-1 text-xs font-semibold rounded-full ${classes[priority]}`}
+    >
+      {priority}
     </span>
   );
 };

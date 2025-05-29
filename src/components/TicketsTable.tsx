@@ -10,13 +10,13 @@ import {
 interface Ticket {
   sno: number;
   serialNumber: string;
-  // subject: {
-  //   title: string;
-  //   description: string;
-  // };
-  subject: string;
+  subject: {
+    title: string;
+    description: string;
+  };
+  // subject: string;
   name: string;
-  description: string;
+  // description: string;
   platformName: string;
   Organization: string;
   status: "New" | "Open" | "Hold" | "InProgress" | "Resolved" | "Closed";
@@ -53,12 +53,12 @@ const columns: ColumnDef<Ticket>[] = [
   {
     accessorKey: "orgId",
     header: "Organization",
-    accessorFn: (row) => row.orgId,
+    accessorFn: (row) => row.Organization,
   },
   {
     accessorKey: "platformId",
     header: "Platform",
-    accessorFn: (row) => row.platformId,
+    accessorFn: (row) => row.platformName,
   },
   {
     accessorKey: "status",
@@ -152,7 +152,7 @@ const TicketsTable: React.FC<TicketsTableProps> = ({ tickets }) => {
                     description={ticket.subject.description}
                   /> */}
                   <TicketSubject
-                    title={ticket.subject.title}           // was ticket.subject.title
+                    title={ticket .subject.title}           // was ticket.subject.title
                     description={ticket.subject.description} // was ticket.subject.description
                   />
                 </td>
