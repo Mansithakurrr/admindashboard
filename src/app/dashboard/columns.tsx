@@ -178,6 +178,21 @@ export const columns: ColumnDef<Ticket>[] = [
       return <span>{Organization}</span>;
     },
   },
+   // Date Created Column
+   {
+    accessorKey: "createdAt",
+    header: ({ column }) => (
+      <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+        Date Created <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
+    cell: ({ row }) => {
+      const dateString = row.getValue("createdAt") as string;
+      if (!dateString) return 'N/A';
+      const date = new Date(dateString); // Convert string to Date object
+      return <span>{date.toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}</span>;
+    },
+  },
   {
     accessorKey: "platformName",
     header: "Platform",

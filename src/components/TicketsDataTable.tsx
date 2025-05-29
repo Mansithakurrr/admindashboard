@@ -33,7 +33,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 // import { Ticket } from "@/lib/mockData"; // Assuming Ticket type is needed here or passed via TData
-import { Ticket } from "../types/ticket";
+import {Ticket} from "../types/ticket";
 
 interface DataTableProps<TData extends Ticket, TValue> { // Ensure TData extends Ticket
   columns: ColumnDef<TData, TValue>[]
@@ -72,7 +72,7 @@ export function TicketsDataTable<TData extends Ticket, TValue>({ // Ensure TData
 
   // 3. CREATE THE CLICK HANDLER
   const handleRowClick = (row: Row<TData>) => {
-    const ticketSno = row.original.sno; // Assuming 'sno' is the unique ID
+    const ticketSno = row.original._id; // Assuming 'sno' is the unique ID
     router.push(`/dashboard/tickets/${ticketSno}`);
   };
 
