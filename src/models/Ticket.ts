@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 const TicketSchema = new mongoose.Schema({
-    // serialNumber: { type: String, required: true, unique: true },
+    serialNumber: { type: String, required: true, unique: true },
     name: { type: String, required: true },
     // subject: { type: String, required: true },
     // description: { type: String, required: true },
