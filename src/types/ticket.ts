@@ -11,9 +11,6 @@ export type Ticket = {
     title: string;
     description: string;
   };
-  name: string;
-  platformName: string; // Matches your API
-  Organization: string; // Matches your API (capital 'O')
   status: "New" | "Open" | "Hold" | "InProgress" | "Resolved" | "Closed"; // API returns "Resolved"
   category: "bugs" | "Tech support" | "new feature" | "others"; // API returns "others"
   priority: Priority; // API returns "high"
