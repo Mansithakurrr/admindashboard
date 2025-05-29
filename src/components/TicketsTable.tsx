@@ -23,6 +23,7 @@ interface Ticket {
   category: "bugs" | "Tech support" | "new feature" | "others";
   priority: "low" | "medium" | "high";
   type: "Support" | "Complaint" | "Feedback";
+
   days: number;
   createdAt?: Date;
   updatedAt?: Date;
@@ -30,9 +31,9 @@ interface Ticket {
 
 const columns: ColumnDef<Ticket>[] = [
   {
-    accessorKey: "sno",
+    accessorKey: "serialNumber",
     header: "S.No",
-    accessorFn: (row) => row.sno,
+    accessorFn: (row) => row.serialNumber,
   },
   {
     accessorKey: "subject",
@@ -51,12 +52,12 @@ const columns: ColumnDef<Ticket>[] = [
     accessorFn: (row) => row.name,
   },
   {
-    accessorKey: "orgId",
+    accessorKey: "Organization",
     header: "Organization",
     accessorFn: (row) => row.Organization,
   },
   {
-    accessorKey: "platformId",
+    accessorKey: "platformName",
     header: "Platform",
     accessorFn: (row) => row.platformName,
   },

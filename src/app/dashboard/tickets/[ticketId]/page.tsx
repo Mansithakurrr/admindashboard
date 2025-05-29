@@ -20,10 +20,7 @@ import { PriorityBadge } from '../../columns';
 import TicketViewClient from './TicketViewClient';
 
 
-// Badge components (should be client components or pure)
-// const StatusBadge = ({ status }: { status: Ticket['status'] }) => { /* ... */ };
-// const CategoryBadge = ({ category }: { category: Ticket['category'] }) => { /* ... */ };
-// const PriorityBadge = ({ priority }: { priority: Priority }) => { /* ... */ };
+
 
 const STATUS_OPTIONS: Ticket['status'][] = ["New", "Open", "InProgress", "Hold", "Resolved", "Closed"];
 const PRIORITY_OPTIONS: Priority[] = ["low", "medium", "high"];
@@ -35,6 +32,7 @@ interface TicketInfoPageProps {
   };
 }
 export default async function TicketInfoPage({ params }: TicketInfoPageProps) {
+
     const ticketData = await fetchTicketById(params.ticketId);
   
     if (!ticketData) {
@@ -226,6 +224,17 @@ export default async function TicketInfoPage({ params }: TicketInfoPageProps) {
 //       },
 //     ],
 //   };
+
+
+  return (
+    <div className="flex flex-col h-screen overflow-hidden">
+      <div className="p-4 border-b bg-white flex justify-between items-center flex-shrink-0">
+        <Link href="/dashboard" className="text-blue-500 hover:underline text-sm">
+          &larr; Back to Dashboard
+        </Link>
+        <h2 className="text-xl font-semibold">Ticket : {ticket.serialNumber}</h2> {/* Use _id */}
+        <div></div>
+      </div>
 
 
 //   return (
