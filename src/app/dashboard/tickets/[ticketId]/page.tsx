@@ -17,12 +17,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { StatusBadge } from '../../columns';
 import { CategoryBadge } from '../../columns';
 import { PriorityBadge } from '../../columns';
+import { connectDB } from '@/lib/db';
 
 
-// Badge components (should be client components or pure)
-// const StatusBadge = ({ status }: { status: Ticket['status'] }) => { /* ... */ };
-// const CategoryBadge = ({ category }: { category: Ticket['category'] }) => { /* ... */ };
-// const PriorityBadge = ({ priority }: { priority: Priority }) => { /* ... */ };
 
 const STATUS_OPTIONS: Ticket['status'][] = ["New", "Open", "InProgress", "Hold", "Resolved", "Closed"];
 const PRIORITY_OPTIONS: Priority[] = ["low", "medium", "high"];
@@ -36,6 +33,7 @@ interface TicketInfoPageProps {
 
 // Make this page an async Server Component
 export default async function TicketInfoPage({ params }: TicketInfoPageProps) {
+  await connectDB(); // Ensure DB is connected
   const ticket = await fetchTicketById(params.ticketId); // fetchTicketById uses the _id
 
   if (!ticket) {
@@ -62,7 +60,7 @@ export default async function TicketInfoPage({ params }: TicketInfoPageProps) {
         <Link href="/dashboard" className="text-blue-500 hover:underline text-sm">
           &larr; Back to Dashboard
         </Link>
-        <h2 className="text-xl font-semibold">Ticket #{ticket.serialNumber}</h2> {/* Use _id */}
+        <h2 className="text-xl font-semibold">Ticket : {ticket.serialNumber}</h2> {/* Use _id */}
         <div></div>
       </div>
 

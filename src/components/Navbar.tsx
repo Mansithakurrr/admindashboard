@@ -4,20 +4,25 @@ import React from "react";
 
 const Navbar = () => {
   return (
-    <nav className="bg-gray-800 text-white p-4 shadow-md">
+    <nav className="bg-white text-black p-4 shadow-md">
       <div className="container mx-auto flex items-center justify-between">
-        {/* Left side: Brand/Logo */}
-        <Link
-          href="/dashboard"
-          className="text-xl font-bold hover:text-gray-300"
-        >
-          Bigpluto
+        {/* Left side: Logo and Brand */}
+        <Link href="/dashboard" className="flex items-center space-x-2">
+          <img src="/bpllogo.png" alt="Bigpluto logo" className="h-10 w-auto" />
+          <span className="text-xl font-bold">Bigpluto</span>
         </Link>
 
-        {/* Right side: Navigation links (can be added later) */}
-        <div>
-          {/* Example: <Link href="/dashboard/profile" className="ml-4 hover:text-gray-300">Profile</Link> */}
-          {/* Add other navbar items here */}
+        {/* Right side: Navigation links */}
+        <div className="flex items-center space-x-4">
+        <Link
+            href="/dashboard/tickets/submit"
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+          >
+            Submit Ticket
+          </Link>
+
+          {/* Example future nav links: */}
+          {/* <Link href="/dashboard/profile" className="hover:text-gray-600">Profile</Link> */}
         </div>
       </div>
     </nav>
