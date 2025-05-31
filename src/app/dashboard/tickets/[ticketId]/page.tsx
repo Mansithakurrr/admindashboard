@@ -33,13 +33,13 @@ interface TicketInfoPageProps {
 }
 export default async function TicketInfoPage({ params }: TicketInfoPageProps) {
 
-    const ticketData = await fetchTicketById(params.ticketId);
+    const ticketData = await fetchTicketById(params?.ticketId);
   
     if (!ticketData) {
       return (
         <div className="container mx-auto p-4">
           <h1 className="text-2xl font-bold">Ticket Not Found</h1>
-          <p>The ticket with ID {params.ticketId} could not be found.</p>
+          <p>The ticket with ID {params?.ticketId} could not be found.</p>
           <Link href="/dashboard" className="text-blue-500 hover:underline mt-4 inline-block">
             &larr; Back to Dashboard
           </Link>

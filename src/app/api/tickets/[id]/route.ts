@@ -25,8 +25,7 @@ export async function PATCH(
 ) {
   await connectDB();
   const updates = await req.json();
-  console.log("updates", updates);
-  const updated = await patchTicket(params.id, updates);
+  const updated = await patchTicket(params?.id, updates);
   if (!updated) {
     return NextResponse.json({ message: "Ticket not found" }, { status: 404 });
   }

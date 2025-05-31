@@ -45,6 +45,7 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
 }) => {
   const [ticket, setTicket] = useState<Ticket>(initialTicket);
   const [activeTab, setActiveTab] = useState("details");
+  console.log(ticket, "ticket"); // Debugging: Log the ticket object
 
   // State for editable fields
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -73,9 +74,10 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
     details?: string
   ) => {
     if (!ticket) return;
+
     const newEntry: ActivityLogEntry = {
       id: Date.now().toString(),
-      timestamp: new Date().toISOString(), // This produces a string, which is fine
+      timestamp: new Date().toISOString(),
       user: "Ayush (You)",
       action,
       from,
@@ -86,43 +88,174 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
       ...prev!,
       activityLog: [...(prev?.activityLog || []), newEntry],
     }));
+    console.log(newEntry,"newEntry")
   };
 
+  const createActivityLogEntry = (
+    action: string,
+    from: string,
+    to: string
+  ): ActivityLogEntry => {
+    return {
+      id: Date.now().toString(),
+      timestamp: new Date().toISOString(),
+      user: "Ayush (You)",
+      action,
+      from,
+      to,
+      details: `${action} from "${from}" to "${to}"`,
+    };
+  };
+  
+
   // --- Handlers for edits ---
+  // const handleFieldUpdate = async (
+  //   fieldName: keyof Ticket | `subject.${"title" | "description"}`,
+  //   newValue: any,
+  //   originalValue: any
+  // ) => {
+  //   // TODO: API Call to PATCH /api/tickets/[ticket._id] with { [fieldName]: newValue }
+  //   console.log(`Attempting to save ${fieldName}: ${newValue}`);
+  //   // For nested subject fields
+  //   if (typeof fieldName === "string" && fieldName.startsWith("subject.")) {
+  //     const subField = fieldName.split(".")[1] as "title" | "description";
+  //     // @ts-ignore
+  //     addActivityLogEntry(
+  //       `${subField.charAt(0).toUpperCase() + subField.slice(1)} Updated`,
+  //       originalValue,
+  //       newValue
+  //     );
+  //     // @ts-ignore
+  //     setTicket((prev) => ({
+  //       ...prev!,
+  //       subject: { ...prev!.subject, [subField]: newValue },
+  //     }));
+  //   } else {
+  //     // @ts-ignore
+  //     addActivityLogEntry(
+  //       `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} Changed`,
+  //       originalValue,
+  //       newValue
+  //     );
+  //     // @ts-ignore
+  //     setTicket((prev) => ({ ...prev!, [fieldName]: newValue }));
+  //   }
+  //   // On successful API call, the local state is already updated optimistically.
+  //   // If API fails, you might want to revert the state or show an error.
+  // };
+
+
+  // const handleFieldUpdate = async (
+  //   fieldName: keyof Ticket | `subject.${"title" | "description"}`,
+  //   newValue: any,
+  //   originalValue: any
+  // ) => {
+  //   try {
+  //     // Optimistically update UI
+  //     if (typeof fieldName === "string" && fieldName.startsWith("subject.")) {
+  //       const subField = fieldName.split(".")[1] as "title" | "description";
+  //       addActivityLogEntry(
+  //         `${subField.charAt(0).toUpperCase() + subField.slice(1)} Updated`,
+  //         originalValue,
+  //         newValue
+  //       );
+  //       setTicket((prev) => ({
+  //         ...prev!,
+  //         subject: { ...prev!.subject, [subField]: newValue },
+  //       }));
+  //     } else {
+  //       addActivityLogEntry(
+  //         `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} Changed`,
+  //         originalValue,
+  //         newValue
+  //       );
+  //       setTicket((prev) => ({ ...prev!, [fieldName]: newValue }));
+  //     }
+  
+  //     // Send update to backend
+  //     const response = await fetch(`/api/tickets/${ticket._id}`, {
+  //       method: "PATCH",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({ [fieldName]: newValue }),
+  //     });
+  
+  //     if (!response.ok) {
+  //       throw new Error("Failed to update ticket");
+  //     }
+  
+  //     // Optionally re-fetch ticket or merge server response
+  //     // const updatedTicket = await response.json();
+  //     // setTicket(updatedTicket);
+  
+  //   } catch (error) {
+  //     console.error(error);
+  //     // Optionally revert UI changes or notify user
+  //   }
+  // };
+
   const handleFieldUpdate = async (
     fieldName: keyof Ticket | `subject.${"title" | "description"}`,
     newValue: any,
     originalValue: any
   ) => {
-    // TODO: API Call to PATCH /api/tickets/[ticket._id] with { [fieldName]: newValue }
-    console.log(`Attempting to save ${fieldName}: ${newValue}`);
-    // For nested subject fields
-    if (typeof fieldName === "string" && fieldName.startsWith("subject.")) {
-      const subField = fieldName.split(".")[1] as "title" | "description";
-      // @ts-ignore
-      addActivityLogEntry(
-        `${subField.charAt(0).toUpperCase() + subField.slice(1)} Updated`,
-        originalValue,
-        newValue
-      );
-      // @ts-ignore
-      setTicket((prev) => ({
-        ...prev!,
-        subject: { ...prev!.subject, [subField]: newValue },
-      }));
-    } else {
-      // @ts-ignore
-      addActivityLogEntry(
-        `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} Changed`,
-        originalValue,
-        newValue
-      );
-      // @ts-ignore
-      setTicket((prev) => ({ ...prev!, [fieldName]: newValue }));
+    try {
+      let updatedFields: any = {};
+      let activityEntry: ActivityLogEntry;
+  
+      if (typeof fieldName === "string" && fieldName.startsWith("subject.")) {
+        const subField = fieldName.split(".")[1] as "title" | "description";
+        activityEntry = createActivityLogEntry(
+          `${subField.charAt(0).toUpperCase() + subField.slice(1)} Updated`,
+          originalValue,
+          newValue
+        );
+  
+        updatedFields = {
+          subject: { ...ticket.subject, [subField]: newValue },
+          $push: { activityLog: activityEntry },
+        };
+  
+        setTicket((prev) => ({
+          ...prev!,
+          subject: { ...prev!.subject, [subField]: newValue },
+          activityLog: [...(prev?.activityLog || []), activityEntry],
+        }));
+      } else {
+        activityEntry = createActivityLogEntry(
+          `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} Changed`,
+          originalValue,
+          newValue
+        );
+  
+        updatedFields = {
+          [fieldName]: newValue,
+          $push: { activityLog: activityEntry },
+        };
+  
+        setTicket((prev) => ({
+          ...prev!,
+          [fieldName]: newValue,
+          activityLog: [...(prev?.activityLog || []), activityEntry],
+        }));
+      }
+  
+      // Send update to backend
+      const response = await fetch(`/api/tickets/${ticket._id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedFields),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to update ticket");
+      }
+  
+    } catch (error) {
+      console.error(error);
     }
-    // On successful API call, the local state is already updated optimistically.
-    // If API fails, you might want to revert the state or show an error.
   };
+  
+  
 
   const handleSaveTitle = () => {
     if (ticket.subject.title !== originalTitle) {
@@ -159,21 +292,52 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
   const hasDescriptionBeenEdited =
     ticket.subject.description !== originalDescription;
 
+  // const handleCommentAdded = async (commentText: string, author: string) => {
+  //   // TODO: API Call to POST a new comment to /api/tickets/[ticket._id]/comments
+  //   // The API should return the new comment object (with ID, timestamp from server)
+  //   // and potentially the updated ticket document with the new comment & activity log.
+  //   console.log(`New comment by ${author}: ${commentText}`);
+  //   addActivityLogEntry(
+  //     "Comment Added",
+  //     undefined,
+  //     undefined,
+  //     `${author}: ${commentText}`
+  //   );
+  //   // For now, we're just logging it. In a real app, you'd update the comments list.
+  //   // The CommentSection manages its own list for display, but the source of truth might come from ticket.comments
+  // };
   const handleCommentAdded = async (commentText: string, author: string) => {
-    // TODO: API Call to POST a new comment to /api/tickets/[ticket._id]/comments
-    // The API should return the new comment object (with ID, timestamp from server)
-    // and potentially the updated ticket document with the new comment & activity log.
-    console.log(`New comment by ${author}: ${commentText}`);
-    addActivityLogEntry(
-      "Comment Added",
-      undefined,
-      undefined,
-      `${author}: ${commentText}`
-    );
-    // For now, we're just logging it. In a real app, you'd update the comments list.
-    // The CommentSection manages its own list for display, but the source of truth might come from ticket.comments
+    const newEntry = {
+      id: Date.now().toString(),
+      timestamp: new Date().toISOString(),
+      user: author,
+      action: "Comment Added",
+      from: undefined,
+      to: undefined,
+      details: commentText,
+    };
+  
+    try {
+      const res = await fetch(`/api/tickets/${ticket._id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          $push: { activityLog: newEntry },
+        }),
+      });
+  
+      if (!res.ok) throw new Error("Failed to add comment");
+  
+      // Optionally update local state
+      setTicket((prev) => ({
+        ...prev!,
+        activityLog: [...(prev?.activityLog || []), newEntry],
+      }));
+    } catch (error) {
+      console.error("Error adding comment:", error);
+    }
   };
-
+  
   return (
     <div className="flex flex-col h-full">
       {" "}
@@ -200,7 +364,7 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
 
         <TabsContent
           value="details"
-          className="flex-1 flex flex-col md:flex-row overflow-hidden mt-0 p-0"
+          className="flex flex-col md:flex-row overflow-hidden mt-0 p-0"
         >
           <div className="flex flex-col flex-1 h-full">
             <div className="flex-grow overflow-y-auto p-6">

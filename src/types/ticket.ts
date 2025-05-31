@@ -41,3 +41,15 @@ export type Comment = {
   author: string;
   timestamp: string; // Store as ISO string
 };
+
+export interface TicketStats {
+
+  total: number;
+
+  open: number;
+
+  resolved: number;
+
+  closed: number;
+
+}
