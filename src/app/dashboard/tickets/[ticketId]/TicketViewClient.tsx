@@ -78,7 +78,7 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
     const newEntry: ActivityLogEntry = {
       id: Date.now().toString(),
       timestamp: new Date().toISOString(),
-      user: "Ayush (You)",
+      user: "You",
       action,
       from,
       to,
@@ -99,7 +99,7 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
     return {
       id: Date.now().toString(),
       timestamp: new Date().toISOString(),
-      user: "Ayush (You)",
+      user: "You",
       action,
       from,
       to,

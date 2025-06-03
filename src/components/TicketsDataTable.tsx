@@ -34,7 +34,7 @@ import {
 } from "@/components/ui/table";
 // import { Ticket } from "@/lib/mockData"; // Assuming Ticket type is needed here or passed via TData
 import { Ticket } from "../types/ticket";
-
+import { columns } from "@/app/dashboard/columns";
 interface DataTableProps<TData extends Ticket, TValue> {
   // Ensure TData extends Ticket
   columns: ColumnDef<TData, TValue>[];
@@ -53,6 +53,7 @@ export function TicketsDataTable<TData extends Ticket, TValue>({
   const [rowSelection, setRowSelection] = React.useState({});
 
   const table = useReactTable({
+    // data,
     data,
     columns,
     onSortingChange: setSorting,
@@ -63,6 +64,9 @@ export function TicketsDataTable<TData extends Ticket, TValue>({
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    meta: {
+      startingIndex: 0,
+    },
     state: {
       sorting,
       columnFilters,

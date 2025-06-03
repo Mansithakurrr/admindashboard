@@ -6,6 +6,8 @@ import StatCard from "./StatCard";
 import { columns } from "../app/dashboard/columns";
 import { TicketsDataTable } from "./TicketsDataTable";
 import { Ticket } from "../types/ticket";
+import { useRouter } from "next/navigation";
+import { Button } from "./ui/button"; // Assuming you have a UI Button
 
 type Stat = {
   title: string;
@@ -17,6 +19,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [tickets, setTickets] = useState<Ticket[]>([]);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -88,6 +91,11 @@ const Dashboard = () => {
           <StatCard key={stat.title} title={stat.title} value={stat.value} />
         ))}
       </div>
+      <div className="flex justify-end mt-6">
+  <Button onClick={() => router.push("/dashboard/tickets")}>
+    View All Tickets
+  </Button>
+</div>
 
       <TicketsDataTable columns={columns} data={tickets} />
     </div>

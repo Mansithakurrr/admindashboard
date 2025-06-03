@@ -50,14 +50,44 @@ export async function POST(req: NextRequest) {
 
 
 
-export async function GET() {
-  try {
-    await connectDB(); // ensure DB is connected
-    const tickets = await Ticket.find({});
-    return NextResponse.json({ tickets });
-  } catch (error) {
-    console.error("API /api/tickets error:", error);
-    return NextResponse.json({ message: "Failed to fetch tickets" }, { status: 500 });
-  }
-}
+// export async function GET() {
+//   try {
+//     await connectDB(); // ensure DB is connected
+//     const tickets = await Ticket.find({});
+//     return NextResponse.json({ tickets });
+//   } catch (error) {
+//     console.error("API /api/tickets error:", error);
+//     return NextResponse.json({ message: "Failed to fetch tickets" }, { status: 500 });
+//   }
+// }
 
+
+
+export async function GET(req: NextRequest) {
+    try {
+      await connectDB();
+  
+      const { searchParams } = new URL(req.url);
+  
+      const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
+      const limit = Math.min(100, parseInt(searchParams.get('limit') || '10', 10)); // max 100 per page
+      const skip = (page - 1) * limit;
+  
+      const [tickets, total] = await Promise.all([
+        Ticket.find({})
+          .sort({ createdAt: -1 })
+          .skip(skip)
+          .limit(limit),
+        Ticket.countDocuments()
+      ]);
+  
+      const hasMore = skip + tickets.length < total;
+      const totalPages = Math.ceil(total / limit);
+  
+      return NextResponse.json({ tickets, hasMore, total, totalPages, page });
+    } catch (error) {
+      console.error("API /api/tickets error:", error);
+      return NextResponse.json({ message: "Failed to fetch tickets" }, { status: 500 });
+    }
+  }
+  

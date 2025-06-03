@@ -29,58 +29,11 @@ interface Ticket {
   closedAt?: Date;
 }
 
-const columns: ColumnDef<Ticket>[] = [
-  {
-    accessorKey: "serialNumber",
-    header: "S.No",
-    accessorFn: (row) => row.serialNumber,
-  },
-  {
-    accessorKey: "subject",
-    header: "Subject",
-    accessorFn: (row) => row.subject,
-    cell: ({ row }) => (
-      <TicketSubject
-        title={row.original.subject.title}
-        description={row.original.subject.description}
-      />
-    ),
-  },
-  {
-    accessorKey: "name",
-    header: "Name",
-    accessorFn: (row) => row.name,
-  },
-  {
-    accessorKey: "Organization",
-    header: "Organization",
-    accessorFn: (row) => row.Organization,
-  },
-  {
-    accessorKey: "platformName",
-    header: "Platform",
-    accessorFn: (row) => row.platformName,
-  },
-  {
-    accessorKey: "status",
-    header: "Status",
-    accessorFn: (row) => row.status,
-    cell: ({ row }) => <StatusBadge status={row.original.status} />,
-  },
-  {
-    accessorKey: "type",
-    header: "Type",
-    accessorFn: (row) => row.type,
-  },
-  {
-    accessorKey: "days",
-    header: "Days",
-    accessorFn: (row) => row.days,
-  },
-];
+
 
 interface TicketsTableProps {
   tickets: Ticket[];
+  startingIndex?: number;
 }
 
 // 1. DEFINE THE ROW COLOR MAPPING
@@ -112,10 +65,69 @@ const StatusBadge = ({ status }: { status: Ticket["status"] }) => {
   );
 };
 
-const TicketsTable: React.FC<TicketsTableProps> = ({ tickets }) => {
+const TicketsTable: React.FC<TicketsTableProps> = ({ tickets , startingIndex = 0 }) => {
+  const columns: ColumnDef<Ticket>[] = [
+    {
+      // accessorKey: "serialNumber",
+      header: "S.No",
+      // accessorFn: (row) => row.serialNumber,
+      // cell: ({ row, table }) => {
+      //   const rowIndex = row.index;
+      //   const startingIndex = (table.options.meta as any)?.startingIndex || 0;
+      //   return <span>{startingIndex + rowIndex + 1}</span>;
+      // }
+      cell: ({ row }) => startingIndex + row.index + 1,
+  
+    },
+    {
+      accessorKey: "subject",
+      header: "Subject",
+      accessorFn: (row) => row.subject,
+      cell: ({ row }) => (
+        <TicketSubject
+          title={row.original.subject.title}
+          description={row.original.subject.description}
+        />
+      ),
+    },
+    {
+      accessorKey: "name",
+      header: "Name",
+      accessorFn: (row) => row.name,
+    },
+    {
+      accessorKey: "Organization",
+      header: "Organization",
+      accessorFn: (row) => row.Organization,
+    },
+    {
+      accessorKey: "platformName",
+      header: "Platform",
+      accessorFn: (row) => row.platformName,
+    },
+    {
+      accessorKey: "status",
+      header: "Status",
+      accessorFn: (row) => row.status,
+      cell: ({ row }) => <StatusBadge status={row.original.status} />,
+    },
+    {
+      accessorKey: "type",
+      header: "Type",
+      accessorFn: (row) => row.type,
+    },
+    {
+      accessorKey: "days",
+      header: "Days",
+      accessorFn: (row) => row.days,
+    },
+  ];
   const table = useReactTable({
     data: tickets,
     columns,
+    meta: {
+      startingIndex,
+    },
     getCoreRowModel: getCoreRowModel(),
   });
   return (
