@@ -8,6 +8,9 @@ import {
   // ... other imports from @tanstack/react-table
   flexRender,
   getCoreRowModel,
+  ColumnFiltersState, // Import ColumnFiltersState if you use it explicitly for typing setColumnFilters
+  SortingState, // Import SortingState
+  VisibilityState, // Import VisibilityState
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
@@ -35,21 +38,36 @@ import {
 // import { Ticket } from "@/lib/mockData"; // Assuming Ticket type is needed here or passed via TData
 import { Ticket } from "../types/ticket";
 
+// 1. IMPORT SHADCN UI SELECT COMPONENTS
+// import {
+//   Select,
+//   SelectContent,
+//   SelectItem,
+//   SelectTrigger,
+//   SelectValue,
+// } from "@/components/ui/select";
+
 interface DataTableProps<TData extends Ticket, TValue> {
-  // Ensure TData extends Ticket
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
 }
 
+// 2. DEFINE STATUS OPTIONS FOR THE FILTER DROPDOWN
+// const STATUS_FILTER_OPTIONS: (Ticket['status'] | 'All')[] = [
+//   "All", "New", "Open", "Hold", "InProgress", "Resolved", "Closed"
+// ];
+
 export function TicketsDataTable<TData extends Ticket, TValue>({
-  // Ensure TData extends Ticket
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
-  const router = useRouter(); // 2. INITIALIZE useRouter
-  const [sorting, setSorting] = React.useState<any>([]); // Use 'any' or define SortingState
-  const [columnFilters, setColumnFilters] = React.useState<any>([]); // Use 'any' or define ColumnFiltersState
-  const [columnVisibility, setColumnVisibility] = React.useState<any>({}); // Use 'any' or define VisibilityState
+  const router = useRouter();
+  const [sorting, setSorting] = React.useState<SortingState>([]); // Explicit type
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    []
+  ); // Explicit type
+  const [columnVisibility, setColumnVisibility] =
+    React.useState<VisibilityState>({}); // Explicit type
   const [rowSelection, setRowSelection] = React.useState({});
 
   const table = useReactTable({
@@ -71,26 +89,34 @@ export function TicketsDataTable<TData extends Ticket, TValue>({
     },
   });
 
-  // 3. CREATE THE CLICK HANDLER
   const handleRowClick = (row: Row<TData>) => {
-    const ticketSno = row.original._id; // Assuming 'sno' is the unique ID
-    router.push(`/dashboard/tickets/${ticketSno}`);
+    const ticketId = row.original._id;
+    if (ticketId) {
+      // Ensure ticketId is not undefined
+      router.push(`/dashboard/tickets/${ticketId}`);
+    } else {
+      console.error("Ticket ID is undefined for row:", row.original);
+    }
   };
 
   return (
     <div className="w-full mt-8 bg-white p-4 rounded-lg shadow-md">
-      <div className="flex items-center py-4">
+      <div className="flex items-center py-4 space-x-4">
+        {" "}
+        {/* Added space-x-4 for better spacing */}
         <Input
           placeholder="Filter by name..."
           value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
             table.getColumn("name")?.setFilterValue(event.target.value)
           }
-          className="max-w-sm"
+          className="max-w-sm h-10" // Standardized height with Select
         />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
+            <Button variant="outline" className="ml-auto h-10">
+              {" "}
+              {/* Standardized height */}
               Columns <ChevronDown className="ml-2 h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
@@ -141,8 +167,8 @@ export function TicketsDataTable<TData extends Ticket, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  onClick={() => handleRowClick(row)} // 4. ADD onClick TO TableRow
-                  className="cursor-pointer hover:bg-gray-50" // Add hover effect
+                  onClick={() => handleRowClick(row)}
+                  className="cursor-pointer hover:bg-gray-50"
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
@@ -168,10 +194,10 @@ export function TicketsDataTable<TData extends Ticket, TValue>({
         </Table>
       </div>
       <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="flex-1 text-sm text-muted-foreground">
+        {/* <div className="flex-1 text-sm text-muted-foreground">
           {table.getFilteredSelectedRowModel().rows.length} of{" "}
           {table.getFilteredRowModel().rows.length} ticket(s) selected.
-        </div>
+        </div> */}
         <div className="space-x-2">
           <Button
             variant="outline"
@@ -194,3 +220,23 @@ export function TicketsDataTable<TData extends Ticket, TValue>({
     </div>
   );
 }
+
+
+        {/* 3. ADD THE STATUS FILTER DROPDOWN */}
+// {/* <Select
+//           value={(table.getColumn("status")?.getFilterValue() as string) ?? "All"}
+//           onValueChange={(value) =>
+//             table.getColumn("status")?.setFilterValue(value === "All" ? undefined : value)
+//           }
+//         >
+//           <SelectTrigger className="w-[180px] h-10"> {/* Standardized height */}
+//             <SelectValue placeholder="Filter by Status" />
+//           </SelectTrigger>
+//           <SelectContent>
+//             {STATUS_FILTER_OPTIONS.map((statusOption) => (
+//               <SelectItem key={statusOption} value={statusOption}>
+//                 {statusOption}
+//               </SelectItem>
+//             ))}
+//           </SelectContent>
+//         </Select> */}
