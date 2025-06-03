@@ -4,12 +4,12 @@ import React from "react";
 
 const Navbar = () => {
   return (
-    <nav className="bg-white text-black p-4 shadow-md">
+    <nav className="bg-white text-black p-4">
       <div className="container mx-auto flex items-center justify-between">
         {/* Left side: Logo and Brand */}
         <Link href="/dashboard" className="flex items-center space-x-2">
-          <img src="/bpllogo.png" alt="Bigpluto logo" className="h-10 w-auto" />
-          <span className="text-xl font-bold">Bigpluto</span>
+          {/* <img src="/bpllogo.png" alt="Bigpluto logo" className="h-10 w-auto" /> */}
+          <span className="text-xl font-bold">Dashboard</span>
         </Link>
 
         {/* Right side: Navigation links */}

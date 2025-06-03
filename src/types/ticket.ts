@@ -26,7 +26,7 @@ export type Ticket = {
   category: "bugs" | "Tech support" | "new feature" | "others";
   priority: Priority;
   type: "Support" | "Complaint" | "Feedback";
-  days: number;
+  // days: number;
   createdAt: string; // API returns ISO string
   updatedAt: string; // API returns ISO string
   activityLog: ActivityLogEntry[]; // Array to hold the ticket's history
