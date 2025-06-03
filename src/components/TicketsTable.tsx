@@ -23,10 +23,10 @@ interface Ticket {
   category: "bugs" | "Tech support" | "new feature" | "others";
   priority: "low" | "medium" | "high";
   type: "Support" | "Complaint" | "Feedback";
-
   days: number;
   createdAt?: Date;
   updatedAt?: Date;
+  closedAt?: Date;
 }
 
 const columns: ColumnDef<Ticket>[] = [
@@ -153,7 +153,7 @@ const TicketsTable: React.FC<TicketsTableProps> = ({ tickets }) => {
                     description={ticket.subject.description}
                   /> */}
                   <TicketSubject
-                    title={ticket .subject.title}           // was ticket.subject.title
+                    title={ticket.subject.title}           // was ticket.subject.title
                     description={ticket.subject.description} // was ticket.subject.description
                   />
                 </td>
@@ -172,9 +172,25 @@ const TicketsTable: React.FC<TicketsTableProps> = ({ tickets }) => {
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {ticket.type}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {ticket.days}
+                </td> */}
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {(() => {
+                    const created = ticket.createdAt ? new Date(ticket.createdAt) : null;
+                    const closed = ticket.closedAt ? new Date(ticket.closedAt) : new Date();
+                    if (!created) return "N/A";
+                    const daysActive = Math.ceil((closed.getTime() - created.getTime()) / (1000 * 60 * 60 * 24));
+                    const from = created.toLocaleDateString();
+                    const to = closed.toLocaleDateString();
+                    return (
+                      <span title={`From ${from} to ${to}`}>
+                        {daysActive} day{daysActive !== 1 ? "s" : ""}
+                      </span>
+                    );
+                  })()}
                 </td>
+
               </tr>
             ))}
           </tbody>

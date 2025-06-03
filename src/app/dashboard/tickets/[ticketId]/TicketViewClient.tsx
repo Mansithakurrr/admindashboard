@@ -88,7 +88,7 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
       ...prev!,
       activityLog: [...(prev?.activityLog || []), newEntry],
     }));
-    console.log(newEntry,"newEntry")
+    console.log(newEntry, "newEntry")
   };
 
   const createActivityLogEntry = (
@@ -106,7 +106,7 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
       details: `${action} from "${from}" to "${to}"`,
     };
   };
-  
+
 
   // --- Handlers for edits ---
   // const handleFieldUpdate = async (
@@ -171,22 +171,22 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
   //       );
   //       setTicket((prev) => ({ ...prev!, [fieldName]: newValue }));
   //     }
-  
+
   //     // Send update to backend
   //     const response = await fetch(`/api/tickets/${ticket._id}`, {
   //       method: "PATCH",
   //       headers: { "Content-Type": "application/json" },
   //       body: JSON.stringify({ [fieldName]: newValue }),
   //     });
-  
+
   //     if (!response.ok) {
   //       throw new Error("Failed to update ticket");
   //     }
-  
+
   //     // Optionally re-fetch ticket or merge server response
   //     // const updatedTicket = await response.json();
   //     // setTicket(updatedTicket);
-  
+
   //   } catch (error) {
   //     console.error(error);
   //     // Optionally revert UI changes or notify user
@@ -201,7 +201,7 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
     try {
       let updatedFields: any = {};
       let activityEntry: ActivityLogEntry;
-  
+
       if (typeof fieldName === "string" && fieldName.startsWith("subject.")) {
         const subField = fieldName.split(".")[1] as "title" | "description";
         activityEntry = createActivityLogEntry(
@@ -209,12 +209,12 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
           originalValue,
           newValue
         );
-  
+
         updatedFields = {
           subject: { ...ticket.subject, [subField]: newValue },
           $push: { activityLog: activityEntry },
         };
-  
+
         setTicket((prev) => ({
           ...prev!,
           subject: { ...prev!.subject, [subField]: newValue },
@@ -226,36 +226,36 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
           originalValue,
           newValue
         );
-  
+
         updatedFields = {
           [fieldName]: newValue,
           $push: { activityLog: activityEntry },
         };
-  
+
         setTicket((prev) => ({
           ...prev!,
           [fieldName]: newValue,
           activityLog: [...(prev?.activityLog || []), activityEntry],
         }));
       }
-  
+
       // Send update to backend
       const response = await fetch(`/api/tickets/${ticket._id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updatedFields),
       });
-  
+
       if (!response.ok) {
         throw new Error("Failed to update ticket");
       }
-  
+
     } catch (error) {
       console.error(error);
     }
   };
-  
-  
+
+
 
   const handleSaveTitle = () => {
     if (ticket.subject.title !== originalTitle) {
@@ -316,7 +316,7 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
       to: undefined,
       details: commentText,
     };
-  
+
     try {
       const res = await fetch(`/api/tickets/${ticket._id}`, {
         method: "PATCH",
@@ -325,9 +325,9 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
           $push: { activityLog: newEntry },
         }),
       });
-  
+
       if (!res.ok) throw new Error("Failed to add comment");
-  
+
       // Optionally update local state
       setTicket((prev) => ({
         ...prev!,
@@ -337,7 +337,7 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
       console.error("Error adding comment:", error);
     }
   };
-  
+
   return (
     <div className="flex flex-col h-full">
       {" "}
@@ -524,12 +524,12 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
                   </div>
                 )}
               </div>
-              <h2 className="text-2xl font-bold mt-8 mb-4 px-6">
-                Conversation History
-              </h2>
+              <h2 className="text-2xl font-bold mt-8 px-6">
+                Internal Comments            </h2>
             </div>
             <div className="flex-shrink-0 h-2/5 border-t">
               <CommentSection
+                ticketId={ticket._id}
                 onCommentAdded={(commentText, author) =>
                   handleCommentAdded(commentText, author)
                 }
@@ -576,7 +576,7 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
             />
             <div>
               <label className="text-xs font-semibold text-gray-500">
-                Organization ID
+                Organization
               </label>
               <p className="mt-1 text-sm">{ticket.Organization}</p>
             </div>

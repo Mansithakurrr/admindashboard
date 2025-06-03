@@ -13,6 +13,7 @@ export async function POST(req: NextRequest) {
 
         const newTicket = new Ticket({
             serialNumber: uuidv4(),
+            id: uuidv4(),
             name: formData.get('name'),
             email: formData.get('email'),
             contactNumber: formData.get('contactNumber'),

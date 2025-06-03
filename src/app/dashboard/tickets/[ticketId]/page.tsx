@@ -78,7 +78,11 @@ export default async function TicketInfoPage({ params }: TicketInfoPageProps) {
             &larr; Back to Dashboard
           </Link>
           {/* Display serialNumber if available, otherwise _id */}
-          <h2 className="text-xl font-semibold">Ticket: {ticketData.serialNumber || ticketData._id}</h2>
+          {/* <h2 className="text-xl font-semibold">Ticket: {ticketData.serialNumber || ticketData._id}</h2> */}
+          <h2 className="text-xl font-semibold">
+            Ticket #{ticketData.serialNumber ?? 'N/A'}
+          </h2>
+
           <div></div>
         </div>
         <TicketViewClient initialTicket={initialTicketWithLog} />

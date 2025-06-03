@@ -22,9 +22,7 @@ export default function SubmitTicketForm() {
         description: '',
         contactNumber: '',
         category: '',
-        // priority: 'medium',
         type: '',
-        days: '',
         attachment: null as File | null,
     });
 
@@ -42,7 +40,6 @@ export default function SubmitTicketForm() {
         if (!formData.description) newErrors.description = 'Description is required';
         if (!formData.category) newErrors.category = 'Category is required';
         if (!formData.type) newErrors.type = 'Type is required';
-        if (!formData.days) newErrors.days = 'Days is required';
         if (formData.contactNumber && !/^\d{10,15}$/.test(formData.contactNumber)) {
             newErrors.contactNumber = 'Contact number must be 10–15 digits';
         }
@@ -99,9 +96,7 @@ export default function SubmitTicketForm() {
                 description: '',
                 contactNumber: '',
                 category: '',
-                // priority: 'medium',
                 type: '',
-                days: '',
                 attachment: null,
             });
         } catch (err: any) {
@@ -218,19 +213,6 @@ export default function SubmitTicketForm() {
                     {errors.category && <p className="text-red-500 text-sm">{errors.category}</p>}
                 </div>
 
-                {/* <div>
-                    <Select onValueChange={(val) => handleSelectChange('priority', val)}>
-                        <SelectTrigger>
-                            <SelectValue placeholder="Select Priority" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="low">Low</SelectItem>
-                            <SelectItem value="medium">Medium</SelectItem>
-                            <SelectItem value="high">High</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div> */}
-
                 <div>
                     <Select onValueChange={(val) => handleSelectChange('type', val)}>
                         <SelectTrigger className={errors.type ? errorClass : ''}>
@@ -243,18 +225,6 @@ export default function SubmitTicketForm() {
                         </SelectContent>
                     </Select>
                     {errors.type && <p className="text-red-500 text-sm">{errors.type}</p>}
-                </div>
-
-                <div>
-                    <Input
-                        name="days"
-                        placeholder="Days"
-                        type="number"
-                        value={formData.days}
-                        onChange={handleChange}
-                        className={errors.days ? errorClass : ''}
-                    />
-                    {errors.days && <p className="text-red-500 text-sm">{errors.days}</p>}
                 </div>
 
                 <div>

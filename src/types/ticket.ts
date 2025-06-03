@@ -36,10 +36,11 @@ export type Ticket = {
 
 // Assuming you have a Comment type
 export type Comment = {
-  id: string; // Or however your comment IDs are structured
+  _id: string; // Or however your comment IDs are structured
   text: string;
   author: string;
   timestamp: string; // Store as ISO string
+  formattedTimestamp?: string;
 };
 
 export interface TicketStats {
