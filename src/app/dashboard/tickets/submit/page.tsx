@@ -23,6 +23,7 @@ export default function SubmitTicketForm() {
     contactNumber: "",
     category: "",
     type: "",
+    priority: "",
     attachment: null as File | null,
   });
 
@@ -42,6 +43,7 @@ export default function SubmitTicketForm() {
       newErrors.description = "Description is required";
     if (!formData.category) newErrors.category = "Category is required";
     if (!formData.type) newErrors.type = "Type is required";
+    if (!formData.priority) newErrors.priority = "Priority is required";
     if (formData.contactNumber && !/^\d{10,15}$/.test(formData.contactNumber)) {
       newErrors.contactNumber = "Contact number must be 10-15 digits";
     }
@@ -55,6 +57,9 @@ export default function SubmitTicketForm() {
   ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     setErrors({ ...errors, [e.target.name]: "" });
+    if (e.target.name === "priority") {
+      setFormData({ ...formData, priority: e.target.value });
+    }
   };
 
   const handleSelectChange = (field: string, value: string) => {
@@ -101,6 +106,7 @@ export default function SubmitTicketForm() {
         contactNumber: "",
         category: "",
         type: "",
+        priority: "",
         attachment: null,
       });
     } catch (err: any) {
@@ -200,6 +206,22 @@ export default function SubmitTicketForm() {
           />
           {errors.description && (
             <p className="text-red-500 text-sm">{errors.description}</p>
+          )}
+        </div>
+
+        <div>
+          <Select onValueChange={(val) => handleSelectChange("priority", val)}>
+            <SelectTrigger className={errors.priority ? errorClass : ""}>
+              <SelectValue placeholder="Select Priority" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="low">Low</SelectItem>
+              <SelectItem value="medium">Medium</SelectItem>
+              <SelectItem value="high">High</SelectItem>
+            </SelectContent>
+          </Select>
+          {errors.priority && (
+            <p className="text-red-500 text-sm">{errors.priority}</p>
           )}
         </div>
 
