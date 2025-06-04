@@ -361,13 +361,14 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
 
         <TabsContent
           value="details"
-          className="flex flex-col md:flex-row overflow-hidden mt-0 p-0"
+          className="flex flex-col md:flex-row overflow-hidden  mt-0 p-0 "
         >
-          <div className="flex flex-col flex-1 h-full">
-            <div className="flex-grow overflow-y-auto p-6">
-              <div className="bg-white shadow-lg rounded-lg p-6">
+          <div className="flex flex-col flex-1 h-full ">
+            <div className="flex-grow overflow-y-auto p-6 ">
+              <div className="bg-white shadow-lg rounded-lg p-6 max-w-6xl mx-auto ">
                 {/* Editable Title */}
-                <div className="mb-6 pb-4 border-b">
+                <div className="mb-6 pb-4 border-b ">
+                  <h2 className="text-xl font-semibold text-gray-700">Title</h2>
                   <div className="flex justify-between items-start">
                     {isEditingTitle ? (
                       <div className="w-full space-y-2">
@@ -460,7 +461,7 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
                     )}
                   </div>
                   {isEditingDescription ? (
-                    <div className="space-y-4">
+                    <div className="space-y-4 prose max-w-none ">
                       <Textarea
                         value={ticket.subject.description}
                         onChange={(e) =>
@@ -488,9 +489,7 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
                       </div>
                     </div>
                   ) : (
-                    <p className="prose max-w-none">
-                      {ticket.subject.description}
-                    </p>
+                    <p className="break-words">{ticket.subject.description}</p>
                   )}
                 </div>
                 {hasDescriptionBeenEdited && (
@@ -521,11 +520,11 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
                   </div>
                 )}
               </div>
-              {/* <h2 className="text-xl font-bold mt-8 px-6">
+              <h2 className="text-xl font-bold mt-20 mb-2 text-center">
                 Internal Comments
-              </h2> */}
+              </h2>
             </div>
-            <div className="flex-shrink-0 h-2/4 border-t">
+            <div className="flex-shrink-0 h-[40vh] border-[1px] border-black/20">
               <CommentSection
                 ticketId={ticket._id}
                 onCommentAdded={(commentText, author) =>
