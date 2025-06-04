@@ -8,8 +8,8 @@ const Navbar = () => {
       <div className="container mx-auto flex items-center justify-between">
         {/* Left side: Logo and Brand */}
         <Link href="/dashboard" className="flex items-center space-x-2">
-          {/* <img src="/bpllogo.png" alt="Bigpluto logo" className="h-10 w-auto" /> */}
-          <span className="text-xl font-bold">Dashboard</span>
+          <img src="/bpllogo.png" alt="Bigpluto logo" className="h-10 w-auto" />
+          <span className="text-xl font-bold">Help Desk</span>
         </Link>
 
         {/* Right side: Navigation links */}

@@ -88,7 +88,7 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
       ...prev!,
       activityLog: [...(prev?.activityLog || []), newEntry],
     }));
-    console.log(newEntry, "newEntry")
+    console.log(newEntry, "newEntry");
   };
 
   const createActivityLogEntry = (
@@ -106,7 +106,6 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
       details: `${action} from "${from}" to "${to}"`,
     };
   };
-
 
   // --- Handlers for edits ---
   // const handleFieldUpdate = async (
@@ -143,7 +142,6 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
   //   // On successful API call, the local state is already updated optimistically.
   //   // If API fails, you might want to revert the state or show an error.
   // };
-
 
   // const handleFieldUpdate = async (
   //   fieldName: keyof Ticket | `subject.${"title" | "description"}`,
@@ -249,13 +247,10 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
       if (!response.ok) {
         throw new Error("Failed to update ticket");
       }
-
     } catch (error) {
       console.error(error);
     }
   };
-
-
 
   const handleSaveTitle = () => {
     if (ticket.subject.title !== originalTitle) {
@@ -347,16 +342,18 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
         onValueChange={setActiveTab}
         className="flex-1 flex flex-col overflow-hidden"
       >
-        <TabsList className="mx-4 mt-4 sticky top-0 bg-white z-10 flex-shrink-0 flex justify-center w-full border-b">
+        <TabsList className="mx-4 mt-4 sticky top-0 z-10 flex-shrink-0 flex justify-center w-full">
+          {/* Removed bg-white and border-b from TabsList */}
+          {/* The active TabTrigger will provide its own bottom border */}
           <TabsTrigger
             value="details"
-            className="px-6 py-3 text-sm font-medium text-muted-foreground data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none focus-visible:ring-0 focus-visible:ring-offset-0"
+            className="px-12 py-3 text-sm font-medium text-muted-foreground data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none focus-visible:ring-0 focus-visible:ring-offset-0"
           >
             Details
           </TabsTrigger>
           <TabsTrigger
             value="activity"
-            className="px-6 py-3 text-sm font-medium text-muted-foreground data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none focus-visible:ring-0 focus-visible:ring-offset-0"
+            className="px-12 py-3 text-sm font-medium text-muted-foreground data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none focus-visible:ring-0 focus-visible:ring-offset-0"
           >
             Activity
           </TabsTrigger>
@@ -524,10 +521,11 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
                   </div>
                 )}
               </div>
-              <h2 className="text-2xl font-bold mt-8 px-6">
-                Internal Comments            </h2>
+              {/* <h2 className="text-xl font-bold mt-8 px-6">
+                Internal Comments
+              </h2> */}
             </div>
-            <div className="flex-shrink-0 h-2/5 border-t">
+            <div className="flex-shrink-0 h-2/4 border-t">
               <CommentSection
                 ticketId={ticket._id}
                 onCommentAdded={(commentText, author) =>

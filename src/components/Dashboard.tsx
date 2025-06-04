@@ -1,97 +1,87 @@
 // src/components/Dashboard.tsx
 "use client";
 
-import React, { useState, useEffect } from "react";
-import StatCard from "./StatCard";
-import { columns } from "../app/dashboard/columns";
-import { TicketsDataTable } from "./TicketsDataTable";
-import { Ticket } from "../types/ticket";
+import React, { useState, useEffect } from 'react';
+import StatCard from './StatCard';
+import { TicketsDataTable } from './TicketsDataTable';
+import { columns } from '../app/dashboard/columns'; // Your column definitions
+import { Ticket } from '@/types/ticket';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 
-type Stat = {
-  title: string;
-  value: number;
-};
+const DASHBOARD_TICKET_LIMIT = 10;
 
-const Dashboard = () => {
-  const [stats, setStats] = useState<Stat[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [tickets, setTickets] = useState<Ticket[]>([]);
+export default function Dashboard() {
+  const [dashboardTickets, setDashboardTickets] = useState<Ticket[]>([]);
+  const [totalTickets, setTotalTickets] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchStats = async () => {
+    const fetchInitialTickets = async () => {
+      setIsLoading(true);
+      setError(null);
       try {
-        const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-        const res = await fetch(`${baseUrl}/api/tickets/stats`);
-        const data = await res.json();
+        const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_APP_URL;
+        if (!baseUrl) throw new Error("API base URL is not configured");
 
-        if (data && typeof data === "object") {
-          const formattedStats = [
-            { title: "Total", value: data.total },
-            { title: "Open", value: data.open },
-            { title: "Resolved", value: data.resolved },
-            { title: "Closed", value: data.closed },
-          ];
-          setStats(formattedStats);
-        } else {
-          throw new Error("Invalid stats data format");
-        }
-      } catch (err: any) {
-        console.error("Error fetching stats:", err);
-        setError("Failed to load stats.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchStats();
-  }, []);
-  // Fetch Tickets
-  useEffect(() => {
-    const fetchTickets = async () => {
-      try {
-        const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-        const res = await fetch(`${baseUrl}/api/tickets`);
-        const data = await res.json();
-
-        console.log("Tickets API Response:", data);
-
+        const res = await fetch(`${baseUrl}/api/tickets?page=1&limit=${DASHBOARD_TICKET_LIMIT}`);
         if (!res.ok) {
-          throw new Error(data.message || "Failed to fetch tickets");
+          const errData = await res.json();
+          throw new Error(errData.message || "Failed to fetch initial tickets");
         }
+        const data = await res.json();
+        
+        setDashboardTickets(data.tickets || []);
+        setTotalTickets(data.total || 0);
 
-        if (Array.isArray(data)) {
-          setTickets(data);
-        } else if (Array.isArray(data?.tickets)) {
-          setTickets(data.tickets);
-        } else {
-          console.error("Invalid tickets data format received:", data);
-          throw new Error("Invalid tickets data format");
-        }
       } catch (err: any) {
-        console.error("Error fetching tickets:", err);
-        setError("Failed to load tickets.");
+        console.error("Error fetching initial tickets:", err);
+        setError(err.message || "Failed to load tickets.");
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
-    fetchTickets();
+    fetchInitialTickets();
   }, []);
 
+  // Calculate stats for the cards (can be based on dashboardTickets or a separate stats API call)
+  const statsData = {
+    Total: totalTickets, // Use the total count from API
+    New: dashboardTickets.filter(t => t.status === 'New').length, // Or fetch dedicated stats
+    Resolved: dashboardTickets.filter(t => t.status === 'Resolved').length,
+    Closed: dashboardTickets.filter(t => t.status === 'Closed').length,
+  };
+
+  if (isLoading && dashboardTickets.length === 0) return <p className="p-4">Loading dashboard data...</p>;
+  if (error) return <p className="p-4 text-red-500">Error: {error}</p>;
 
   return (
-    <div className="pl-10 pr-10">
-      {/* <h1 className="text-2xl font-bold mb-6">Dashboard</h1> */}
+    <div>
+      <h1 className="text-2xl font-bold mb-6">Dashboard Overview</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat) => (
-          <StatCard key={stat.title} title={stat.title} value={stat.value} />
-        ))}
+        <StatCard title="Total" value={statsData.Total} />
+        <StatCard title="New" value={statsData.New} />
+        <StatCard title="Resolved" value={statsData.Resolved} />
+        <StatCard title="Closed" value={statsData.Closed} />
       </div>
 
-      <TicketsDataTable columns={columns} data={tickets} />
+      <TicketsDataTable columns={columns} data={dashboardTickets} />
+
+      {/* Link to All Tickets Page */}
+      {totalTickets > DASHBOARD_TICKET_LIMIT && (
+        <div className="text-center mt-6">
+          <Button asChild variant="link">
+            <Link href="/dashboard/allTickets">
+              View All {totalTickets} Tickets &rarr;
+            </Link>
+          </Button>
+        </div>
+      )}
+       {totalTickets === 0 && !isLoading && (
+         <p className="text-center mt-6 text-gray-500">No tickets yet.</p>
+       )}
     </div>
   );
-};
-
-export default Dashboard;
+}

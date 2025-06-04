@@ -11,8 +11,8 @@ const TicketSubject: React.FC<TicketSubjectProps> = ({
   description,
 }) => {
   return (
-    <div className="max-w-xs bg-white rounded-md shadow-lg p-2">
-      <p className="font-semibold text-gray-900">{title}</p>
+    <div className="max-w-xs bg-white rounded-md shadow-md p-2">
+      <p className="font-semibold text-gray-900 truncate">{title}</p>
       <p className="text-gray-600 text-sm truncate">{description}</p>
     </div>
   );
