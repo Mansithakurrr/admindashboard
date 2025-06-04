@@ -393,7 +393,11 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
                           >
                             Cancel
                           </Button>
-                          <Button size="sm" onClick={handleSaveTitle}>
+                          <Button
+                            size="sm"
+                            className="bg-blue-500 hover:bg-blue-600"
+                            onClick={handleSaveTitle}
+                          >
                             Save Title
                           </Button>
                         </div>
@@ -483,7 +487,10 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
                         >
                           Cancel
                         </Button>
-                        <Button onClick={handleSaveDescription}>
+                        <Button
+                          className="bg-blue-500 hover:bg-blue-600"
+                          onClick={handleSaveDescription}
+                        >
                           Save Description
                         </Button>
                       </div>
