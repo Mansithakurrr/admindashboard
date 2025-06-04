@@ -228,7 +228,7 @@ export default function SubmitTicketForm() {
         <div>
           <Input
             name="contactNumber"
-            placeholder="Contact Number (Optional)"
+            placeholder="Contact Number"
             value={formData.contactNumber}
             onChange={handleChange}
             className={errors.contactNumber ? errorClass : ""}

@@ -1,9 +1,10 @@
+// src/components/CommentSection.tsx
 "use client";
 
 import React, { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Send } from "lucide-react";
+import { Send, MessageSquareText } from "lucide-react"; // Added MessageSquareText for placeholder
 
 interface Comment {
   _id: string; 
@@ -16,30 +17,37 @@ interface Comment {
 interface CommentSectionProps {
   ticketId: string;
   onCommentAdded: (commentText: string, author: string) => void;
+  // If you intend to pass comments from TicketViewClient (which is good for consistency with activityLog)
+  // you would have a prop like:
+  // commentsFromParent: Comment[]; 
 }
 
 export const CommentSection = ({
   ticketId,
   onCommentAdded,
 }: CommentSectionProps) => {
+  // This local 'comments' state will be for comments fetched by this component.
+  // If parent passes 'ticket.comments', this component might not need to fetch/manage this list.
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
   const [isLoadingComments, setIsLoadingComments] = useState(true);
-  // Ref for the scrollable comments list
+  
   const commentsEndRef = useRef<HTMLDivElement | null>(null);
 
-  // Scroll to bottom when new comments are added
   useEffect(() => {
     commentsEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [comments]);
 
-
   useEffect(() => {
     const fetchComments = async () => {
-      if (!ticketId) return;
+      if (!ticketId) {
+        setIsLoadingComments(false);
+        return;
+      }
       setIsLoadingComments(true);
       try {
-        const res = await fetch(`/api/comments?ticketId=${ticketId}`);
+        // TODO: Ensure this API endpoint exists and works as expected
+        const res = await fetch(`/api/comments?ticketId=${ticketId}`); 
         if (!res.ok) {
           console.error("Failed to fetch comments, status:", res.status);
           setComments([]);
@@ -72,22 +80,27 @@ export const CommentSection = ({
   const handleCommentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newComment.trim() === "") return;
+    const author = "Ayush (You)"; // Replace with actual logged-in user
+    
     try {
+      // TODO: Ensure this API endpoint exists and correctly saves the comment AND returns the saved comment
       const res = await fetch("/api/comments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           text: newComment,
-          author: "Ayush (You)", 
+          author: author,
           ticketId: ticketId,
         }),
       });
+
       if (!res.ok) {
         const errorData = await res.json();
         alert(`Error submitting comment: ${errorData.message || "Please try again."}`);
         return;
       }
-      const savedComment = await res.json();
+      const savedComment = await res.json(); // Expect the saved comment with _id, createdAt
+      
       const newDisplayComment: Comment = {
         ...savedComment,
         formattedTimestamp: new Date(savedComment.createdAt).toLocaleString(
@@ -96,31 +109,37 @@ export const CommentSection = ({
         ),
       };
       setComments((prev) => [...prev, newDisplayComment]);
-      setNewComment("");
-      if (onCommentAdded) {
-        onCommentAdded(savedComment.text, savedComment.author);
-      }
+      onCommentAdded(savedComment.text, savedComment.author); // Notify parent to update activity log
+      setNewComment(""); // Clear input after successful submission
     } catch (error) {
+      console.error("Error submitting comment:", error);
       alert("An error occurred while submitting your comment.");
     }
   };
 
   return (
     // Main container:
-    // h-full: Fills the height allocated by its parent (the h-3/5 div in TicketViewClient)
-    // overflow-hidden: Crucial. Ensures this container itself doesn't grow beyond its allocated height
-    //                  and forces internal scrolling.
+    // h-full: Fills the height allocated by its parent (e.g., the h-3/5 div in TicketViewClient)
+    // overflow-hidden: Ensures this container itself doesn't grow.
+    // flex flex-col: Key for distributing space between comments list and input.
     <div className="flex flex-col h-full bg-gray-50 overflow-hidden">
 
-      {/* Comments List (Scrollable) */}
-      {/* flex-grow: Takes up available space. */}
+      {/* Comments List Area (Scrollable) */}
+      {/* flex-1: This is equivalent to flex-grow: 1, flex-shrink: 1, flex-basis: 0%. It will take up available space. */}
       {/* overflow-y-auto: Makes this specific div scrollable. */}
-      {/* min-h-0: Critical for flex-grow and overflow-y-auto to work correctly in a fixed-height parent,
-                   allowing the element to shrink properly before growing. */}
-      <div className="flex-grow overflow-y-auto p-4 space-y-4 min-h-0">
-        {isLoadingComments && <p className="text-center text-gray-500">Loading comments...</p>}
+      {/* min-h-0: Allows this flex item to shrink smaller than its content if needed, crucial for scrolling. */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
+        {isLoadingComments && (
+          <div className="flex justify-center items-center h-full">
+            <p className="text-gray-500">Loading comments...</p>
+          </div>
+        )}
         {!isLoadingComments && comments.length === 0 && (
-            <p className="text-center text-gray-400">No comments yet. Be the first to comment!</p>
+          <div className="flex flex-col items-center justify-center h-full text-gray-400">
+            <MessageSquareText className="w-12 h-12 mb-3 text-gray-300" />
+            <p className="font-medium">No comments yet.</p>
+            <p className="text-sm">Be the first to add to the conversation!</p>
+          </div>
         )}
         {comments.map((comment) => (
           <div key={comment._id} className="flex items-start space-x-3">
@@ -140,11 +159,11 @@ export const CommentSection = ({
             </div>
           </div>
         ))}
-        {/* Empty div to scroll to */}
-        <div ref={commentsEndRef} />
+        {/* Empty div to scroll to when new comments are added */}
+        {comments.length > 0 && <div ref={commentsEndRef} />}
       </div>
 
-      {/* Input Area (Fixed height at bottom) */}
+      {/* Input Area (Fixed height at the bottom) */}
       {/* flex-shrink-0: Prevents this div from shrinking. */}
       <div className="flex-shrink-0 p-4 bg-white border-t border-gray-200">
         <form
