@@ -177,7 +177,7 @@ export const CommentSection = ({
             onChange={(e) => setNewComment(e.target.value)}
             className="flex-grow"
           />
-          <Button type="submit" size="icon">
+          <Button type="submit" className="bg-blue-500 hover:bg-blue-600" size="icon">
             <Send className="h-4 w-4" />
           </Button>
         </form>

@@ -29,7 +29,7 @@ export const ActivityTimeline: React.FC<ActivityTimelineProps> = ({
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-h-[calc(100vh-200px)] overflow-y-auto">
       {sortedActivities.map((activity) => (
         <div key={activity.id} className="relative pl-8">
           {/* Timeline Dot and Line */}
@@ -38,7 +38,7 @@ export const ActivityTimeline: React.FC<ActivityTimelineProps> = ({
             <span className="absolute left-0 top-3 block h-full w-0.5 bg-gray-200 dark:bg-gray-700"></span>
           </div>
 
-          <div className="bg-white p-4 rounded-lg shadow-sm border">
+          <div className="bg-white p-4 rounded-lg shadow-sm border ">
             <div className="flex justify-between items-center mb-1">
               <p className="font-semibold text-gray-700">{activity.action}</p>
               <p className="text-xs text-gray-400">
