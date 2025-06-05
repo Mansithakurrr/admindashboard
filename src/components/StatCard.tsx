@@ -13,6 +13,7 @@ const cardColorClasses: { [key: string]: string } = {
   Resolved: "bg-green-100",
   Closed: "bg-gray-200",
   Total: "bg-red-100",
+  New: "bg-blue-100",
 };
 
 const StatCard: React.FC<StatCardProps> = ({ title, value }) => {

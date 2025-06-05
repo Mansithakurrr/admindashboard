@@ -1,7 +1,7 @@
 // src/app/dashboard/tickets/[ticketId]/TicketViewClient.tsx
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   Ticket,
   Priority,
@@ -60,6 +60,7 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
   );
   const [showDescriptionHistory, setShowDescriptionHistory] = useState(false);
 
+  
   // Update local state if initialTicket prop changes (e.g., after a server action refresh)
   useEffect(() => {
     setTicket(initialTicket);
@@ -106,90 +107,6 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
       details: `${action} from "${from}" to "${to}"`,
     };
   };
-
-  // --- Handlers for edits ---
-  // const handleFieldUpdate = async (
-  //   fieldName: keyof Ticket | `subject.${"title" | "description"}`,
-  //   newValue: any,
-  //   originalValue: any
-  // ) => {
-  //   // TODO: API Call to PATCH /api/tickets/[ticket._id] with { [fieldName]: newValue }
-  //   console.log(`Attempting to save ${fieldName}: ${newValue}`);
-  //   // For nested subject fields
-  //   if (typeof fieldName === "string" && fieldName.startsWith("subject.")) {
-  //     const subField = fieldName.split(".")[1] as "title" | "description";
-  //     // @ts-ignore
-  //     addActivityLogEntry(
-  //       `${subField.charAt(0).toUpperCase() + subField.slice(1)} Updated`,
-  //       originalValue,
-  //       newValue
-  //     );
-  //     // @ts-ignore
-  //     setTicket((prev) => ({
-  //       ...prev!,
-  //       subject: { ...prev!.subject, [subField]: newValue },
-  //     }));
-  //   } else {
-  //     // @ts-ignore
-  //     addActivityLogEntry(
-  //       `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} Changed`,
-  //       originalValue,
-  //       newValue
-  //     );
-  //     // @ts-ignore
-  //     setTicket((prev) => ({ ...prev!, [fieldName]: newValue }));
-  //   }
-  //   // On successful API call, the local state is already updated optimistically.
-  //   // If API fails, you might want to revert the state or show an error.
-  // };
-
-  // const handleFieldUpdate = async (
-  //   fieldName: keyof Ticket | `subject.${"title" | "description"}`,
-  //   newValue: any,
-  //   originalValue: any
-  // ) => {
-  //   try {
-  //     // Optimistically update UI
-  //     if (typeof fieldName === "string" && fieldName.startsWith("subject.")) {
-  //       const subField = fieldName.split(".")[1] as "title" | "description";
-  //       addActivityLogEntry(
-  //         `${subField.charAt(0).toUpperCase() + subField.slice(1)} Updated`,
-  //         originalValue,
-  //         newValue
-  //       );
-  //       setTicket((prev) => ({
-  //         ...prev!,
-  //         subject: { ...prev!.subject, [subField]: newValue },
-  //       }));
-  //     } else {
-  //       addActivityLogEntry(
-  //         `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} Changed`,
-  //         originalValue,
-  //         newValue
-  //       );
-  //       setTicket((prev) => ({ ...prev!, [fieldName]: newValue }));
-  //     }
-
-  //     // Send update to backend
-  //     const response = await fetch(`/api/tickets/${ticket._id}`, {
-  //       method: "PATCH",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify({ [fieldName]: newValue }),
-  //     });
-
-  //     if (!response.ok) {
-  //       throw new Error("Failed to update ticket");
-  //     }
-
-  //     // Optionally re-fetch ticket or merge server response
-  //     // const updatedTicket = await response.json();
-  //     // setTicket(updatedTicket);
-
-  //   } catch (error) {
-  //     console.error(error);
-  //     // Optionally revert UI changes or notify user
-  //   }
-  // };
 
   const handleFieldUpdate = async (
     fieldName: keyof Ticket | `subject.${"title" | "description"}`,
@@ -287,20 +204,6 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
   const hasDescriptionBeenEdited =
     ticket.subject.description !== originalDescription;
 
-  // const handleCommentAdded = async (commentText: string, author: string) => {
-  //   // TODO: API Call to POST a new comment to /api/tickets/[ticket._id]/comments
-  //   // The API should return the new comment object (with ID, timestamp from server)
-  //   // and potentially the updated ticket document with the new comment & activity log.
-  //   console.log(`New comment by ${author}: ${commentText}`);
-  //   addActivityLogEntry(
-  //     "Comment Added",
-  //     undefined,
-  //     undefined,
-  //     `${author}: ${commentText}`
-  //   );
-  //   // For now, we're just logging it. In a real app, you'd update the comments list.
-  //   // The CommentSection manages its own list for display, but the source of truth might come from ticket.comments
-  // };
   const handleCommentAdded = async (commentText: string, author: string) => {
     const newEntry = {
       id: Date.now().toString(),
@@ -332,10 +235,68 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
       console.error("Error adding comment:", error);
     }
   };
+// This constant defines all possible statuses for reference and sorting.
+const ALL_POSSIBLE_STATUSES: Ticket['status'][] = ["New", "Open", "InProgress", "Hold", "Resolved", "Closed"];
 
+const getAllowedNextStatuses = (currentStatus: Ticket['status']): Ticket['status'][] => {
+  const availableOptions = new Set<Ticket['status']>();
+  // Always include the current status as the first option in the dropdown.
+  availableOptions.add(currentStatus);
+
+  switch (currentStatus) {
+    case 'New':
+      // Rule 1: New can only be set to "Open".
+      availableOptions.add('Open');
+      break;
+    case 'Open':
+      // Rule 2: Open can only be set to "InProgress", "Hold", "Resolved", or "Closed".
+      availableOptions.add('InProgress');
+      availableOptions.add('Hold');
+      availableOptions.add('Resolved');
+      availableOptions.add('Closed');
+      break;
+    case 'InProgress':
+      // Rule 3: InProgress can only be set to "Hold", "Resolved", or "Closed".
+      availableOptions.add('Hold');
+      availableOptions.add('Resolved');
+      availableOptions.add('Closed');
+      break;
+    case 'Hold':
+      // Rule 4: Hold can only be set to "InProgress", "Resolved", "Closed".
+      availableOptions.add('InProgress');
+      availableOptions.add('Resolved');
+      availableOptions.add('Closed');
+      break;
+    case 'Resolved':
+      // Rule 5: Resolved can only be set to "Closed".
+      availableOptions.add('Closed');
+      break;
+    case 'Closed':
+      // Rule 6: Closed cannot be changed. Only "Closed" itself will be an option.
+      break;
+    default:
+      // Fallback in case of an unexpected status (shouldn't happen with TypeScript)
+      ALL_POSSIBLE_STATUSES.forEach(s => availableOptions.add(s));
+  }
+
+  // Convert the Set to an array.
+  // To ensure a consistent order in the dropdown (after the current status),
+  // we can sort the additional options based on their order in ALL_POSSIBLE_STATUSES.
+  const otherOptions = Array.from(availableOptions).filter(opt => opt !== currentStatus);
+  otherOptions.sort((a, b) => ALL_POSSIBLE_STATUSES.indexOf(a) - ALL_POSSIBLE_STATUSES.indexOf(b));
+  
+  return [currentStatus, ...otherOptions];
+};
+const availableStatusOptions = useMemo(() => {
+  if (!ticket) return []; // If ticket isn't loaded yet, return empty array
+  return getAllowedNextStatuses(ticket.status);
+}, [ticket?.status]); // Recalculate these options only when ticket.status changes
+
+if (!ticket) {
+  return <div>Loading...</div>;
+}
   return (
     <div className="flex flex-col h-full">
-      {" "}
       {/* Removed h-screen, parent will control height */}
       <Tabs
         value={activeTab}
@@ -347,13 +308,13 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
           {/* The active TabTrigger will provide its own bottom border */}
           <TabsTrigger
             value="details"
-            className="px-12 py-3 text-sm font-medium text-muted-foreground data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none focus-visible:ring-0 focus-visible:ring-offset-0"
+            className="px-12 py-3 text-sm font-medium rounded-lg focus-visible:ring-0 focus-visible:ring-offset-0 transition-colors text-blue-700 hover:bg-blue-100 data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-sm"
           >
             Details
           </TabsTrigger>
           <TabsTrigger
             value="activity"
-            className="px-12 py-3 text-sm font-medium text-muted-foreground data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none focus-visible:ring-0 focus-visible:ring-offset-0"
+            className="px-12 py-3 text-sm font-medium rounded-lg focus-visible:ring-0 focus-visible:ring-offset-0 transition-colors text-blue-700 hover:bg-blue-100 data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-sm"
           >
             Activity
           </TabsTrigger>
@@ -363,9 +324,9 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
           value="details"
           className="flex flex-col md:flex-row overflow-hidden  mt-0 p-0 "
         >
-          <div className="flex flex-col flex-1 h-full ">
-            <div className="flex-grow overflow-y-auto p-6 ">
-              <div className="bg-white shadow-lg rounded-lg p-6 max-w-6xl mx-auto ">
+          <div className="flex flex-col flex-1 h-full p-4">
+            <div className="flex-grow overflow-y-auto">
+              <div className="flex flex-col bg-white shadow-lg rounded-lg p-6 mx-auto ">
                 {/* Editable Title */}
                 <div className="mb-6 pb-4 border-b ">
                   <h2 className="text-xl font-semibold text-gray-700">Title</h2>
@@ -388,13 +349,12 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
                         <div className="flex justify-end space-x-2">
                           <Button
                             variant="ghost"
-                            size="sm"
+
                             onClick={handleCancelEditTitle}
                           >
                             Cancel
                           </Button>
                           <Button
-                            size="sm"
                             className="bg-blue-500 hover:bg-blue-600"
                             onClick={handleSaveTitle}
                           >
@@ -449,7 +409,7 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
                 )}
 
                 {/* Editable Description */}
-                <div>
+                <div className="mb-6">
                   <div className="flex justify-between items-center mb-2">
                     <h2 className="text-xl font-semibold text-gray-700">
                       Description
@@ -465,7 +425,7 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
                     )}
                   </div>
                   {isEditingDescription ? (
-                    <div className="space-y-4 prose max-w-none ">
+                    <div className="max-w-full">
                       <Textarea
                         value={ticket.subject.description}
                         onChange={(e) =>
@@ -478,17 +438,18 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
                           }))
                         }
                         rows={8}
-                        className="w-full"
+                        className="w-full max-h-[20px]"
                       />
                       <div className="flex justify-end space-x-2">
                         <Button
                           variant="ghost"
+                          className="mt-2"
                           onClick={handleCancelEditDescription}
                         >
                           Cancel
                         </Button>
                         <Button
-                          className="bg-blue-500 hover:bg-blue-600"
+                          className="mt-2 bg-blue-500 hover:bg-blue-600"
                           onClick={handleSaveDescription}
                         >
                           Save Description
@@ -527,9 +488,11 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
                   </div>
                 )}
               </div>
-              <h2 className="text-xl font-bold mt-20 mb-2 text-center">
+            </div>
+            <div className="flex justify-center mt-4">
+              <span className="text-lg font-semibold text-gray-700">
                 Internal Comments
-              </h2>
+              </span>
             </div>
             <div className="flex-shrink-0 h-[40vh] border-[1px] border-black/20">
               <CommentSection
@@ -541,6 +504,7 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
             </div>
           </div>
 
+          {/* Ticket Details */}
           <aside className="w-80 flex-shrink-0 border-l bg-gray-50 p-6 space-y-6 overflow-y-auto h-full">
             <h3 className="text-lg font-semibold border-b pb-2">
               Ticket Details
@@ -548,9 +512,12 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
             <EditableField
               label="Status"
               value={ticket.status}
-              options={STATUS_OPTIONS}
+              options={availableStatusOptions}
               onValueChange={(newVal) =>
-                handleFieldUpdate("status", newVal, ticket.status)
+                // Ensure handleFieldUpdate (or your specific status change handler)
+                // is correctly updating the state and making API calls.
+                // The value 'newVal' will be one of the allowed statuses.
+                handleFieldUpdate("status", newVal, ticket.status) 
               }
               renderValue={(value) => (
                 <StatusBadge status={value as Ticket["status"]} />

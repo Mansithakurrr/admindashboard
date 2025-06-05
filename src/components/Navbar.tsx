@@ -4,7 +4,7 @@ import React from "react";
 
 const Navbar = () => {
   return (
-    <nav className="bg-white text-black p-4">
+    <nav className="bg-white sticky top-0 z-50 text-black p-4">
       <div className="container mx-auto flex items-center justify-between">
         {/* Left side: Logo and Brand */}
         <Link href="/dashboard" className="flex items-center space-x-2">
