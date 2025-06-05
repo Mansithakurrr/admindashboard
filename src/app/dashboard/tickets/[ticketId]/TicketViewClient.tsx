@@ -83,7 +83,7 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
     const newEntry: ActivityLogEntry = {
       id: Date.now().toString(),
       timestamp: new Date().toISOString(),
-      user: "Ayush (You)",
+      user: "You",
       action,
       from,
       to,
@@ -104,7 +104,7 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
     return {
       id: Date.now().toString(),
       timestamp: new Date().toISOString(),
-      user: "Ayush (You)",
+      user: "You",
       action,
       from,
       to,
@@ -187,12 +187,40 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
     setIsEditingTitle(false);
   };
   const hasTitleBeenEdited = ticket.subject.title !== originalTitle;
-  const handleSaveRemarks = () => {
-    if (ticket && ticket.resolvedRemarks !== originalRemarks) {
-      persistTicketUpdate({ resolvedRemarks: ticket.resolvedRemarks || "" }); // Send empty string if null/undefined
+
+
+
+  // const handleSaveRemarks = () => {
+  //   if (ticket && ticket.resolvedRemarks !== originalRemarks) {
+  //     persistTicketUpdate({ resolvedRemarks: ticket.resolvedRemarks || "" }); // Send empty string if null/undefined
+  //   }
+  //   setIsEditingRemarks(false);
+  // };
+
+
+  const handleSaveRemarks = async () => {
+    try {
+      const res = await fetch(`/api/tickets/${ticket._id}/remarks`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ remarks: ticket.resolvedRemarks }),
+      });
+  
+      if (!res.ok) {
+        throw new Error("Failed to save remarks");
+      }
+  
+      const updated = await res.json();
+      setTicket(updated);
+      setIsEditingRemarks(false);
+    } catch (err) {
+      console.error("Error saving remarks:", err);
     }
-    setIsEditingRemarks(false);
   };
+  
+
   const handleCancelEditRemarks = () => {
     setTicket(prev => ({...prev!, resolvedRemarks: originalRemarks }));
     setIsEditingRemarks(false);
@@ -575,6 +603,7 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
                     )}
                   </div>
                 )}
+
             <EditableField
               label="Status"
               value={ticket.status}

@@ -7,6 +7,7 @@ import {
   updateTicketById,
   deleteTicketById,
 } from '@/services/ticketService'; // Correct path to your service
+import { updateResolvedRemarks } from "@/services/ticketService";
 
 import mongoose from 'mongoose';
 
@@ -26,7 +27,6 @@ export async function fetchTickets(params: URLSearchParams) {
 
   return await getTickets(query, page, limit);
 }
-
 
 export async function fetchTicket(id: string) {
   return await getTicketById(id);
@@ -69,3 +69,10 @@ async function getNextSequenceValue(sequenceName: string): Promise<number> {
   return counter.seq;
 }
 // --- End of Serial Number Generation Logic ---
+
+
+
+
+export async function patchResolvedRemarks(id: string, remarks: string) {
+  return await updateResolvedRemarks(id, remarks);
+}

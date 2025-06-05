@@ -3,8 +3,11 @@ import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { randomUUID } from "crypto";
 
 const REGION = process.env.AWS_REGION!;
+console.log(REGION, "REGION============");
 const BUCKET = process.env.AWS_S3_BUCKET_NAME!;
+console.log(BUCKET, "BUCKET============");
 const ENDPOINT = process.env.AWS_S3_ENDPOINT;
+console.log(ENDPOINT, "ENDPOINT============");
 
 const s3 = new S3Client({
   region: REGION,
