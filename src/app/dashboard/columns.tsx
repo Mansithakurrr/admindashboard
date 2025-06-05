@@ -44,6 +44,7 @@ export const StatusBadge = ({ status }: { status: Ticket["status"] }) => {
     Hold: "bg-red-100 text-red-800",
     Resolved: "bg-green-100 text-green-800",
     Closed: "bg-gray-200 text-black", // Matched your existing color
+    
   };
   return (
     <span
@@ -122,13 +123,13 @@ export const columns: ColumnDef<Ticket>[] = [
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        S.No.
-        <ArrowUpDown className="ml-2 h-4 w-4" />
+        <span className="w-full text-center">S.No.</span>
+        <ArrowUpDown />
       </Button>
     ),
     cell: ({ row }) => {
       const serialNumber = row.getValue("serialNumber") as string;
-      return <div className="font-medium">{serialNumber}</div>;
+      return <div className="font-medium text-center w-20">{serialNumber}</div>;
     },
     // enableHiding: false, // Optional: if you don't want users to hide this column
   },
@@ -141,17 +142,19 @@ export const columns: ColumnDef<Ticket>[] = [
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        {" "}
-        Subject <ArrowUpDown className="ml-2 h-4 w-4" />{" "}
+        <span className="w-full text-center">Subject</span>
+        <ArrowUpDown />
       </Button>
     ),
     cell: ({ row }) => {
       const subject = row.original.subject;
       return (
-        <TicketSubject
-          title={subject.title}
-          description={subject.description}
-        />
+        
+          <TicketSubject
+            title={subject.title}
+            description={subject.description}
+          />
+        
       );
     },
   },
@@ -164,10 +167,15 @@ export const columns: ColumnDef<Ticket>[] = [
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        {" "}
-        Name <ArrowUpDown className="ml-2 h-4 w-4" />{" "}
+        
+        Name
+        {/* <ArrowUpDown className="ml-2 h-4 w-4" /> */}
       </Button>
     ),
+    cell: ({ row }) => {
+      const name = row.getValue("name") as string;
+      return <div className="font-medium text-center">{name}</div>;
+    },
   },
   // Category Column
   {
@@ -177,17 +185,27 @@ export const columns: ColumnDef<Ticket>[] = [
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        {" "}
-        Category <ArrowUpDown className="ml-2 h-4 w-4" />{" "}
+        <span className="w-full text-center">Category</span>
+        {/* <ArrowUpDown className="ml-2 h-4 w-4" /> */}
       </Button>
     ),
-    cell: ({ row }) => <CategoryBadge category={row.getValue("category")} />,
+    cell: ({ row }) => {
+      const category = row.getValue("category") as Ticket["category"];
+      return (
+        <div className="flex justify-center items-center">
+          <CategoryBadge category={category} />
+        </div>
+      );
+    },
   },
   // Organization Column
   {
     accessorKey: "Organization", // Matches your provided code
     header: "Organization",
-    // Simplified cell as discussed before, TanStack Table handles direct display
+    cell: ({ row }) => {
+      const organization = row.getValue("Organization") as string;
+      return <div className="font-medium text-center">{organization}</div>;
+    },
   },
   // Date Created Column
   {
@@ -197,8 +215,8 @@ export const columns: ColumnDef<Ticket>[] = [
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        {" "}
-        Date Created <ArrowUpDown className="ml-2 h-4 w-4" />{" "}
+        <span className="w-full text-center">Date Created</span>
+        <ArrowUpDown />
       </Button>
     ),
     cell: ({ row }) => {
@@ -222,7 +240,7 @@ export const columns: ColumnDef<Ticket>[] = [
       const currentFilterValue = column.getFilterValue() as string | undefined;
       return (
         <div className="flex items-center">
-          <span>Platform</span>
+          <span className="w-full text-center">Platform</span>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -277,7 +295,9 @@ export const columns: ColumnDef<Ticket>[] = [
       const currentFilterValue = column.getFilterValue() as string | undefined;
       return (
         <div className="flex items-center">
-          <span>Status</span>
+          <div className="flex justify-center items-center">
+            <StatusBadge status={"All Statuses"} />
+          </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -287,7 +307,7 @@ export const columns: ColumnDef<Ticket>[] = [
               >
                 <ChevronDown
                   className={`h-3.5 w-3.5 transition-transform duration-200 ${
-                    currentFilterValue && currentFilterValue !== "All Statuses"
+                    currentFilterValue && currentFilterValue !== "All Status"
                       ? "text-primary rotate-180"
                       : "text-muted-foreground/70"
                   }`}
@@ -336,7 +356,7 @@ export const columns: ColumnDef<Ticket>[] = [
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
         Days
-        <ArrowUpDown className="ml-2 h-4 w-4" />
+        <ArrowUpDown />
       </Button>
     ),
     // 2. Accessor function to return the calculated age in days for sorting
