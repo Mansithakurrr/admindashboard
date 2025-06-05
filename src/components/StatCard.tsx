@@ -23,7 +23,7 @@ const StatCard: React.FC<StatCardProps> = ({ title, value }) => {
 
   return (
     // 3. Apply the dynamic background color class here
-    <div className={`p-8 rounded-lg shadow-md ${bgColor}`}>
+    <div className={`p-8 rounded-lg shadow-md ${bgColor} hover:scale-105 transition-all`}>
       <h3 className="text-gray-500 text-sm font-medium">{title}</h3>
       <p className="text-3xl font-bold mt-2">{value}</p>
     </div>

@@ -59,13 +59,17 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
     initialTicket.subject.description
   );
   const [showDescriptionHistory, setShowDescriptionHistory] = useState(false);
+  const [isEditingRemarks, setIsEditingRemarks] = useState(false);
+  const [originalRemarks, setOriginalRemarks] = useState(initialTicket.resolvedRemarks || "");
+  const [showRemarksHistory, setShowRemarksHistory] = useState(false); // Optional: if you want history for remarks too
 
-  
+
   // Update local state if initialTicket prop changes (e.g., after a server action refresh)
   useEffect(() => {
     setTicket(initialTicket);
     setOriginalTitle(initialTicket.subject.title);
     setOriginalDescription(initialTicket.subject.description);
+    setOriginalRemarks(initialTicket.resolvedRemarks || "");
   }, [initialTicket]);
 
   const addActivityLogEntry = (
@@ -183,6 +187,17 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
     setIsEditingTitle(false);
   };
   const hasTitleBeenEdited = ticket.subject.title !== originalTitle;
+  const handleSaveRemarks = () => {
+    if (ticket && ticket.resolvedRemarks !== originalRemarks) {
+      persistTicketUpdate({ resolvedRemarks: ticket.resolvedRemarks || "" }); // Send empty string if null/undefined
+    }
+    setIsEditingRemarks(false);
+  };
+  const handleCancelEditRemarks = () => {
+    setTicket(prev => ({...prev!, resolvedRemarks: originalRemarks }));
+    setIsEditingRemarks(false);
+  };
+  const hasRemarksBeenEdited = ticket && (ticket.resolvedRemarks || "") !== originalRemarks;
 
   const handleSaveDescription = () => {
     if (ticket.subject.description !== originalDescription) {
@@ -235,66 +250,80 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
       console.error("Error adding comment:", error);
     }
   };
-// This constant defines all possible statuses for reference and sorting.
-const ALL_POSSIBLE_STATUSES: Ticket['status'][] = ["New", "Open", "InProgress", "Hold", "Resolved", "Closed"];
+  // This constant defines all possible statuses for reference and sorting.
+  const ALL_POSSIBLE_STATUSES: Ticket["status"][] = [
+    "New",
+    "Open",
+    "InProgress",
+    "Hold",
+    "Resolved",
+    "Closed",
+  ];
 
-const getAllowedNextStatuses = (currentStatus: Ticket['status']): Ticket['status'][] => {
-  const availableOptions = new Set<Ticket['status']>();
-  // Always include the current status as the first option in the dropdown.
-  availableOptions.add(currentStatus);
+  const getAllowedNextStatuses = (
+    currentStatus: Ticket["status"]
+  ): Ticket["status"][] => {
+    const availableOptions = new Set<Ticket["status"]>();
+    // Always include the current status as the first option in the dropdown.
+    availableOptions.add(currentStatus);
 
-  switch (currentStatus) {
-    case 'New':
-      // Rule 1: New can only be set to "Open".
-      availableOptions.add('Open');
-      break;
-    case 'Open':
-      // Rule 2: Open can only be set to "InProgress", "Hold", "Resolved", or "Closed".
-      availableOptions.add('InProgress');
-      availableOptions.add('Hold');
-      availableOptions.add('Resolved');
-      availableOptions.add('Closed');
-      break;
-    case 'InProgress':
-      // Rule 3: InProgress can only be set to "Hold", "Resolved", or "Closed".
-      availableOptions.add('Hold');
-      availableOptions.add('Resolved');
-      availableOptions.add('Closed');
-      break;
-    case 'Hold':
-      // Rule 4: Hold can only be set to "InProgress", "Resolved", "Closed".
-      availableOptions.add('InProgress');
-      availableOptions.add('Resolved');
-      availableOptions.add('Closed');
-      break;
-    case 'Resolved':
-      // Rule 5: Resolved can only be set to "Closed".
-      availableOptions.add('Closed');
-      break;
-    case 'Closed':
-      // Rule 6: Closed cannot be changed. Only "Closed" itself will be an option.
-      break;
-    default:
-      // Fallback in case of an unexpected status (shouldn't happen with TypeScript)
-      ALL_POSSIBLE_STATUSES.forEach(s => availableOptions.add(s));
+    switch (currentStatus) {
+      case "New":
+        // Rule 1: New can only be set to "Open".
+        availableOptions.add("Open");
+        break;
+      case "Open":
+        // Rule 2: Open can only be set to "InProgress", "Hold", "Resolved", or "Closed".
+        availableOptions.add("InProgress");
+        availableOptions.add("Hold");
+        availableOptions.add("Resolved");
+        availableOptions.add("Closed");
+        break;
+      case "InProgress":
+        // Rule 3: InProgress can only be set to "Hold", "Resolved", or "Closed".
+        availableOptions.add("Hold");
+        availableOptions.add("Resolved");
+        availableOptions.add("Closed");
+        break;
+      case "Hold":
+        // Rule 4: Hold can only be set to "InProgress", "Resolved", "Closed".
+        availableOptions.add("InProgress");
+        availableOptions.add("Resolved");
+        availableOptions.add("Closed");
+        break;
+      case "Resolved":
+        // Rule 5: Resolved can only be set to "Closed".
+        availableOptions.add("Closed");
+        break;
+      case "Closed":
+        // Rule 6: Closed cannot be changed. Only "Closed" itself will be an option.
+        break;
+      default:
+        // Fallback in case of an unexpected status (shouldn't happen with TypeScript)
+        ALL_POSSIBLE_STATUSES.forEach((s) => availableOptions.add(s));
+    }
+
+    // Convert the Set to an array.
+    // To ensure a consistent order in the dropdown (after the current status),
+    // we can sort the additional options based on their order in ALL_POSSIBLE_STATUSES.
+    const otherOptions = Array.from(availableOptions).filter(
+      (opt) => opt !== currentStatus
+    );
+    otherOptions.sort(
+      (a, b) =>
+        ALL_POSSIBLE_STATUSES.indexOf(a) - ALL_POSSIBLE_STATUSES.indexOf(b)
+    );
+
+    return [currentStatus, ...otherOptions];
+  };
+  const availableStatusOptions = useMemo(() => {
+    if (!ticket) return []; // If ticket isn't loaded yet, return empty array
+    return getAllowedNextStatuses(ticket.status);
+  }, [ticket?.status]); // Recalculate these options only when ticket.status changes
+
+  if (!ticket) {
+    return <div>Loading...</div>;
   }
-
-  // Convert the Set to an array.
-  // To ensure a consistent order in the dropdown (after the current status),
-  // we can sort the additional options based on their order in ALL_POSSIBLE_STATUSES.
-  const otherOptions = Array.from(availableOptions).filter(opt => opt !== currentStatus);
-  otherOptions.sort((a, b) => ALL_POSSIBLE_STATUSES.indexOf(a) - ALL_POSSIBLE_STATUSES.indexOf(b));
-  
-  return [currentStatus, ...otherOptions];
-};
-const availableStatusOptions = useMemo(() => {
-  if (!ticket) return []; // If ticket isn't loaded yet, return empty array
-  return getAllowedNextStatuses(ticket.status);
-}, [ticket?.status]); // Recalculate these options only when ticket.status changes
-
-if (!ticket) {
-  return <div>Loading...</div>;
-}
   return (
     <div className="flex flex-col h-full">
       {/* Removed h-screen, parent will control height */}
@@ -320,13 +349,10 @@ if (!ticket) {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent
-          value="details"
-          className="flex flex-col md:flex-row overflow-hidden  mt-0 p-0 "
-        >
-          <div className="flex flex-col flex-1 h-full p-4">
-            <div className="flex-grow overflow-y-auto">
-              <div className="flex flex-col bg-white shadow-lg rounded-lg p-6 mx-auto ">
+        <TabsContent value="details" className="flex-1 flex flex-col md:flex-row overflow-hidden mt-0 p-0">
+          <div className="flex flex-col flex-1 h-full">
+            <div className="flex-grow overflow-y-auto p-6">
+              <div className="bg-white shadow-lg rounded-lg p-6 max-w-6xl mx-auto">
                 {/* Editable Title */}
                 <div className="mb-6 pb-4 border-b ">
                   <h2 className="text-xl font-semibold text-gray-700">Title</h2>
@@ -349,7 +375,6 @@ if (!ticket) {
                         <div className="flex justify-end space-x-2">
                           <Button
                             variant="ghost"
-
                             onClick={handleCancelEditTitle}
                           >
                             Cancel
@@ -363,7 +388,7 @@ if (!ticket) {
                         </div>
                       </div>
                     ) : (
-                      <h1 className="text-3xl font-bold text-gray-800">
+                      <h1 className="text-3xl break-all font-bold text-gray-800">
                         {ticket.subject.title}
                       </h1>
                     )}
@@ -457,7 +482,7 @@ if (!ticket) {
                       </div>
                     </div>
                   ) : (
-                    <p className="break-words">{ticket.subject.description}</p>
+                    <p className="break-all">{ticket.subject.description}</p>
                   )}
                 </div>
                 {hasDescriptionBeenEdited && (
@@ -489,6 +514,7 @@ if (!ticket) {
                 )}
               </div>
             </div>
+            
             <div className="flex justify-center mt-4">
               <span className="text-lg font-semibold text-gray-700">
                 Internal Comments
@@ -509,6 +535,46 @@ if (!ticket) {
             <h3 className="text-lg font-semibold border-b pb-2">
               Ticket Details
             </h3>
+            
+            {ticket.status === 'Resolved' && (
+                  <div className="mt-6">
+                    <div className="flex justify-between items-center mb-2">
+                      <h2 className="text-lg font-semibold text-gray-700">Resolved Remarks</h2>
+                      {!isEditingRemarks && (
+                        
+                        <Button variant="outline" size="sm" onClick={() => setIsEditingRemarks(true)} >
+                          {ticket.resolvedRemarks ? 'Edit Remarks' : 'Add Remarks'}
+                        </Button>
+                      )}
+                    </div>
+                    {isEditingRemarks ? (
+                      <div className="space-y-4">
+                        <Textarea
+                          placeholder="Enter resolution remarks..."
+                          value={ticket.resolvedRemarks || ""}
+                          onChange={(e) => setTicket(prev => ({...prev!, resolvedRemarks: e.target.value }))}
+                          rows={5}
+                          className="w-full"
+                          
+                        />
+                        <div className="flex justify-end space-x-2">
+                          <Button variant="ghost" onClick={handleCancelEditRemarks} >Cancel</Button>
+                          <Button 
+                          className="bg-blue-500 hover:bg-blue-600"
+                          onClick={handleSaveRemarks} >
+                            Save Remarks
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      ticket.resolvedRemarks ? (
+                        <p className="prose max-w-none break-words">{ticket.resolvedRemarks}</p>
+                      ) : (
+                        <p className="text-sm text-gray-500 italic">No remarks added yet.</p>
+                      )
+                    )}
+                  </div>
+                )}
             <EditableField
               label="Status"
               value={ticket.status}
@@ -517,7 +583,7 @@ if (!ticket) {
                 // Ensure handleFieldUpdate (or your specific status change handler)
                 // is correctly updating the state and making API calls.
                 // The value 'newVal' will be one of the allowed statuses.
-                handleFieldUpdate("status", newVal, ticket.status) 
+                handleFieldUpdate("status", newVal, ticket.status)
               }
               renderValue={(value) => (
                 <StatusBadge status={value as Ticket["status"]} />
@@ -569,6 +635,7 @@ if (!ticket) {
               </p>
             </div>
           </aside>
+          
         </TabsContent>
 
         <TabsContent
@@ -583,3 +650,7 @@ if (!ticket) {
 };
 
 export default TicketViewClient;
+function persistTicketUpdate(arg0: { resolvedRemarks: string; }) {
+  
+}
+
