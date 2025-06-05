@@ -13,6 +13,7 @@ export type ActivityLogEntry = {
 };
 
 export type Ticket = {
+  resolvedRemarks: string;
   _id: string;
   serialNumber?: string; // Now that you have a Mongoose model with it
   subject: {
