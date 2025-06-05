@@ -2,21 +2,42 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from "@/lib/db";
 import { postTicket, fetchTickets } from '@/controllers/ticketController';
+import {uploadToS3} from '@/services/s3Service';
 
 // GET function can remain as is, if you have one for fetchTickets
 export async function GET(req: NextRequest) {
-    await connectDB();
-    const url = new URL(req.url);
-    const result = await fetchTickets(url.searchParams); 
-    return NextResponse.json(result);
-}
+    try {
+      await connectDB();
+      const url = new URL(req.url);
+      console.log(url,"-----------------url")
+      const result: any = await fetchTickets(url.searchParams); 
+      return NextResponse.json(result);
+    } catch (error: any) {
+      console.error("GET /api/tickets error:", error);
+      return NextResponse.json({ success: false, message: error.message }, { status: 500 });
+    }
+  }
+  
 
 
 export async function POST(req: NextRequest) {
-    console.log("API ROUTE: POST /api/tickets hit");
+    console.log("API hit");
+
     try {
         await connectDB();
         const formData = await req.formData();
+
+         // Upload files to S3
+         const files = formData.getAll("attachment") as File[];
+         const uploadedUrls = [];
+    
+        for (const file of files) {
+            if (file && file.size > 0) {
+              const url = await uploadToS3(file);
+              console.log(url,"-----------------url")
+              uploadedUrls.push(url);
+            }
+          }
 
         const ticketDataFromForm = {
             name: formData.get('name'),
@@ -31,6 +52,7 @@ export async function POST(req: NextRequest) {
             category: formData.get('category'),
             priority: formData.get('priority') || undefined,
             type: formData.get('type'),
+            attachments: uploadedUrls,
             activityLog: [
                 {
                     id: Date.now().toString(),

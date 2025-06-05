@@ -30,8 +30,6 @@ async function getNextFormattedSerialNumber(): Promise<string> {
 }
 
 export const createTicket = async (ticketData: any) => {
-  // This function now expects ticketData WITHOUT serialNumber.
-  // It will generate the serialNumber itself.
   console.log("SERVICE: createTicket received initial data:", ticketData);
   try {
     const serialNumber = await getNextFormattedSerialNumber();
@@ -39,7 +37,6 @@ export const createTicket = async (ticketData: any) => {
     const ticketPayload = { 
       ...ticketData, 
       serialNumber: serialNumber 
-      // Remove 'days' if not explicitly provided by form and not required with default in schema
     };
     // Remove days from payload if it's NaN or not needed
     if (isNaN(ticketPayload.days)) {

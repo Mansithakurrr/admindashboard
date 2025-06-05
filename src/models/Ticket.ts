@@ -16,13 +16,28 @@ const ActivityLogEntrySchema = new mongoose.Schema(
   { _id: false }
 ); // _id: false if you manage IDs manually or they are part of a larger object
 
+
+const AttachmentSchema = new mongoose.Schema({
+  url: { type: String },
+  name: { type: String },
+  type: { type: String },
+}, { _id: false , required: true});
+
+
 const TicketSchema = new mongoose.Schema(
   {
     // _id: { type: mongoose.Schema.Types.ObjectId, ref: 'Ticket', required: true },
     serialNumber: { type: String, required: true, unique: true },
     name: { type: String, required: true },
     email: { type: String, required: true },
-    contactNumber: { type: String, required: true },
+    contactNumber: { type: String, required: false,
+      validate: {
+        validator: function(v: string) {
+          return /^\d{10}$/.test(v);
+        },
+        message: 'Contact number must be a 10-digit number'
+      }
+     },
 
     platformName: {
       type: String,
@@ -58,6 +73,7 @@ const TicketSchema = new mongoose.Schema(
       enum: ["Support", "Complaint", "Feedback"],
       required: true,
     },
+    attachments: [AttachmentSchema],
     // days: {
     //   type: Number,
     //   required: true,
