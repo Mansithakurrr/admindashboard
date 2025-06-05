@@ -27,6 +27,7 @@ export async function fetchTickets(params: URLSearchParams) {
   return await getTickets(query, page, limit);
 }
 
+
 export async function fetchTicket(id: string) {
   return await getTicketById(id);
 }
