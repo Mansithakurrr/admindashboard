@@ -14,7 +14,7 @@ const ActivityLogEntrySchema = new mongoose.Schema(
     details: String,
   },
   { _id: false }
-); // _id: false if you manage IDs manually or they are part of a larger object
+); 
 
 
 // const AttachmentSchema = new mongoose.Schema({
@@ -66,7 +66,6 @@ const TicketSchema = new mongoose.Schema(
     priority: {
       type: String,
       enum: ["low", "medium", "high"],
-      // default: "medium",
     },
     type: {
       type: String,
@@ -79,16 +78,13 @@ const TicketSchema = new mongoose.Schema(
         name: String,
         type: String,
       },
-    ],    // days: {
-    //   type: Number,
-    //   required: true,
-    //   min: [1, "Resolution period must be at least 1 day"],
-    // },
+    ],
+    resolvedRemarks: String,
     closedAt: { type: Date },
-    activityLog: [ActivityLogEntrySchema], // Store activity log directly
+    activityLog: [ActivityLogEntrySchema], 
   },
   { timestamps: true }
-); // This gives you createdAt and updatedAt
+);
 
 
 export default mongoose.models.Ticket || mongoose.model("Ticket", TicketSchema);

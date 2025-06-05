@@ -80,7 +80,7 @@ export const CommentSection = ({
   const handleCommentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newComment.trim() === "") return;
-    const author = "Ayush (You)"; // Replace with actual logged-in user
+    const author = "You"; // Replace with actual logged-in user
     
     try {
       // TODO: Ensure this API endpoint exists and correctly saves the comment AND returns the saved comment

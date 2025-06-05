@@ -99,3 +99,35 @@ export const updateTicketById = async (id: string, updates: any) => {
 export const deleteTicketById = async (id: string) => {
   return await Ticket.findByIdAndDelete(id);
 };
+
+
+
+
+// export async function updateResolvedRemarks(ticketId: string, remarks: string) {
+//   const updatedTicket = await Ticket.findByIdAndUpdate(
+//     ticketId,
+//     { resolvedRemarks: remarks },
+//     { new: true }
+//   );
+//   return updatedTicket;
+// }
+
+
+export async function updateResolvedRemarks(ticketId: string, remarks: string) {
+  const ticket = await Ticket.findById(ticketId);
+  if (!ticket) return null;
+
+  const newLog = {
+    id: Date.now().toString(),
+    timestamp: new Date(),
+    user: "You", // or pass user from frontend if available
+    action: "Resolved Remarks Updated",
+    details: `Remarks added/updated: "${remarks}"`
+  };
+
+  ticket.resolvedRemarks = remarks;
+  ticket.activityLog.push(newLog);
+  await ticket.save();
+
+  return ticket;
+}
