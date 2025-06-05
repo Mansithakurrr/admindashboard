@@ -17,11 +17,11 @@ const ActivityLogEntrySchema = new mongoose.Schema(
 ); // _id: false if you manage IDs manually or they are part of a larger object
 
 
-const AttachmentSchema = new mongoose.Schema({
-  url: { type: String },
-  name: { type: String },
-  type: { type: String },
-}, { _id: false , required: true});
+// const AttachmentSchema = new mongoose.Schema({
+//   url: { type: String },
+//   name: { type: String },
+//   type: { type: String },
+// }, { _id: false , required: true});
 
 
 const TicketSchema = new mongoose.Schema(
@@ -73,8 +73,13 @@ const TicketSchema = new mongoose.Schema(
       enum: ["Support", "Complaint", "Feedback"],
       required: true,
     },
-    attachments: [AttachmentSchema],
-    // days: {
+    attachments: [
+      {
+        url: String,
+        name: String,
+        type: String,
+      },
+    ],    // days: {
     //   type: Number,
     //   required: true,
     //   min: [1, "Resolution period must be at least 1 day"],
