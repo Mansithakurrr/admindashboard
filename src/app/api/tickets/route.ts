@@ -2,7 +2,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from "@/lib/db";
 import { postTicket, fetchTickets } from '@/controllers/ticketController';
-import {uploadToS3} from '@/services/s3Service';
 
 // GET function can remain as is, if you have one for fetchTickets
 export async function GET(req: NextRequest) {
@@ -18,46 +17,31 @@ export async function GET(req: NextRequest) {
     }
   }
   
-
   export async function POST(req: NextRequest) {
     await connectDB();
   
     try {
-      const formData = await req.formData();
-  
-      const attachments = formData.getAll("attachments") as File[];
-      const uploadedUrls = [];
-  
-      for (const file of attachments) {
-        if (file && typeof file === "object" && file.size > 0) {
-          const url = await uploadToS3(file); 
-          uploadedUrls.push({
-            url,
-            name: file.name,
-            type: file.type,
-          });
-        }
-      }
+      const body = await req.json();
   
       const ticketData = {
-        name: formData.get("name"),
-        email: formData.get("email"),
-        contactNumber: formData.get("contactNumber"),
-        platformName: formData.get("platform"),
-        Organization: formData.get("organization"),
-        category: formData.get("category"),
-        priority: formData.get("priority"),
-        type: formData.get("type"),
+        name: body.name,
+        email: body.email,
+        contactNumber: body.contactNumber,
+        platformName: body.platform,
+        Organization: body.organization,
+        category: body.category,
+        priority: body.priority,
+        type: body.type,
         subject: {
-          title: formData.get("subject"),
-          description: formData.get("description"),
+          title: body.subject,
+          description: body.description,
         },
-        attachments: uploadedUrls,
+        attachments: body.attachments || [],
         activityLog: [
           {
             id: Date.now().toString(),
             timestamp: new Date(),
-            user: formData.get("email"),
+            user: body.email,
             action: "Ticket Created",
             from: "",
             to: "New",
@@ -69,7 +53,6 @@ export async function GET(req: NextRequest) {
       const result = await postTicket(ticketData);
   
       return NextResponse.json({ success: true, ticket: result }, { status: 201 });
-  
     } catch (err: any) {
       console.error("Error creating ticket:", err);
       return NextResponse.json(
@@ -78,6 +61,68 @@ export async function GET(req: NextRequest) {
       );
     }
   }
+  
+  
+
+  // export async function POST(req: NextRequest) {
+  //   await connectDB();
+  
+  //   try {
+  //     const formData = await req.formData();
+  
+  //     const attachments = formData.getAll("attachments") as File[];
+  //     const uploadedUrls = [];
+  
+  //     for (const file of attachments) {
+  //       if (file && typeof file === "object" && file.size > 0) {
+  //         const url = await uploadToS3(file); 
+  //         uploadedUrls.push({
+  //           url,
+  //           name: file.name,
+  //           type: file.type,
+  //         });
+  //       }
+  //     }
+  
+  //     const ticketData = {
+  //       name: formData.get("name"),
+  //       email: formData.get("email"),
+  //       contactNumber: formData.get("contactNumber"),
+  //       platformName: formData.get("platform"),
+  //       Organization: formData.get("organization"),
+  //       category: formData.get("category"),
+  //       priority: formData.get("priority"),
+  //       type: formData.get("type"),
+  //       subject: {
+  //         title: formData.get("subject"),
+  //         description: formData.get("description"),
+  //       },
+  //       attachments: uploadedUrls,
+  //       activityLog: [
+  //         {
+  //           id: Date.now().toString(),
+  //           timestamp: new Date(),
+  //           user: formData.get("email"),
+  //           action: "Ticket Created",
+  //           from: "",
+  //           to: "New",
+  //           details: "Initial submission via support form.",
+  //         },
+  //       ],
+  //     };
+  
+  //     const result = await postTicket(ticketData);
+  
+  //     return NextResponse.json({ success: true, ticket: result }, { status: 201 });
+  
+  //   } catch (err: any) {
+  //     console.error("Error creating ticket:", err);
+  //     return NextResponse.json(
+  //       { success: false, message: "Error creating ticket: " + err.message },
+  //       { status: 500 }
+  //     );
+  //   }
+  // }
   
 
 
