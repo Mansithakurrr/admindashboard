@@ -49,7 +49,6 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
 }) => {
   const [ticket, setTicket] = useState<Ticket>(initialTicket);
   const [activeTab, setActiveTab] = useState("details");
-  console.log(ticket, "ticket"); // Debugging: Log the ticket object
 
   // State for editable fields
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -72,6 +71,10 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
   );
   const [showRemarksHistory, setShowRemarksHistory] = useState(false); // Optional: if you want history for remarks
   const [isEditingOrganisation, setIsEditingOrganisation] = useState(false);
+
+  const [remarksText, setRemarksText] = useState(
+    initialTicket.resolvedRemarks || ""
+  );
 
   // Update local state if initialTicket prop changes (e.g., after a server action refresh)
   useEffect(() => {
@@ -218,7 +221,13 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
     if (!ticket) return;
 
     // 1. Validation check
-    if (ticket.status === 'Resolved' && (!ticket.resolvedRemarks || ticket.resolvedRemarks.trim() === '')) {
+
+    if (ticket.status !== "Resolved") {
+      alert("Ticket is not resolved");
+      return;
+    }
+
+    if (!remarksText || remarksText.trim() === "") {
       alert("Resolution remarks are required to mark this ticket as Resolved.");
       return;
     }
@@ -230,29 +239,32 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
       await persistTicketUpdate(statusUpdatePayload);
 
       // 3. Then, if remarks exist, persist them to the dedicated endpoint
-      if (ticket.resolvedRemarks) {
-        console.log(`Sending PATCH to /api/tickets/${ticket._id}/remarks`);
-        const remarksResponse = await fetch(`/api/tickets/${ticket._id}/remarks`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ remarks: ticket.resolvedRemarks }),
-        });
 
-        if (!remarksResponse.ok) {
-          const errorData = await remarksResponse.json();
-          throw new Error(errorData.message || "Failed to save remarks");
+      console.log(`Sending PATCH to /api/tickets/${ticket._id}/remarks`);
+      const remarksResponse = await fetch(
+        `/api/tickets/${ticket._id}/remarks`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ remarks: remarksText }),
         }
-        
-        const finalUpdatedTicket = await remarksResponse.json();
-        // The final response should be the fully updated ticket, set it as the source of truth
-        setTicket(finalUpdatedTicket);
+      );
+
+      if (!remarksResponse.ok) {
+        const errorData = await remarksResponse.json();
+        throw new Error(errorData.message || "Failed to save remarks");
       }
+
+      const finalUpdatedTicket = await remarksResponse.json();
+
+      console.log({ ticket, finalUpdatedTicket });
+      // The final response should be the fully updated ticket, set it as the source of truth
+      setTicket(finalUpdatedTicket);
 
       // 4. Update local "original" state and exit edit mode
       setOriginalStatus(ticket.status);
       setOriginalRemarks(ticket.resolvedRemarks || "");
       setIsEditingRemarks(false);
-
     } catch (error: any) {
       console.error("Error during save process:", error.message);
       // Revert the local state to the initial state on failure
@@ -654,7 +666,7 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
               Ticket Details
             </h3>
 
-            {ticket.status === "Resolved" && (
+            {ticket.status === "Resolved" && !ticket.resolvedRemarks && (
               <div className="mt-6 pt-6 border-t">
                 <div className="flex justify-between items-center mb-2">
                   <h2 className="text-xl font-semibold text-gray-700">
@@ -665,13 +677,8 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
                 <div className="space-y-4">
                   <Textarea
                     placeholder="Enter resolution remarks... (Required)"
-                    value={ticket.resolvedRemarks || ""}
-                    onChange={(e) =>
-                      setTicket((prev) => ({
-                        ...prev!,
-                        resolvedRemarks: e.target.value,
-                      }))
-                    }
+                    value={remarksText || ""}
+                    onChange={(e) => setRemarksText(e.target.value)}
                     rows={5}
                     className="w-full border-primary" // Highlight the box
                     disabled={isSaving}
@@ -686,7 +693,7 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
                     </Button>
                     <Button onClick={handleSaveRemarks} disabled={isSaving}>
                       {isSaving ? "Saving..." : "Save Status & Remarks"}
-                    </Button> 
+                    </Button>
                   </div>
                 </div>
               </div>

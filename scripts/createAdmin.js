@@ -12,7 +12,7 @@ const AdminSchema = new mongoose.Schema({
 const Admin = mongoose.model("Admin", AdminSchema);
 
 async function createAdmin() {
-  const email = "admin@bigpluto.com";
+  const email = "admin@bigplutolabs.com";
   const plainPassword = "admin123";
   const hashedPassword = await bcrypt.hash(plainPassword, 10);
 
