@@ -122,7 +122,7 @@ export const CommentSection = ({
     // h-full: Fills the height allocated by its parent (e.g., the h-3/5 div in TicketViewClient)
     // overflow-hidden: Ensures this container itself doesn't grow.
     // flex flex-col: Key for distributing space between comments list and input.
-    <div className="flex flex-col h-full bg-gray-50 overflow-hidden">
+    <div className="flex flex-col h-full">
 
       {/* Comments List Area (Scrollable) */}
       {/* flex-1: This is equivalent to flex-grow: 1, flex-shrink: 1, flex-basis: 0%. It will take up available space. */}
