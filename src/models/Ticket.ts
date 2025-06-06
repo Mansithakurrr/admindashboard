@@ -14,14 +14,7 @@ const ActivityLogEntrySchema = new mongoose.Schema(
     details: String,
   },
   { _id: false }
-); 
-
-
-// const AttachmentSchema = new mongoose.Schema({
-//   url: { type: String },
-//   name: { type: String },
-//   type: { type: String },
-// }, { _id: false , required: true});
+);
 
 
 const TicketSchema = new mongoose.Schema(
@@ -30,14 +23,15 @@ const TicketSchema = new mongoose.Schema(
     serialNumber: { type: String, required: true, unique: true },
     name: { type: String, required: true },
     email: { type: String, required: true },
-    contactNumber: { type: String, required: false,
+    contactNumber: {
+      type: String, required: false,
       validate: {
-        validator: function(v: string) {
+        validator: function (v: string) {
           return /^\d{10}$/.test(v);
         },
         message: 'Contact number must be a 10-digit number'
       }
-     },
+    },
 
     platformName: {
       type: String,
@@ -73,15 +67,11 @@ const TicketSchema = new mongoose.Schema(
       required: true,
     },
     attachments: [
-      {
-        url: String,
-        name: String,
-        type: String,
-      },
+      String
     ],
     resolvedRemarks: String,
     closedAt: { type: Date },
-    activityLog: [ActivityLogEntrySchema], 
+    activityLog: [ActivityLogEntrySchema],
   },
   { timestamps: true }
 );
