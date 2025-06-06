@@ -379,8 +379,8 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
 
         <TabsContent value="details" className="flex-1 flex flex-col md:flex-row overflow-hidden mt-0 p-0">
           <div className="flex flex-col flex-1 h-full">
-            <div className="flex-grow overflow-y-auto p-6">
-              <div className="bg-white shadow-lg rounded-lg p-6 max-w-6xl mx-auto">
+            <div className="p-6">
+              <div className="bg-white shadow-lg rounded-lg p-6 mx-auto">
                 {/* Editable Title */}
                 <div className="mb-6 pb-4 border-b ">
                   <h2 className="text-xl font-semibold text-gray-700">Title</h2>
@@ -669,8 +669,8 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
 
         <TabsContent
           value="activity"
-          className="flex-1 overflow-y-auto p-6 mt-0"
-        >
+          className="flex-1 p-6 mt-0"
+          >
           <ActivityTimeline activities={ticket.activityLog || []} />
         </TabsContent>
       </Tabs>
