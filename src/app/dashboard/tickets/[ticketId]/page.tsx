@@ -72,14 +72,14 @@ export default async function TicketInfoPage({ params }: TicketInfoPageProps) {
   
   
     return (
-      <div className="flex flex-col h-screen overflow-hidden">
-        <div className="p-4 border-b bg-white flex justify-between items-center flex-shrink-0">
+      <div className="flex flex-col h-screen overflow-hidden ">
+        <div className="p-4 border-b bg-white flex flex-row justify-between items-center flex-shrink-0">
           <Link href="/dashboard" className="text-blue-500 hover:underline text-sm">
             &larr; Back to Dashboard
           </Link>
           {/* Display serialNumber if available, otherwise _id */}
           {/* <h2 className="text-xl font-semibold">Ticket: {ticketData.serialNumber || ticketData._id}</h2> */}
-          <h2 className="text-xl font-semibold">
+          <h2 className="text-xl font-semibold ">
             Ticket : {ticketData.serialNumber ?? 'N/A'}
           </h2>
 
