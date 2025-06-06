@@ -20,20 +20,24 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StatusBadge, CategoryBadge, PriorityBadge } from "../../columns"; // Assuming these are exportable
 
-const STATUS_OPTIONS: Ticket["status"][] = [
-  "New",
-  "Open",
-  "InProgress",
-  "Hold",
-  "Resolved",
-  "Closed",
-];
 const PRIORITY_OPTIONS: Priority[] = ["low", "medium", "high"]; // Match your Priority type
 const CATEGORY_OPTIONS: Ticket["category"][] = [
   "bugs",
   "Tech support",
   "new feature",
   "others",
+];
+const ORGANIZATION_OPTIONS: Ticket["Organization"][] = [
+  "MSIL",
+  "Rohtak",
+  "Tag Avenue",
+  "Udhyog Vihar",
+];
+
+const PLATFORM_OPTIONS: Ticket["platformName"][] = [
+  "Light house",
+  "Learn Tank",
+  "Home Certify",
 ];
 
 interface TicketViewClientProps {
@@ -52,7 +56,10 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
   const [originalTitle, setOriginalTitle] = useState(
     initialTicket.subject.title
   );
+  const [isSaving, setIsSaving] = useState(false);
+
   const [showTitleHistory, setShowTitleHistory] = useState(false);
+  const [originalStatus, setOriginalStatus] = useState(initialTicket.status);
 
   const [isEditingDescription, setIsEditingDescription] = useState(false);
   const [originalDescription, setOriginalDescription] = useState(
@@ -60,9 +67,11 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
   );
   const [showDescriptionHistory, setShowDescriptionHistory] = useState(false);
   const [isEditingRemarks, setIsEditingRemarks] = useState(false);
-  const [originalRemarks, setOriginalRemarks] = useState(initialTicket.resolvedRemarks || "");
-  const [showRemarksHistory, setShowRemarksHistory] = useState(false); // Optional: if you want history for remarks too
-
+  const [originalRemarks, setOriginalRemarks] = useState(
+    initialTicket.resolvedRemarks || ""
+  );
+  const [showRemarksHistory, setShowRemarksHistory] = useState(false); // Optional: if you want history for remarks
+  const [isEditingOrganisation, setIsEditingOrganisation] = useState(false);
 
   // Update local state if initialTicket prop changes (e.g., after a server action refresh)
   useEffect(() => {
@@ -70,6 +79,7 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
     setOriginalTitle(initialTicket.subject.title);
     setOriginalDescription(initialTicket.subject.description);
     setOriginalRemarks(initialTicket.resolvedRemarks || "");
+    setOriginalStatus(initialTicket.status);
   }, [initialTicket]);
 
   const addActivityLogEntry = (
@@ -188,44 +198,82 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
   };
   const hasTitleBeenEdited = ticket.subject.title !== originalTitle;
 
-
-
   // const handleSaveRemarks = () => {
-  //   if (ticket && ticket.resolvedRemarks !== originalRemarks) {
-  //     persistTicketUpdate({ resolvedRemarks: ticket.resolvedRemarks || "" }); // Send empty string if null/undefined
+  //   if (!ticket) return;
+
+  //   // VALIDATION: Check if remarks are empty when status is "Resolved"
+  //   if (ticket.status === 'Resolved' && (!ticket.resolvedRemarks || ticket.resolvedRemarks.trim() === '')) {
+  //     alert("Remarks are required to resolve this ticket."); // Show the check
+  //     return; // Stop the function here
   //   }
-  //   setIsEditingRemarks(false);
+
+  //   // If validation passes, update both status and remarks in one go
+  //   handleFieldUpdate("status", ticket.status, originalStatus);
+  //   handleFieldUpdate("resolvedRemarks", ticket.resolvedRemarks || "", originalRemarks);
+
+  //   setIsEditingRemarks(false); // Close the edit box
   // };
 
-
   const handleSaveRemarks = async () => {
+    if (!ticket) return;
+
+    // 1. Validation check
+    if (ticket.status === 'Resolved' && (!ticket.resolvedRemarks || ticket.resolvedRemarks.trim() === '')) {
+      alert("Resolution remarks are required to mark this ticket as Resolved.");
+      return;
+    }
+
+    setIsSaving(true);
     try {
-      const res = await fetch(`/api/tickets/${ticket._id}/remarks`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ remarks: ticket.resolvedRemarks }),
-      });
-  
-      if (!res.ok) {
-        throw new Error("Failed to save remarks");
+      // 2. First, persist the new status
+      const statusUpdatePayload = { status: ticket.status };
+      await persistTicketUpdate(statusUpdatePayload);
+
+      // 3. Then, if remarks exist, persist them to the dedicated endpoint
+      if (ticket.resolvedRemarks) {
+        console.log(`Sending PATCH to /api/tickets/${ticket._id}/remarks`);
+        const remarksResponse = await fetch(`/api/tickets/${ticket._id}/remarks`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ remarks: ticket.resolvedRemarks }),
+        });
+
+        if (!remarksResponse.ok) {
+          const errorData = await remarksResponse.json();
+          throw new Error(errorData.message || "Failed to save remarks");
+        }
+        
+        const finalUpdatedTicket = await remarksResponse.json();
+        // The final response should be the fully updated ticket, set it as the source of truth
+        setTicket(finalUpdatedTicket);
       }
-  
-      const updated = await res.json();
-      setTicket(updated);
+
+      // 4. Update local "original" state and exit edit mode
+      setOriginalStatus(ticket.status);
+      setOriginalRemarks(ticket.resolvedRemarks || "");
       setIsEditingRemarks(false);
-    } catch (err) {
-      console.error("Error saving remarks:", err);
+
+    } catch (error: any) {
+      console.error("Error during save process:", error.message);
+      // Revert the local state to the initial state on failure
+      setTicket(initialTicket);
+      alert(`Error during save: ${error.message}`);
+    } finally {
+      setIsSaving(false);
     }
   };
-  
 
   const handleCancelEditRemarks = () => {
-    setTicket(prev => ({...prev!, resolvedRemarks: originalRemarks }));
+    // When cancelling, revert both status and remarks to their original state.
+    setTicket((prev) => ({
+      ...prev!,
+      status: originalStatus,
+      resolvedRemarks: originalRemarks,
+    }));
     setIsEditingRemarks(false);
   };
-  const hasRemarksBeenEdited = ticket && (ticket.resolvedRemarks || "") !== originalRemarks;
+  const hasRemarksBeenEdited =
+    ticket && (ticket.resolvedRemarks || "") !== originalRemarks;
 
   const handleSaveDescription = () => {
     if (ticket.subject.description !== originalDescription) {
@@ -276,6 +324,44 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
       }));
     } catch (error) {
       console.error("Error adding comment:", error);
+    }
+  };
+
+  const handleStatusChange = (newStatus: string) => {
+    if (ticket && ticket.status !== newStatus) {
+      // Just update the UI state optimistically.
+      setTicket((prev) => ({
+        ...prev!,
+        status: newStatus as Ticket["status"],
+      }));
+
+      // If the user selects "Resolved", make the remarks box appear but DON'T save to the database yet.
+      if (newStatus === "Resolved") {
+        setIsEditingRemarks(true);
+      } else {
+        // If they select any OTHER status (e.g., Hold, InProgress), save it immediately.
+        persistTicketUpdate({ status: newStatus as Ticket["status"] });
+      }
+    }
+  };
+
+  const persistTicketUpdate = async (updates: Partial<Ticket>) => {
+    try {
+      setIsSaving(true);
+      const res = await fetch(`/api/tickets/${ticket._id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updates),
+      });
+
+      if (!res.ok) throw new Error("Failed to update ticket");
+
+      const updatedTicket = await res.json();
+      setTicket(updatedTicket);
+    } catch (error) {
+      console.error("Error updating ticket:", error);
+    } finally {
+      setIsSaving(false);
     }
   };
   // This constant defines all possible statuses for reference and sorting.
@@ -344,6 +430,7 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
 
     return [currentStatus, ...otherOptions];
   };
+
   const availableStatusOptions = useMemo(() => {
     if (!ticket) return []; // If ticket isn't loaded yet, return empty array
     return getAllowedNextStatuses(ticket.status);
@@ -377,7 +464,10 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="details" className="flex-1 flex flex-col md:flex-row overflow-hidden mt-0 p-0">
+        <TabsContent
+          value="details"
+          className="flex-1 flex flex-col md:flex-row overflow-hidden mt-0 p-0"
+        >
           <div className="flex flex-col flex-1 h-full">
             <div className="p-6">
               <div className="bg-white shadow-lg rounded-lg p-6 mx-auto">
@@ -542,7 +632,7 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
                 )}
               </div>
             </div>
-            
+
             <div className="flex justify-center mt-4">
               <span className="text-lg font-semibold text-gray-700">
                 Internal Comments
@@ -563,57 +653,49 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
             <h3 className="text-lg font-semibold border-b pb-2">
               Ticket Details
             </h3>
-            
-            {ticket.status === 'Resolved' && (
-                  <div className="mt-6">
-                    <div className="flex justify-between items-center mb-2">
-                      <h2 className="text-lg font-semibold text-gray-700">Resolved Remarks</h2>
-                      {!isEditingRemarks && (
-                        
-                        <Button variant="outline" size="sm" onClick={() => setIsEditingRemarks(true)} >
-                          {ticket.resolvedRemarks ? 'Edit Remarks' : 'Add Remarks'}
-                        </Button>
-                      )}
-                    </div>
-                    {isEditingRemarks ? (
-                      <div className="space-y-4">
-                        <Textarea
-                          placeholder="Enter resolution remarks..."
-                          value={ticket.resolvedRemarks || ""}
-                          onChange={(e) => setTicket(prev => ({...prev!, resolvedRemarks: e.target.value }))}
-                          rows={5}
-                          className="w-full"
-                          
-                        />
-                        <div className="flex justify-end space-x-2">
-                          <Button variant="ghost" onClick={handleCancelEditRemarks} >Cancel</Button>
-                          <Button 
-                          className="bg-blue-500 hover:bg-blue-600"
-                          onClick={handleSaveRemarks} >
-                            Save Remarks
-                          </Button>
-                        </div>
-                      </div>
-                    ) : (
-                      ticket.resolvedRemarks ? (
-                        <p className="prose max-w-none break-words">{ticket.resolvedRemarks}</p>
-                      ) : (
-                        <p className="text-sm text-gray-500 italic">No remarks added yet.</p>
-                      )
-                    )}
-                  </div>
-                )}
 
+            {ticket.status === "Resolved" && (
+              <div className="mt-6 pt-6 border-t">
+                <div className="flex justify-between items-center mb-2">
+                  <h2 className="text-xl font-semibold text-gray-700">
+                    Resolved Remarks <span className="text-red-500">*</span>
+                  </h2>
+                </div>
+
+                <div className="space-y-4">
+                  <Textarea
+                    placeholder="Enter resolution remarks... (Required)"
+                    value={ticket.resolvedRemarks || ""}
+                    onChange={(e) =>
+                      setTicket((prev) => ({
+                        ...prev!,
+                        resolvedRemarks: e.target.value,
+                      }))
+                    }
+                    rows={5}
+                    className="w-full border-primary" // Highlight the box
+                    disabled={isSaving}
+                  />
+                  <div className="flex justify-end space-x-2">
+                    <Button
+                      variant="ghost"
+                      onClick={handleCancelEditRemarks}
+                      disabled={isSaving}
+                    >
+                      Cancel
+                    </Button>
+                    <Button onClick={handleSaveRemarks} disabled={isSaving}>
+                      {isSaving ? "Saving..." : "Save Status & Remarks"}
+                    </Button> 
+                  </div>
+                </div>
+              </div>
+            )}
             <EditableField
               label="Status"
               value={ticket.status}
               options={availableStatusOptions}
-              onValueChange={(newVal) =>
-                // Ensure handleFieldUpdate (or your specific status change handler)
-                // is correctly updating the state and making API calls.
-                // The value 'newVal' will be one of the allowed statuses.
-                handleFieldUpdate("status", newVal, ticket.status)
-              }
+              onValueChange={handleStatusChange}
               renderValue={(value) => (
                 <StatusBadge status={value as Ticket["status"]} />
               )}
@@ -640,18 +722,23 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
                 <CategoryBadge category={value as Ticket["category"]} />
               )}
             />
-            <div>
-              <label className="text-xs font-semibold text-gray-500">
-                Organization
-              </label>
-              <p className="mt-1 text-sm">{ticket.Organization}</p>
-            </div>
-            <div>
-              <label className="text-xs font-semibold text-gray-500">
-                Platform
-              </label>
-              <p className="mt-1 text-sm">{ticket.platformName}</p>
-            </div>
+            <EditableField
+              label="Organization"
+              value={ticket.Organization}
+              options={ORGANIZATION_OPTIONS}
+              onValueChange={(newVal) =>
+                handleFieldUpdate("Organization", newVal, ticket.Organization)
+              }
+            />
+            <EditableField
+              label="Platform"
+              value={ticket.platformName}
+              options={PLATFORM_OPTIONS}
+              onValueChange={(newVal) =>
+                handleFieldUpdate("platformName", newVal, ticket.platformName)
+              }
+            />
+
             <div>
               <label className="text-xs font-semibold text-gray-500">
                 Date Created
@@ -664,13 +751,9 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
               </p>
             </div>
           </aside>
-          
         </TabsContent>
 
-        <TabsContent
-          value="activity"
-          className="flex-1 p-6 mt-0"
-          >
+        <TabsContent value="activity" className="flex-1 p-6 mt-0">
           <ActivityTimeline activities={ticket.activityLog || []} />
         </TabsContent>
       </Tabs>
@@ -679,7 +762,4 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
 };
 
 export default TicketViewClient;
-function persistTicketUpdate(arg0: { resolvedRemarks: string; }) {
-  
-}
-
+function persistTicketUpdate(arg0: { resolvedRemarks: string }) {}

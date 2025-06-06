@@ -35,7 +35,7 @@ export const CommentSection = ({
   const commentsEndRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    commentsEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    commentsEndRef.current?.scrollIntoView({ behavior: "smooth"});
   }, [comments]);
 
   useEffect(() => {
