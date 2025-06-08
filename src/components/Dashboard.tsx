@@ -52,6 +52,9 @@ export default function Dashboard() {
     New: dashboardTickets.filter(t => t.status === 'New').length, // Or fetch dedicated stats
     Resolved: dashboardTickets.filter(t => t.status === 'Resolved').length,
     Closed: dashboardTickets.filter(t => t.status === 'Closed').length,
+    Today: dashboardTickets.filter(
+      t => new Date(t.createdAt) >= new Date(Date.now() - 24 * 60 * 60 * 1000)
+    ).length,
   };
 
   if (isLoading && dashboardTickets.length === 0) return <p className="p-4">Loading dashboard data...</p>;
@@ -60,11 +63,13 @@ export default function Dashboard() {
   return (
     <div>
       <h1 className="text-2xl font-bold mb-6">Dashboard Overview</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
         <StatCard title="Total" value={statsData.Total} />
+        <StatCard title="Today" value={statsData.Today} />
         <StatCard title="New" value={statsData.New} />
         <StatCard title="Resolved" value={statsData.Resolved} />
         <StatCard title="Closed" value={statsData.Closed} />
+
       </div>
 
       <TicketsDataTable columns={columns} data={dashboardTickets} />

@@ -57,13 +57,14 @@ export const createTicket = async (ticketData: any) => {
 };
 
 export const getTicketStats = async () => {
-  const [total, open, resolved, closed] = await Promise.all([
+  const [total, open, resolved, closed, today] = await Promise.all([
     Ticket.countDocuments(),
     Ticket.countDocuments({ status: 'Open' }),
     Ticket.countDocuments({ status: 'Resolved' }),
     Ticket.countDocuments({ status: 'Closed' }),
+    Ticket.countDocuments({ createdAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) } }),
   ]);
-  return { total, open, resolved, closed };
+  return { total, open, resolved, closed, today };
 };
 
 export const getTickets = async (query: any, page: number, limit: number) => {
