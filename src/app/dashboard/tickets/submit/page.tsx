@@ -41,14 +41,17 @@ export default function SubmitTicketForm() {
     const newErrors: { [key: string]: string } = {};
     if (!formData.name) newErrors.name = "Name is required";
     if (!formData.email) newErrors.email = "Email is required";
-    if (!formData.organization) newErrors.organization = "Organization is required";
+    if (!formData.organization)
+      newErrors.organization = "Organization is required";
     if (!formData.platform) newErrors.platform = "Platform is required";
     if (!formData.subject) newErrors.subject = "Subject is required";
-    if (!formData.description) newErrors.description = "Description is required";
+    if (!formData.description)
+      newErrors.description = "Description is required";
     if (!formData.category) newErrors.category = "Category is required";
     if (!formData.type) newErrors.type = "Type is required";
     if (!formData.priority) newErrors.priority = "Priority is required";
-    if (formData.contactNumber && formData.contactNumber.length < 10) {
+    const regex = /^\d{10}$/;
+    if (formData.contactNumber && !regex.test(formData.contactNumber)) {
       newErrors.contactNumber = "Contact number must be 10 digits";
     }
     setErrors(newErrors);
@@ -67,11 +70,10 @@ export default function SubmitTicketForm() {
     setErrors({ ...errors, [field]: "" });
   };
 
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
-  
+
     setIsSubmitting(true);
     try {
       const res = await fetch("/api/tickets", {
@@ -82,15 +84,14 @@ export default function SubmitTicketForm() {
           attachments: formData.attachments.map((file) => file.url),
         }),
       });
-  
+
       const result = await res.json();
-  
-      if (!res.ok) throw new Error(result.message || "Ticket submission failed");
-  
-      // ✅ Show success toast
+
+      if (!res.ok)
+        throw new Error(result.message || "Ticket submission failed");
+
       toast.success("Ticket submitted successfully!");
-  
-      // ✅ Reset form
+
       setFormData({
         name: "",
         email: "",
@@ -107,59 +108,17 @@ export default function SubmitTicketForm() {
     } catch (err: any) {
       toast.error(err.message || "Something went wrong.");
     } finally {
-      setIsSubmitting(false); // ✅ Ensures button resets no matter what
+      setIsSubmitting(false);
     }
   };
-  
-
-
-  // const handleSubmit = async (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   if (!validate()) return;
-
-  //   setIsSubmitting(true);
-  //   try {
-  //     const res = await fetch("/api/tickets", {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify({
-  //         ...formData,
-  //         attachments: formData.attachments.map((file) => file.url),
-  //       }),
-  //     });
-
-  //     const result = await res.json();
-
-  //     if (!res.ok) throw new Error(result.message || "Ticket submission failed");
-
-  //     // ✅ Show success toast
-  //     toast.success("Ticket submitted successfully!");
-
-  //     // ✅ Reset form
-  //     setFormData({
-  //       name: "",
-  //       email: "",
-  //       organization: "",
-  //       platform: "",
-  //       subject: "",
-  //       description: "",
-  //       contactNumber: "",
-  //       category: "",
-  //       type: "",
-  //       priority: "",
-  //       attachments: [],
-  //     });
-  //   } catch (err: any) {
-  //     toast.error(err.message || "Something went wrong.");
-  //   }
-
-  // };
 
   const errorClass = "border border-red-500";
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white shadow rounded-md mt-6 w-full">
-      <h1 className="text-2xl font-semibold mb-6 text-center">Submit a Ticket</h1>
+      <h1 className="text-2xl font-semibold mb-6 text-center">
+        Submit a Ticket
+      </h1>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -171,7 +130,9 @@ export default function SubmitTicketForm() {
               onChange={handleChange}
               className={errors.name ? errorClass : ""}
             />
-            {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
+            {errors.name && (
+              <p className="text-red-500 text-sm">{errors.name}</p>
+            )}
           </div>
 
           <div>
@@ -183,11 +144,16 @@ export default function SubmitTicketForm() {
               onChange={handleChange}
               className={errors.email ? errorClass : ""}
             />
-            {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
+            {errors.email && (
+              <p className="text-red-500 text-sm">{errors.email}</p>
+            )}
           </div>
 
           <div>
-            <Select onValueChange={(val) => handleSelectChange("organization", val)}>
+            <Select
+              value={formData.organization}
+              onValueChange={(val) => handleSelectChange("organization", val)}
+            >
               <SelectTrigger className={errors.organization ? errorClass : ""}>
                 <SelectValue placeholder="Select Organization" />
               </SelectTrigger>
@@ -198,11 +164,16 @@ export default function SubmitTicketForm() {
                 <SelectItem value="Tag Avenue">Tag Avenue</SelectItem>
               </SelectContent>
             </Select>
-            {errors.organization && <p className="text-red-500 text-sm">{errors.organization}</p>}
+            {errors.organization && (
+              <p className="text-red-500 text-sm">{errors.organization}</p>
+            )}
           </div>
 
           <div>
-            <Select onValueChange={(val) => handleSelectChange("platform", val)}>
+            <Select
+              value={formData.platform}
+              onValueChange={(val) => handleSelectChange("platform", val)}
+            >
               <SelectTrigger className={errors.platform ? errorClass : ""}>
                 <SelectValue placeholder="Select Platform" />
               </SelectTrigger>
@@ -212,7 +183,9 @@ export default function SubmitTicketForm() {
                 <SelectItem value="Home Certify">Home Certify</SelectItem>
               </SelectContent>
             </Select>
-            {errors.platform && <p className="text-red-500 text-sm">{errors.platform}</p>}
+            {errors.platform && (
+              <p className="text-red-500 text-sm">{errors.platform}</p>
+            )}
           </div>
 
           <div>
@@ -223,7 +196,9 @@ export default function SubmitTicketForm() {
               onChange={handleChange}
               className={errors.subject ? errorClass : ""}
             />
-            {errors.subject && <p className="text-red-500 text-sm">{errors.subject}</p>}
+            {errors.subject && (
+              <p className="text-red-500 text-sm">{errors.subject}</p>
+            )}
           </div>
 
           <div>
@@ -234,11 +209,16 @@ export default function SubmitTicketForm() {
               onChange={handleChange}
               className={errors.contactNumber ? errorClass : ""}
             />
-            {errors.contactNumber && <p className="text-red-500 text-sm">{errors.contactNumber}</p>}
+            {errors.contactNumber && (
+              <p className="text-red-500 text-sm">{errors.contactNumber}</p>
+            )}
           </div>
 
           <div>
-            <Select onValueChange={(val) => handleSelectChange("category", val)}>
+            <Select
+              value={formData.category}
+              onValueChange={(val) => handleSelectChange("category", val)}
+            >
               <SelectTrigger className={errors.category ? errorClass : ""}>
                 <SelectValue placeholder="Select Category" />
               </SelectTrigger>
@@ -249,11 +229,16 @@ export default function SubmitTicketForm() {
                 <SelectItem value="others">Others</SelectItem>
               </SelectContent>
             </Select>
-            {errors.category && <p className="text-red-500 text-sm">{errors.category}</p>}
+            {errors.category && (
+              <p className="text-red-500 text-sm">{errors.category}</p>
+            )}
           </div>
 
           <div>
-            <Select onValueChange={(val) => handleSelectChange("type", val)}>
+            <Select
+              value={formData.type}
+              onValueChange={(val) => handleSelectChange("type", val)}
+            >
               <SelectTrigger className={errors.type ? errorClass : ""}>
                 <SelectValue placeholder="Select Type" />
               </SelectTrigger>
@@ -263,11 +248,16 @@ export default function SubmitTicketForm() {
                 <SelectItem value="Feedback">Feedback</SelectItem>
               </SelectContent>
             </Select>
-            {errors.type && <p className="text-red-500 text-sm">{errors.type}</p>}
+            {errors.type && (
+              <p className="text-red-500 text-sm">{errors.type}</p>
+            )}
           </div>
 
           <div>
-            <Select onValueChange={(val) => handleSelectChange("priority", val)}>
+            <Select
+              value={formData.priority}
+              onValueChange={(val) => handleSelectChange("priority", val)}
+            >
               <SelectTrigger className={errors.priority ? errorClass : ""}>
                 <SelectValue placeholder="Select Priority" />
               </SelectTrigger>
@@ -277,7 +267,9 @@ export default function SubmitTicketForm() {
                 <SelectItem value="high">High</SelectItem>
               </SelectContent>
             </Select>
-            {errors.priority && <p className="text-red-500 text-sm">{errors.priority}</p>}
+            {errors.priority && (
+              <p className="text-red-500 text-sm">{errors.priority}</p>
+            )}
           </div>
         </div>
 
@@ -290,7 +282,9 @@ export default function SubmitTicketForm() {
             onChange={handleChange}
             className={errors.description ? errorClass : ""}
           />
-          {errors.description && <p className="text-red-500 text-sm">{errors.description}</p>}
+          {errors.description && (
+            <p className="text-red-500 text-sm">{errors.description}</p>
+          )}
         </div>
 
         {/* File Upload */}

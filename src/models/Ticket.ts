@@ -24,14 +24,21 @@ const TicketSchema = new mongoose.Schema(
     name: { type: String, required: true },
     email: { type: String, required: true },
     contactNumber: {
-      type: String, required: false,
+      type: String,
       validate: {
-        validator: function (v: string) {
-          return /^\d{10}$/.test(v);
-        },
-        message: 'Contact number must be a 10-digit number'
-      }
-    },
+          validator: function(v: string) {
+              // This validator allows empty strings, making the field optional.
+              // It only runs the regex test if a value is provided.
+              if (v === null || v.trim() === '') {
+                  return true;
+              }
+              // Use the regex from your frontend validation
+              return /^\d{10}$/.test(v); 
+          },
+          message: (props: { value: string }) => `Contact number must be a 10-digit number!`
+      },
+      required: false // Explicitly make it not required
+  },
 
     platformName: {
       type: String,

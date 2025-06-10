@@ -49,7 +49,6 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
 }) => {
   const [ticket, setTicket] = useState<Ticket>(initialTicket);
   const [activeTab, setActiveTab] = useState("details");
-  console.log(ticket, "ticket"); // Debugging: Log the ticket object
 
   // State for editable fields
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -72,6 +71,10 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
   );
   const [showRemarksHistory, setShowRemarksHistory] = useState(false); // Optional: if you want history for remarks
   const [isEditingOrganisation, setIsEditingOrganisation] = useState(false);
+
+  const [remarksText, setRemarksText] = useState(
+    initialTicket.resolvedRemarks || ""
+  );
 
   // Update local state if initialTicket prop changes (e.g., after a server action refresh)
   useEffect(() => {
@@ -189,6 +192,7 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
     }
     setIsEditingTitle(false);
   };
+
   const handleCancelEditTitle = () => {
     setTicket((prev) => ({
       ...prev!,
@@ -218,7 +222,13 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
     if (!ticket) return;
 
     // 1. Validation check
-    if (ticket.status === 'Resolved' && (!ticket.resolvedRemarks || ticket.resolvedRemarks.trim() === '')) {
+
+    if (ticket.status !== "Resolved") {
+      alert("Ticket is not resolved");
+      return;
+    }
+
+    if (!remarksText || remarksText.trim() === "") {
       alert("Resolution remarks are required to mark this ticket as Resolved.");
       return;
     }
@@ -230,29 +240,32 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
       await persistTicketUpdate(statusUpdatePayload);
 
       // 3. Then, if remarks exist, persist them to the dedicated endpoint
-      if (ticket.resolvedRemarks) {
-        console.log(`Sending PATCH to /api/tickets/${ticket._id}/remarks`);
-        const remarksResponse = await fetch(`/api/tickets/${ticket._id}/remarks`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ remarks: ticket.resolvedRemarks }),
-        });
 
-        if (!remarksResponse.ok) {
-          const errorData = await remarksResponse.json();
-          throw new Error(errorData.message || "Failed to save remarks");
+      console.log(`Sending PATCH to /api/tickets/${ticket._id}/remarks`);
+      const remarksResponse = await fetch(
+        `/api/tickets/${ticket._id}/remarks`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ remarks: remarksText }),
         }
-        
-        const finalUpdatedTicket = await remarksResponse.json();
-        // The final response should be the fully updated ticket, set it as the source of truth
-        setTicket(finalUpdatedTicket);
+      );
+
+      if (!remarksResponse.ok) {
+        const errorData = await remarksResponse.json();
+        throw new Error(errorData.message || "Failed to save remarks");
       }
+
+      const finalUpdatedTicket = await remarksResponse.json();
+
+      console.log({ ticket, finalUpdatedTicket });
+      // The final response should be the fully updated ticket, set it as the source of truth
+      setTicket(finalUpdatedTicket);
 
       // 4. Update local "original" state and exit edit mode
       setOriginalStatus(ticket.status);
       setOriginalRemarks(ticket.resolvedRemarks || "");
       setIsEditingRemarks(false);
-
     } catch (error: any) {
       console.error("Error during save process:", error.message);
       // Revert the local state to the initial state on failure
@@ -285,6 +298,7 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
     }
     setIsEditingDescription(false);
   };
+
   const handleCancelEditDescription = () => {
     setTicket((prev) => ({
       ...prev!,
@@ -445,7 +459,7 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
       <Tabs
         value={activeTab}
         onValueChange={setActiveTab}
-        className="flex-1 flex flex-col overflow-hidden"
+        className="flex-1 flex flex-col"
       >
         <TabsList className="mx-4 mt-4 sticky top-0 z-10 flex-shrink-0 flex justify-center w-full">
           {/* Removed bg-white and border-b from TabsList */}
@@ -470,7 +484,7 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
         >
           <div className="flex flex-col flex-1 h-full">
             <div className="p-6">
-              <div className="bg-white shadow-lg rounded-lg p-6 mx-auto">
+              <div className="bg-white shadow-lg rounded-lg p-4 mx-auto">
                 {/* Editable Title */}
                 <div className="mb-6 pb-4 border-b ">
                   <h2 className="text-xl font-semibold text-gray-700">Title</h2>
@@ -633,12 +647,14 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
               </div>
             </div>
 
-            <div className="flex justify-center mt-4">
+            {/* <div className="flex justify-start items-center">
+             
+              
+            </div> */}
+            <div className="flex-shrink-0 h-[40vh] px-6 rounded-sm">
               <span className="text-lg font-semibold text-gray-700">
-                Internal Comments
+                Comments
               </span>
-            </div>
-            <div className="flex-shrink-0 h-[40vh] border-[1px] border-black/20">
               <CommentSection
                 ticketId={ticket._id}
                 onCommentAdded={(commentText, author) =>
@@ -654,8 +670,8 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
               Ticket Details
             </h3>
 
-            {ticket.status === "Resolved" && (
-              <div className="mt-6 pt-6 border-t">
+            {ticket.status === "Resolved" && !ticket.resolvedRemarks && (
+              <div className="mt-6 pt-6">
                 <div className="flex justify-between items-center mb-2">
                   <h2 className="text-xl font-semibold text-gray-700">
                     Resolved Remarks <span className="text-red-500">*</span>
@@ -664,14 +680,9 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
 
                 <div className="space-y-4">
                   <Textarea
-                    placeholder="Enter resolution remarks... (Required)"
-                    value={ticket.resolvedRemarks || ""}
-                    onChange={(e) =>
-                      setTicket((prev) => ({
-                        ...prev!,
-                        resolvedRemarks: e.target.value,
-                      }))
-                    }
+                    placeholder="Enter remarks"
+                    value={remarksText || ""}
+                    onChange={(e) => setRemarksText(e.target.value)}
                     rows={5}
                     className="w-full border-primary" // Highlight the box
                     disabled={isSaving}
@@ -684,11 +695,25 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
                     >
                       Cancel
                     </Button>
-                    <Button onClick={handleSaveRemarks} disabled={isSaving}>
-                      {isSaving ? "Saving..." : "Save Status & Remarks"}
-                    </Button> 
+                    <Button
+                      onClick={handleSaveRemarks}
+                      disabled={isSaving}
+                      className="bg-blue-500 hover:bg-blue-600"
+                    >
+                      {isSaving ? "Saving..." : "Save Remarks"}
+                    </Button>
                   </div>
                 </div>
+              </div>
+            )}
+             {ticket.resolvedRemarks && (
+              <div>
+                <label className="text-xs font-semibold text-gray-500">
+                  Resolution Remarks
+                </label>
+                <p className="mt-1 text-sm text-gray-700 bg-gray-100 p-3 rounded-md border break-words">
+                  {ticket.resolvedRemarks}
+                </p>
               </div>
             )}
             <EditableField
