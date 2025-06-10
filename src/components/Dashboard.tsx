@@ -9,7 +9,7 @@ import { Ticket } from '@/types/ticket';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
-const DASHBOARD_TICKET_LIMIT = 10;
+const DASHBOARD_TICKET_LIMIT = 5;
 
 export default function Dashboard() {
   const [dashboardTickets, setDashboardTickets] = useState<Ticket[]>([]);

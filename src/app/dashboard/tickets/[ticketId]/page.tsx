@@ -16,7 +16,7 @@ import { fetchTicketById } from "@/lib/api";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StatusBadge } from "../../columns";
 import { CategoryBadge } from "../../columns";
-import { PriorityBadge } from "../../columns";
+// import { PriorityBadge } from "../../columns";
 import TicketViewClient from "./TicketViewClient";
 
 const STATUS_OPTIONS: Ticket["status"][] = [
