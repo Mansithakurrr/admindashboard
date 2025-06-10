@@ -4,38 +4,36 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Send, MessageSquareText } from "lucide-react"; // Added MessageSquareText for placeholder
+import { Send, MessageSquareText } from "lucide-react";
 
+// Assuming a Comment type is defined in your types file
 interface Comment {
-  _id: string; 
+  _id: string;
   text: string;
   author: string;
-  createdAt: string; 
-  formattedTimestamp?: string; 
+  createdAt: string;
+  formattedTimestamp?: string;
 }
 
 interface CommentSectionProps {
   ticketId: string;
   onCommentAdded: (commentText: string, author: string) => void;
-  // If you intend to pass comments from TicketViewClient (which is good for consistency with activityLog)
-  // you would have a prop like:
-  // commentsFromParent: Comment[]; 
 }
 
 export const CommentSection = ({
   ticketId,
   onCommentAdded,
 }: CommentSectionProps) => {
-  // This local 'comments' state will be for comments fetched by this component.
-  // If parent passes 'ticket.comments', this component might not need to fetch/manage this list.
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
   const [isLoadingComments, setIsLoadingComments] = useState(true);
-  
+
+  // Ref for the scrollable comments list to scroll to the bottom
   const commentsEndRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    commentsEndRef.current?.scrollIntoView({ behavior: "smooth"});
+    // Auto-scroll to the bottom when new comments are added
+    commentsEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [comments]);
 
   useEffect(() => {
@@ -46,8 +44,7 @@ export const CommentSection = ({
       }
       setIsLoadingComments(true);
       try {
-        // TODO: Ensure this API endpoint exists and works as expected
-        const res = await fetch(`/api/comments?ticketId=${ticketId}`); 
+        const res = await fetch(`/api/comments?ticketId=${ticketId}`);
         if (!res.ok) {
           console.error("Failed to fetch comments, status:", res.status);
           setComments([]);
@@ -80,10 +77,9 @@ export const CommentSection = ({
   const handleCommentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newComment.trim() === "") return;
-    const author = "You"; // Replace with actual logged-in user
-    
+    const author = "Ayush (You)"; // Replace with actual logged-in user
+
     try {
-      // TODO: Ensure this API endpoint exists and correctly saves the comment AND returns the saved comment
       const res = await fetch("/api/comments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -96,11 +92,15 @@ export const CommentSection = ({
 
       if (!res.ok) {
         const errorData = await res.json();
-        alert(`Error submitting comment: ${errorData.message || "Please try again."}`);
+        alert(
+          `Error submitting comment: ${
+            errorData.message || "Please try again."
+          }`
+        );
         return;
       }
-      const savedComment = await res.json(); // Expect the saved comment with _id, createdAt
-      
+      const savedComment = await res.json();
+
       const newDisplayComment: Comment = {
         ...savedComment,
         formattedTimestamp: new Date(savedComment.createdAt).toLocaleString(
@@ -109,8 +109,8 @@ export const CommentSection = ({
         ),
       };
       setComments((prev) => [...prev, newDisplayComment]);
-      onCommentAdded(savedComment.text, savedComment.author); // Notify parent to update activity log
-      setNewComment(""); // Clear input after successful submission
+      onCommentAdded(savedComment.text, savedComment.author);
+      setNewComment("");
     } catch (error) {
       console.error("Error submitting comment:", error);
       alert("An error occurred while submitting your comment.");
@@ -118,17 +118,32 @@ export const CommentSection = ({
   };
 
   return (
-    // Main container:
-    // h-full: Fills the height allocated by its parent (e.g., the h-3/5 div in TicketViewClient)
-    // overflow-hidden: Ensures this container itself doesn't grow.
-    // flex flex-col: Key for distributing space between comments list and input.
-    <div className="flex flex-col h-full">
-
-      {/* Comments List Area (Scrollable) */}
-      {/* flex-1: This is equivalent to flex-grow: 1, flex-shrink: 1, flex-basis: 0%. It will take up available space. */}
-      {/* overflow-y-auto: Makes this specific div scrollable. */}
-      {/* min-h-0: Allows this flex item to shrink smaller than its content if needed, crucial for scrolling. */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
+    // Main container: a flex column that fills the height given by its parent
+    <div className="flex flex-col h-full bg-gray-50 overflow-hidden">
+      <div className="flex-shrink-0 p-2 bg-white border-gray-200 rounded-lg">
+        <form
+          onSubmit={handleCommentSubmit}
+          className="flex items-center space-x-2 "
+        >
+          <Input
+            type="text"
+            placeholder="Type your comment..."
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+            className="flex-grow"
+          />
+          <Button
+            type="submit"
+            className="bg-blue-500 hover:bg-blue-600"
+            size="icon"
+          >
+            <Send className="h-4 w-4" />
+          </Button>
+        </form>
+      </div>
+      {/* ===== Comments List Area (Scrollable) ===== */}
+      {/* This div grows to fill available space and scrolls internally */}
+      <div className="flex-1 overflow-y-auto p-2 space-y-4 min-h-0">
         {isLoadingComments && (
           <div className="flex justify-center items-center h-full">
             <p className="text-gray-500">Loading comments...</p>
@@ -151,7 +166,9 @@ export const CommentSection = ({
                 <p className="font-semibold text-sm text-gray-800">
                   {comment.author}
                 </p>
-                <p className="text-gray-700 text-sm break-words">{comment.text}</p>
+                <p className="text-gray-700 text-sm break-words">
+                  {comment.text}
+                </p>
               </div>
               <p className="text-xs text-gray-500 mt-1 ml-1">
                 {comment.formattedTimestamp}
@@ -159,29 +176,11 @@ export const CommentSection = ({
             </div>
           </div>
         ))}
-        {/* Empty div to scroll to when new comments are added */}
-        {comments.length > 0 && <div ref={commentsEndRef} />}
+        {/* Empty div at the end of the list to act as the auto-scroll target */}
+        <div ref={commentsEndRef} />
       </div>
 
-      {/* Input Area (Fixed height at the bottom) */}
-      {/* flex-shrink-0: Prevents this div from shrinking. */}
-      <div className="flex-shrink-0 p-4 bg-white border-t border-gray-200">
-        <form
-          onSubmit={handleCommentSubmit}
-          className="flex items-center space-x-2"
-        >
-          <Input
-            type="text"
-            placeholder="Type your comment..."
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-            className="flex-grow"
-          />
-          <Button type="submit" className="bg-blue-500 hover:bg-blue-600" size="icon">
-            <Send className="h-4 w-4" />
-          </Button>
-        </form>
-      </div>
+      {/* ===== Input Area (Now a direct child, fixed at the bottom) ===== */}
     </div>
   );
 };

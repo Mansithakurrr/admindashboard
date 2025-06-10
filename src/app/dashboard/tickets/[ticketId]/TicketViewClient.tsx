@@ -192,6 +192,7 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
     }
     setIsEditingTitle(false);
   };
+
   const handleCancelEditTitle = () => {
     setTicket((prev) => ({
       ...prev!,
@@ -297,6 +298,7 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
     }
     setIsEditingDescription(false);
   };
+
   const handleCancelEditDescription = () => {
     setTicket((prev) => ({
       ...prev!,
@@ -457,7 +459,7 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
       <Tabs
         value={activeTab}
         onValueChange={setActiveTab}
-        className="flex-1 flex flex-col overflow-hidden"
+        className="flex-1 flex flex-col"
       >
         <TabsList className="mx-4 mt-4 sticky top-0 z-10 flex-shrink-0 flex justify-center w-full">
           {/* Removed bg-white and border-b from TabsList */}
@@ -482,7 +484,7 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
         >
           <div className="flex flex-col flex-1 h-full">
             <div className="p-6">
-              <div className="bg-white shadow-lg rounded-lg p-6 mx-auto">
+              <div className="bg-white shadow-lg rounded-lg p-4 mx-auto">
                 {/* Editable Title */}
                 <div className="mb-6 pb-4 border-b ">
                   <h2 className="text-xl font-semibold text-gray-700">Title</h2>
@@ -645,12 +647,14 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
               </div>
             </div>
 
-            <div className="flex justify-center mt-4">
+            {/* <div className="flex justify-start items-center">
+             
+              
+            </div> */}
+            <div className="flex-shrink-0 h-[40vh] px-6 rounded-sm">
               <span className="text-lg font-semibold text-gray-700">
-                Internal Comments
+                Comments
               </span>
-            </div>
-            <div className="flex-shrink-0 h-[40vh] border-[1px] border-black/20">
               <CommentSection
                 ticketId={ticket._id}
                 onCommentAdded={(commentText, author) =>
@@ -667,7 +671,7 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
             </h3>
 
             {ticket.status === "Resolved" && !ticket.resolvedRemarks && (
-              <div className="mt-6 pt-6 border-t">
+              <div className="mt-6 pt-6">
                 <div className="flex justify-between items-center mb-2">
                   <h2 className="text-xl font-semibold text-gray-700">
                     Resolved Remarks <span className="text-red-500">*</span>
@@ -676,7 +680,7 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
 
                 <div className="space-y-4">
                   <Textarea
-                    placeholder="Enter resolution remarks... (Required)"
+                    placeholder="Enter remarks"
                     value={remarksText || ""}
                     onChange={(e) => setRemarksText(e.target.value)}
                     rows={5}
@@ -691,11 +695,25 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
                     >
                       Cancel
                     </Button>
-                    <Button onClick={handleSaveRemarks} disabled={isSaving}>
-                      {isSaving ? "Saving..." : "Save Status & Remarks"}
+                    <Button
+                      onClick={handleSaveRemarks}
+                      disabled={isSaving}
+                      className="bg-blue-500 hover:bg-blue-600"
+                    >
+                      {isSaving ? "Saving..." : "Save Remarks"}
                     </Button>
                   </div>
                 </div>
+              </div>
+            )}
+             {ticket.resolvedRemarks && (
+              <div>
+                <label className="text-xs font-semibold text-gray-500">
+                  Resolution Remarks
+                </label>
+                <p className="mt-1 text-sm text-gray-700 bg-gray-100 p-3 rounded-md border break-words">
+                  {ticket.resolvedRemarks}
+                </p>
               </div>
             )}
             <EditableField

@@ -153,7 +153,7 @@ export function TicketsDataTable<TData extends Ticket, TValue>({
 
   return (
     <div className="w-full mt-8 bg-white p-4 rounded-lg shadow-md">
-      <div className="flex items-center py-4 space-x-4">
+      <div className="flex items-center py-4 space-x-4 bg-white z-50">
         <Input
           placeholder="Filter by name..."
           value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
@@ -162,6 +162,7 @@ export function TicketsDataTable<TData extends Ticket, TValue>({
           }
           className="max-w-sm h-10" // Standardized height with Select
         />
+        
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto h-10">

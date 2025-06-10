@@ -46,7 +46,7 @@ export const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ activities }
 
   return (
     // This root div no longer controls scrolling. It just arranges its children (timeline + pagination).
-    <div className="max-h-[calc(100vh-200px)] overflow-y-auto p-6">
+    <div className="max-h-[calc(100vh-150px)] overflow-y-auto p-6">
       {/* Timeline List */}
       <div className="space-y-6">
         {currentActivities.map((activity, index) => (
@@ -73,11 +73,11 @@ export const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ activities }
               {activity.user && (
                 <p className="text-xs text-gray-500 mb-2">by {activity.user}</p>
               )}
-              {activity.from && activity.to && (
+              {/* {activity.from && activity.to && (
                 <p className="text-sm text-gray-600">
                   Changed from <span className="font-medium text-red-600">{activity.from}</span> to <span className="font-medium text-green-600">{activity.to}</span>
                 </p>
-              )}
+              )} */}
               {activity.details && (
                 <p className="text-sm text-gray-600 mt-1 bg-gray-50 p-2 rounded break-words">
                   {activity.details}
@@ -113,5 +113,6 @@ export const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ activities }
         </div>
       )}
     </div>
+    
   );
 };
