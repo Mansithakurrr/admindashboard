@@ -43,14 +43,16 @@ export const StatusBadge = ({ status }: { status: Ticket["status"] }) => {
     InProgress: "bg-purple-100 text-purple-800",
     Hold: "bg-red-100 text-red-800",
     Resolved: "bg-green-100 text-green-800",
-    Closed: "bg-gray-200 text-black", // Matched your existing color
-    
+    Closed: "bg-gray-300 text-black", // Matched your existing color
   };
+
+  const capitalize = (text: string) =>
+    text.charAt(0).toUpperCase() + text.slice(1);
   return (
     <span
       className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClasses[status]}`}
     >
-      {status}
+      {capitalize(status)}
     </span>
   );
 };
@@ -66,11 +68,13 @@ export const CategoryBadge = ({
     "new feature": "bg-purple-100 text-purple-800",
     others: "bg-gray-200 text-gray-800",
   };
+  const capitalize = (text: string) =>
+    text.charAt(0).toUpperCase() + text.slice(1);
   return (
     <span
       className={`px-2 py-1 text-xs font-semibold rounded-full ${classes[category]}`}
     >
-      {category}
+      {capitalize(category)}
     </span>
   );
 };
@@ -81,17 +85,19 @@ export const PriorityBadge = ({
   priority: Ticket["priority"];
 }) => {
   const classes = {
-    low: "bg-gray-100 text-gray-800",
-    medium: "bg-yellow-100 text-yellow-800",
-    high: "bg-orange-100 text-orange-800",
+    low: "bg-green-200 text-green-800",
+    medium: "bg-yellow-200 text-yellow-800",
+    high: "bg-orange-200 text-orange-800",
     // urgent: "bg-red-100 text-red-800", // Assuming 'urgent' is part of your Priority type if used
   };
+  const capitalize = (text: string) =>
+    text.charAt(0).toUpperCase() + text.slice(1);
   // @ts-ignore
   return (
     <span
       className={`px-2 py-1 text-xs font-semibold rounded-full ${classes[priority]}`}
     >
-      {priority}
+      {capitalize(priority)}
     </span>
   );
 };
@@ -112,6 +118,13 @@ const PLATFORM_COLUMN_FILTER_OPTIONS: (string | "All Platforms")[] = [
   "Light House",
   "Learn Tank",
   "Home Certify",
+];
+
+const PRIORITY_COLUMN_FILTER_OPTIONS: (Ticket["priority"] | "All Priorities")[] = [
+  "All Priorities",
+  "low",
+  "medium",
+  "high",
 ];
 
 export const columns: ColumnDef<Ticket>[] = [
@@ -148,13 +161,16 @@ export const columns: ColumnDef<Ticket>[] = [
     ),
     cell: ({ row }) => {
       const subject = row.original.subject;
+      const capitalize = (text: string) =>
+        text.charAt(0).toUpperCase() + text.slice(1);
+
       return (
-        
-          <TicketSubject
-            title={subject.title}
-            description={subject.description}
-          />
-        
+
+        <TicketSubject
+          title={capitalize(subject.title)}
+          description={capitalize(subject.description)}
+        />
+
       );
     },
   },
@@ -167,16 +183,19 @@ export const columns: ColumnDef<Ticket>[] = [
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        
+
         Name
         {/* <ArrowUpDown className="ml-2 h-4 w-4" /> */}
       </Button>
     ),
     cell: ({ row }) => {
       const name = row.getValue("name") as string;
-      return <div className="font-medium text-center">{name}</div>;
+      const capitalize = (text: string) =>
+        text.charAt(0).toUpperCase() + text.slice(1);
+      return <div className="font-medium text-center">{capitalize(name)}</div>;
     },
   },
+
   // Category Column
   {
     accessorKey: "category",
@@ -198,6 +217,7 @@ export const columns: ColumnDef<Ticket>[] = [
       );
     },
   },
+
   // Organization Column
   {
     accessorKey: "Organization", // Matches your provided code
@@ -207,32 +227,7 @@ export const columns: ColumnDef<Ticket>[] = [
       return <div className="font-medium text-center">{organization}</div>;
     },
   },
-  // Date Created Column
-  {
-    accessorKey: "createdAt",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      >
-        <span className="w-full text-center">Date Created</span>
-        <ArrowUpDown />
-      </Button>
-    ),
-    cell: ({ row }) => {
-      const dateString = row.getValue("createdAt") as string;
-      if (!dateString) return "N/A";
-      const date = new Date(dateString);
-      return (
-        <span>
-          {date.toLocaleString("en-IN", {
-            dateStyle: "medium",
-            timeStyle: "short",
-          })}
-        </span>
-      );
-    },
-  },
+
   // Platform Column
   {
     accessorKey: "platformName",
@@ -249,11 +244,10 @@ export const columns: ColumnDef<Ticket>[] = [
                 className="ml-1 h-7 w-7 data-[state=open]:bg-accent"
               >
                 <ChevronDown
-                  className={`h-3.5 w-3.5 transition-transform duration-200 ${
-                    currentFilterValue && currentFilterValue !== "All Platforms"
-                      ? "text-primary rotate-180"
-                      : "text-muted-foreground/70"
-                  }`}
+                  className={`h-3.5 w-3.5 transition-transform duration-200 ${currentFilterValue && currentFilterValue !== "All Platforms"
+                    ? "text-primary rotate-180"
+                    : "text-muted-foreground/70"
+                    }`}
                 />
                 <span className="sr-only">Filter by Platform</span>
               </Button>
@@ -273,7 +267,7 @@ export const columns: ColumnDef<Ticket>[] = [
                   }}
                   className={
                     currentFilterValue === platformOption &&
-                    platformOption !== "All Platforms"
+                      platformOption !== "All Platforms"
                       ? "bg-accent font-semibold"
                       : ""
                   }
@@ -295,9 +289,10 @@ export const columns: ColumnDef<Ticket>[] = [
       const currentFilterValue = column.getFilterValue() as string | undefined;
       return (
         <div className="flex items-center">
-          <div className="flex justify-center items-center">
+          {/* <div className="flex justify-center items-center">
             <StatusBadge status={"All Statuses"} />
-          </div>
+          </div> */}
+          <div className="text-xs font-semibold text-muted-foreground">Status</div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -306,11 +301,10 @@ export const columns: ColumnDef<Ticket>[] = [
                 className="ml-1 h-7 w-7 data-[state=open]:bg-accent"
               >
                 <ChevronDown
-                  className={`h-3.5 w-3.5 transition-transform duration-200 ${
-                    currentFilterValue && currentFilterValue !== "All Status"
-                      ? "text-primary rotate-180"
-                      : "text-muted-foreground/70"
-                  }`}
+                  className={`h-3.5 w-3.5 transition-transform duration-200 ${currentFilterValue && currentFilterValue !== "All Status"
+                    ? "text-primary rotate-180"
+                    : "text-muted-foreground/70"
+                    }`}
                 />
                 <span className="sr-only">Filter by Status</span>
               </Button>
@@ -331,7 +325,7 @@ export const columns: ColumnDef<Ticket>[] = [
                   // Optionally, highlight the active filter
                   className={
                     currentFilterValue === statusOption &&
-                    statusOption !== "All Statuses"
+                      statusOption !== "All Statuses"
                       ? "bg-accent font-semibold"
                       : ""
                   }
@@ -345,6 +339,63 @@ export const columns: ColumnDef<Ticket>[] = [
       );
     },
     cell: ({ row }) => <StatusBadge status={row.getValue("status")} />,
+  },
+
+  // === PRIORITY COLUMN ===
+  {
+    accessorKey: "priority",
+    header: ({ column }) => {
+      const currentFilterValue = column.getFilterValue() as string | undefined;
+      return (
+        <div className="flex items-center">
+          {/* <span className="w-full text-center">Priority</span> */}
+          <div className="text-xs w-full text-center font-semibold text-muted-foreground">Priority</div>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="ml-1 h-7 w-7 data-[state=open]:bg-accent"
+              >
+                <ChevronDown
+                  className={`h-3.5 w-3.5 transition-transform duration-200 ${currentFilterValue && currentFilterValue !== "All Priorities"
+                    ? "text-primary rotate-180"
+                    : "text-muted-foreground/70"
+                    }`}
+                />
+                <span className="sr-only">Filter by Priority</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              <DropdownMenuLabel>Filter by priority</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {PRIORITY_COLUMN_FILTER_OPTIONS.map((priorityOption) => (
+                <DropdownMenuItem
+                  key={priorityOption}
+                  onClick={() => {
+                    if (priorityOption === "All Priorities") {
+                      column.setFilterValue(undefined); // Clear filter
+                    } else {
+                      column.setFilterValue(priorityOption);
+                    }
+                  }}
+                  className={
+                    currentFilterValue === priorityOption &&
+                      priorityOption !== "All Priorities"
+                      ? "bg-accent font-semibold"
+                      : ""
+                  }
+                >
+                  {priorityOption}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      );
+    },
+    cell: ({ row }) => <PriorityBadge priority={row.getValue("priority")} />,
   },
 
   // === MODIFIED DAYS COLUMN (Now represents Age) ===
@@ -389,6 +440,33 @@ export const columns: ColumnDef<Ticket>[] = [
         <div className="text-center">
           {diffDays} day{diffDays === 1 ? "" : "s"}
         </div>
+      );
+    },
+  },
+
+  // Date Created Column
+  {
+    accessorKey: "createdAt",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        <span className="w-full text-center">Date Created</span>
+        <ArrowUpDown />
+      </Button>
+    ),
+    cell: ({ row }) => {
+      const dateString = row.getValue("createdAt") as string;
+      if (!dateString) return "N/A";
+      const date = new Date(dateString);
+      return (
+        <span>
+          {date.toLocaleString("en-IN", {
+            dateStyle: "medium",
+            timeStyle: "short",
+          })}
+        </span>
       );
     },
   },

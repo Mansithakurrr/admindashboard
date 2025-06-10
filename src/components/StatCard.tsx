@@ -8,14 +8,21 @@ interface StatCardProps {
 
 // 1. Define the color mapping for the cards
 // Note: We are using the lighter '100' shades for consistency with the table rows.
-const cardColorClasses: { [key: string]: string } = {
-  Open: "bg-blue-100",
-  Resolved: "bg-green-100",
-  Closed: "bg-gray-200",
-  Total: "bg-red-100",
-  New: "bg-blue-100",
-};
+// const cardColorClasses: { [key: string]: string } = {
+//   Today: "bg-amber-100 text-amber-800",       // Warm & attention-grabbing
+//   Resolved: "bg-emerald-100 text-emerald-800", // Clean & success vibe
+//   Closed: "bg-slate-100 text-slate-800",       // Muted for inactive
+//   Total: "bg-indigo-100 text-indigo-800",      // Professional, standout
+//   New: "bg-sky-100 text-sky-800",  
+// };
 
+const cardColorClasses: { [key: string]: string } = {
+  Today: "bg-amber-100 text-amber-800",       // Warm & attention-grabbing
+  Resolved: "bg-emerald-100 text-emerald-800", // Clean & success vibe
+  Closed: "bg-slate-100 text-slate-800",       // Muted for inactive
+  Total: "bg-indigo-100 text-indigo-800",      // Professional, standout
+  New: "bg-sky-100 text-sky-800",
+};
 const StatCard: React.FC<StatCardProps> = ({ title, value }) => {
   // 2. Look up the color class based on the card's title.
   // If a title doesn't match (like "Total"), it will default to 'bg-white'.
