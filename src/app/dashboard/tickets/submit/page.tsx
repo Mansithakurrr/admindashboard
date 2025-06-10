@@ -29,7 +29,7 @@ export default function SubmitTicketForm() {
     description: "",
     contactNumber: "",
     category: "",
-    type: "",
+    // type: "",
     priority: "",
     attachments: [] as UploadedFile[],
   });
@@ -48,7 +48,7 @@ export default function SubmitTicketForm() {
     if (!formData.description)
       newErrors.description = "Description is required";
     if (!formData.category) newErrors.category = "Category is required";
-    if (!formData.type) newErrors.type = "Type is required";
+    // if (!formData.type) newErrors.type = "Type is required";
     if (!formData.priority) newErrors.priority = "Priority is required";
     const regex = /^\d{10}$/;
     if (formData.contactNumber && !regex.test(formData.contactNumber)) {
@@ -101,7 +101,7 @@ export default function SubmitTicketForm() {
         description: "",
         contactNumber: "",
         category: "",
-        type: "",
+        // type: "",
         priority: "",
         attachments: [],
       });
@@ -233,7 +233,7 @@ export default function SubmitTicketForm() {
               <p className="text-red-500 text-sm">{errors.category}</p>
             )}
           </div>
-
+{/* 
           <div>
             <Select
               value={formData.type}
@@ -251,7 +251,7 @@ export default function SubmitTicketForm() {
             {errors.type && (
               <p className="text-red-500 text-sm">{errors.type}</p>
             )}
-          </div>
+          </div> */}
 
           <div>
             <Select
