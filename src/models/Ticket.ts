@@ -71,7 +71,7 @@ const TicketSchema = new mongoose.Schema(
     type: {
       type: String,
       enum: ["Support", "Complaint", "Feedback"],
-      required: true,
+      // required: true,
     },
     attachments: [
       String
