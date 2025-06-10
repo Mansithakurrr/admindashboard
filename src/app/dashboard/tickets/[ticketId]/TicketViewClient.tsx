@@ -201,23 +201,6 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
     setIsEditingTitle(false);
   };
   const hasTitleBeenEdited = ticket.subject.title !== originalTitle;
-
-  // const handleSaveRemarks = () => {
-  //   if (!ticket) return;
-
-  //   // VALIDATION: Check if remarks are empty when status is "Resolved"
-  //   if (ticket.status === 'Resolved' && (!ticket.resolvedRemarks || ticket.resolvedRemarks.trim() === '')) {
-  //     alert("Remarks are required to resolve this ticket."); // Show the check
-  //     return; // Stop the function here
-  //   }
-
-  //   // If validation passes, update both status and remarks in one go
-  //   handleFieldUpdate("status", ticket.status, originalStatus);
-  //   handleFieldUpdate("resolvedRemarks", ticket.resolvedRemarks || "", originalRemarks);
-
-  //   setIsEditingRemarks(false); // Close the edit box
-  // };
-
   const handleSaveRemarks = async () => {
     if (!ticket) return;
 
@@ -706,7 +689,7 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
                 </div>
               </div>
             )}
-             {ticket.resolvedRemarks && (
+            {ticket.resolvedRemarks && (
               <div>
                 <label className="text-xs font-semibold text-gray-500">
                   Resolution Remarks
@@ -716,53 +699,109 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
                 </p>
               </div>
             )}
-            <EditableField
-              label="Status"
-              value={ticket.status}
-              options={availableStatusOptions}
-              onValueChange={handleStatusChange}
-              renderValue={(value) => (
-                <StatusBadge status={value as Ticket["status"]} />
-              )}
-            />
-            <EditableField
-              label="Priority"
-              value={ticket.priority}
-              options={PRIORITY_OPTIONS}
-              onValueChange={(newVal) =>
-                handleFieldUpdate("priority", newVal, ticket.priority)
-              }
-              renderValue={(value) => (
-                <PriorityBadge priority={value as Priority} />
-              )}
-            />
-            <EditableField
-              label="Category"
-              value={ticket.category}
-              options={CATEGORY_OPTIONS}
-              onValueChange={(newVal) =>
-                handleFieldUpdate("category", newVal, ticket.category)
-              }
-              renderValue={(value) => (
-                <CategoryBadge category={value as Ticket["category"]} />
-              )}
-            />
-            <EditableField
-              label="Organization"
-              value={ticket.Organization}
-              options={ORGANIZATION_OPTIONS}
-              onValueChange={(newVal) =>
-                handleFieldUpdate("Organization", newVal, ticket.Organization)
-              }
-            />
-            <EditableField
-              label="Platform"
-              value={ticket.platformName}
-              options={PLATFORM_OPTIONS}
-              onValueChange={(newVal) =>
-                handleFieldUpdate("platformName", newVal, ticket.platformName)
-              }
-            />
+            <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+              <EditableField
+                label="Status"
+                value={ticket.status}
+                options={availableStatusOptions}
+                onValueChange={handleStatusChange}
+                renderValue={(value) => (
+                  <StatusBadge status={value as Ticket["status"]} />
+                )}
+              />
+              <EditableField
+                label="Priority"
+                value={ticket.priority}
+                options={PRIORITY_OPTIONS}
+                onValueChange={(newVal) =>
+                  handleFieldUpdate("priority", newVal, ticket.priority)
+                }
+                renderValue={(value) => (
+                  <PriorityBadge priority={value as Priority} />
+                )}
+              />
+              <EditableField
+                label="Category"
+                value={ticket.category}
+                options={CATEGORY_OPTIONS}
+                onValueChange={(newVal) =>
+                  handleFieldUpdate("category", newVal, ticket.category)
+                }
+                renderValue={(value) => (
+                  <CategoryBadge category={value as Ticket["category"]} />
+                )}
+              />
+              <EditableField
+                label="Organization"
+                value={ticket.Organization}
+                options={ORGANIZATION_OPTIONS}
+                onValueChange={(newVal) =>
+                  handleFieldUpdate("Organization", newVal, ticket.Organization)
+                }
+              />
+              <EditableField
+                label="Platform"
+                value={ticket.platformName}
+                options={PLATFORM_OPTIONS}
+                onValueChange={(newVal) =>
+                  handleFieldUpdate("platformName", newVal, ticket.platformName)
+                }
+              />
+            </div>
+
+            {ticket.attachments?.length > 0 && (
+              <div>
+                <h3 className="text-sm font-semibold text-gray-500 mb-2">Attachments</h3>
+                <div className="max-h-64 overflow-y-auto pr-1 space-y-3">
+                  {ticket.attachments.map((url: string, index: number) => {
+                    const fileName = url.split("/").pop();
+                    const fileExt = fileName?.split(".").pop()?.toLowerCase();
+                    const isImage = ["jpg", "jpeg", "png", "gif", "webp"].includes(fileExt || "");
+
+                    return (
+                      <div
+                        key={index}
+                        className="flex items-center gap-3 p-2 border rounded bg-white shadow-sm"
+                      >
+                        {isImage ? (
+                          <a href={url} target="_blank" rel="noopener noreferrer">
+                            <img
+                              src={url}
+                              alt={`attachment-${index}`}
+                              className="w-16 h-16 object-cover rounded"
+                            />
+                          </a>
+                        ) : (
+                          <div className="w-16 h-16 flex items-center justify-center border rounded bg-gray-100 text-gray-500 text-xs">
+                            {fileExt?.toUpperCase()}
+                          </div>
+                        )}
+
+                        <div className="flex flex-col gap-1 truncate">
+                          <a
+                            href={url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 text-sm hover:underline truncate max-w-[180px]"
+                          >
+                            {fileName}
+                          </a>
+                          <a
+                            href={url}
+                            download
+                            className="text-xs text-gray-600 hover:text-black"
+                          >
+                            Download
+                          </a>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+
 
             <div>
               <label className="text-xs font-semibold text-gray-500">
@@ -775,6 +814,8 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
                 })}
               </p>
             </div>
+
+
           </aside>
         </TabsContent>
 
@@ -787,4 +828,4 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
 };
 
 export default TicketViewClient;
-function persistTicketUpdate(arg0: { resolvedRemarks: string }) {}
+function persistTicketUpdate(arg0: { resolvedRemarks: string }) { }

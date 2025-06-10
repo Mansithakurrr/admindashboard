@@ -30,6 +30,7 @@ export type Ticket = {
   // days: number;
   createdAt: string; // API returns ISO string
   updatedAt: string; // API returns ISO string
+  attachments: string[];
   activityLog: ActivityLogEntry[]; // Array to hold the ticket's history
   comments?: Comment[]; // Optional: if comments are part of the ticket document
   __v?: number;
