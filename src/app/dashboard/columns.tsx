@@ -44,6 +44,7 @@ export const StatusBadge = ({ status }: { status: Ticket["status"] }) => {
     Hold: "bg-red-100 text-red-800",
     Resolved: "bg-green-100 text-green-800",
     Closed: "bg-gray-300 text-black", // Matched your existing color
+    
   };
 
   const capitalize = (text: string) =>
@@ -90,8 +91,9 @@ export const PriorityBadge = ({
     high: "bg-orange-200 text-orange-800",
     // urgent: "bg-red-100 text-red-800", // Assuming 'urgent' is part of your Priority type if used
   };
-  const capitalize = (text: string) =>
-    text.charAt(0).toUpperCase() + text.slice(1);
+  const capitalize = (text?: string) =>
+    text ? text.charAt(0).toUpperCase() + text.slice(1) : '';
+  
   // @ts-ignore
   return (
     <span
