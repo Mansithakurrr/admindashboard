@@ -747,6 +747,7 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
                   handleFieldUpdate("platformName", newVal, ticket.platformName)
                 }
               />
+              
             </div>
 
             {ticket.attachments?.length > 0 && (
