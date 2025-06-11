@@ -89,10 +89,10 @@ export const ActivityTimeline: React.FC<ActivityTimelineProps> = ({
 
               )}
               {activity.from && (
-                <p className="text-xs text-gray-500 mb-2">from {activity.from}</p>
+                <p className="text-xs font-semibold text-gray-500 mb-2">from {activity.from}</p>
               )}
               {activity.to && (
-                <p className="text-xs text-gray-500 mb-2">to {activity.to}</p>
+                <p className="text-xs font-semibold text-gray-500 mb-2">to {activity.to}</p>
               )}
             </div>
           </div>

@@ -9,82 +9,102 @@ import { Ticket } from '@/types/ticket';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
-const DASHBOARD_TICKET_LIMIT = 5;
+const DASHBOARD_TICKET_LIMIT = 10; // Changed back to 10 as per your original code
+
+// Define a type for the stats object we expect from the API
+type TicketStats = {
+  total: number;
+  open: number;
+  resolved: number;
+  closed: number;
+  today: number;
+  // Add other stats like 'new' if your API provides them
+};
 
 export default function Dashboard() {
   const [dashboardTickets, setDashboardTickets] = useState<Ticket[]>([]);
-  const [totalTickets, setTotalTickets] = useState(0);
+  // New state specifically for the card statistics
+  const [statsData, setStatsData] = useState<TicketStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchInitialTickets = async () => {
+    const fetchDashboardData = async () => {
       setIsLoading(true);
       setError(null);
-      try {
-        const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_APP_URL;
-        if (!baseUrl) throw new Error("API base URL is not configured");
+      
+      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_APP_URL;
+      if (!baseUrl) {
+        setError("API base URL is not configured");
+        setIsLoading(false);
+        return;
+      }
 
-        const res = await fetch(`${baseUrl}/api/tickets?page=1&limit=${DASHBOARD_TICKET_LIMIT}`);
-        if (!res.ok) {
-          const errData = await res.json();
-          throw new Error(errData.message || "Failed to fetch initial tickets");
+      try {
+        // Use Promise.all to fetch both sets of data concurrently
+        const [ticketsResponse, statsResponse] = await Promise.all([
+          fetch(`${baseUrl}/api/tickets?page=1&limit=${DASHBOARD_TICKET_LIMIT}`), // For the table
+          fetch(`${baseUrl}/api/tickets/stats`) // For the stat cards
+        ]);
+
+        // Handle tickets response for the table
+        if (!ticketsResponse.ok) {
+          const errData = await ticketsResponse.json();
+          throw new Error(errData.message || "Failed to fetch tickets for table");
         }
-        const data = await res.json();
+        const ticketsData = await ticketsResponse.json();
+        setDashboardTickets(ticketsData.tickets || []);
         
-        setDashboardTickets(data.tickets || []);
-        setTotalTickets(data.total || 0);
+        // Handle stats response for the cards
+        if (!statsResponse.ok) {
+            const errData = await statsResponse.json();
+            throw new Error(errData.message || "Failed to fetch ticket stats");
+        }
+        const statsResult = await statsResponse.json();
+        setStatsData(statsResult);
 
       } catch (err: any) {
-        console.error("Error fetching initial tickets:", err);
-        setError(err.message || "Failed to load tickets.");
+        console.error("Error fetching dashboard data:", err);
+        setError(err.message || "Failed to load dashboard data.");
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchInitialTickets();
+    fetchDashboardData();
   }, []);
 
-  // Calculate stats for the cards (can be based on dashboardTickets or a separate stats API call)
-  const statsData = {
-    Total: totalTickets, // Use the total count from API
-    New: dashboardTickets.filter(t => t.status === 'New').length, // Or fetch dedicated stats
-    Resolved: dashboardTickets.filter(t => t.status === 'Resolved').length,
-    Closed: dashboardTickets.filter(t => t.status === 'Closed').length,
-    Today: dashboardTickets.filter(
-      t => new Date(t.createdAt) >= new Date(Date.now() - 24 * 60 * 60 * 1000)
-    ).length,
-  };
 
-  if (isLoading && dashboardTickets.length === 0) return <p className="p-4">Loading dashboard data...</p>;
-  if (error) return <p className="p-4 text-red-500">Error: {error}</p>;
+  if (isLoading) return <p className="p-4 text-center">Loading Dashboard...</p>;
+  if (error) return <p className="p-4 text-center text-red-500">Error: {error}</p>;
 
   return (
     <div>
       <h1 className="text-2xl font-bold mb-6">Dashboard Overview</h1>
+      {/* Stat cards now use the dedicated statsData state */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-        <StatCard title="Total" value={statsData.Total} />
-        <StatCard title="Today" value={statsData.Today} />
-        <StatCard title="New" value={statsData.New} />
-        <StatCard title="Resolved" value={statsData.Resolved} />
-        <StatCard title="Closed" value={statsData.Closed} />
-
+        <StatCard title="Total" value={statsData?.total ?? 0} />
+        <StatCard title="Today's" value={statsData?.today ?? 0} />
+        {/* Your stats API returns 'open', not 'New', so we use that. */}
+        <StatCard title="Open" value={statsData?.open ?? 0} />
+        <StatCard title="Resolved" value={statsData?.resolved ?? 0} />
+        <StatCard title="Closed" value={statsData?.closed ?? 0} />
       </div>
 
+      {/* The table still uses the limited list of tickets */}
       <TicketsDataTable columns={columns} data={dashboardTickets} />
 
-      {/* Link to All Tickets Page */}
-      {totalTickets > DASHBOARD_TICKET_LIMIT && (
+      {/* The link to all tickets now uses the total from the stats data */}
+      {statsData && statsData.total > DASHBOARD_TICKET_LIMIT && (
         <div className="text-center mt-6">
           <Button asChild variant="link">
             <Link href="/dashboard/allTickets">
-              View All {totalTickets} Tickets &rarr;
+              View All {statsData.total} Tickets &rarr;
             </Link>
           </Button>
         </div>
       )}
-       {totalTickets === 0 && !isLoading && (
+       {statsData && statsData.total === 0 && !isLoading && (
          <p className="text-center mt-6 text-gray-500">No tickets yet.</p>
        )}
     </div>
