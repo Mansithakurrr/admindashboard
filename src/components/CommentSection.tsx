@@ -180,7 +180,131 @@ export const CommentSection = ({
         <div ref={commentsEndRef} />
       </div>
 
-      {/* ===== Input Area (Now a direct child, fixed at the bottom) ===== */}
     </div>
   );
 };
+
+// // src/components/CommentSection.tsx
+// "use client";
+
+// import React, { useEffect, useState, useRef } from "react";
+// import { Button } from "@/components/ui/button";
+// import { Input } from "@/components/ui/input";
+// import { Send, MessageSquareText } from "lucide-react";
+// import { Ticket, Comment } from "@/types/ticket"; // Ensure Comment type is exported from your types file
+
+// interface CommentSectionProps {
+//   ticketId: string;
+//   // This prop now passes down the comments to display from the parent
+//   comments: Comment[];
+//   // This prop will now notify the parent of the *full updated ticket* from the API
+//   onCommentSubmitted: (updatedTicket: Ticket) => void;
+//   // We no longer need an onCommentAdded prop with separate arguments
+// }
+
+// export const CommentSection: React.FC<CommentSectionProps> = ({
+//   ticketId,
+//   comments, // Receives comments from parent
+//   onCommentSubmitted,
+// }) => {
+//   const [newComment, setNewComment] = useState("");
+//   const [isSubmitting, setIsSubmitting] = useState(false);
+//   const commentsEndRef = useRef<HTMLDivElement | null>(null);
+
+//   // This component no longer fetches its own comments.
+//   // The auto-scroll effect will now trigger when the 'comments' prop changes.
+//   useEffect(() => {
+//     commentsEndRef.current?.scrollIntoView({ behavior: "smooth" });
+//   }, [comments]);
+
+//   const handleCommentSubmit = async (e: React.FormEvent) => {
+//     e.preventDefault();
+//     if (newComment.trim() === "" || isSubmitting) return;
+
+//     setIsSubmitting(true);
+//     const author = "Ayush (You)"; // Replace with actual logged-in user logic
+    
+//     try {
+//       // Call the API route that creates a comment AND updates the ticket's activity log
+//       const res = await fetch("/api/comments", {
+//         method: "POST",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify({
+//           text: newComment,
+//           author: author,
+//           ticketId: ticketId,
+//         }),
+//       });
+
+//       if (!res.ok) {
+//         const errorData = await res.json();
+//         throw new Error(errorData.message || "Failed to submit comment");
+//       }
+      
+//       // The API returns the FULLY UPDATED TICKET OBJECT
+//       const updatedTicketFromServer: Ticket = await res.json();
+      
+//       // Pass the entire updated ticket object back up to the parent component.
+//       // The parent will handle updating the state.
+//       onCommentSubmitted(updatedTicketFromServer);
+      
+//       setNewComment(""); // Clear input after successful submission
+
+//     } catch (error: any) => {
+//       console.error("Error submitting comment:", error);
+//       alert(`An error occurred: ${error.message}`);
+//     } finally {
+//       setIsSubmitting(false);
+//     }
+//   };
+
+//   return (
+//     <div className="flex flex-col h-full bg-gray-50 overflow-hidden">
+//       {/* Comments List Area (Scrollable) */}
+//       <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
+//         {comments.length === 0 && (
+//           <div className="flex flex-col items-center justify-center h-full text-gray-400">
+//             <MessageSquareText className="w-12 h-12 mb-3 text-gray-300" />
+//             <p className="font-medium">No comments yet.</p>
+//           </div>
+//         )}
+//         {/* Now mapping over the 'comments' prop from the parent */}
+//         {comments.map((comment) => (
+//           <div key={comment._id} className="flex items-start space-x-3">
+//             <div className="flex-shrink-0 bg-gray-300 rounded-full h-8 w-8 flex items-center justify-center text-sm font-semibold">
+//               {comment.author ? comment.author.charAt(0).toUpperCase() : "?"}
+//             </div>
+//             <div className="flex-1">
+//               <div className="bg-white p-3 rounded-lg shadow-sm">
+//                 <p className="font-semibold text-sm text-gray-800">{comment.author}</p>
+//                 <p className="text-gray-700 text-sm break-words">{comment.text}</p>
+//               </div>
+//               <p className="text-xs text-gray-500 mt-1 ml-1">
+//                 {/* Format timestamp on the fly */}
+//                 {new Date(comment.createdAt).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })}
+//               </p>
+//             </div>
+//           </div>
+//         ))}
+//         <div ref={commentsEndRef} />
+//       </div>
+      
+//       {/* Input Area (Fixed at the bottom) */}
+//       <div className="flex-shrink-0 p-4 bg-white border-t border-gray-200">
+//         <form onSubmit={handleCommentSubmit} className="flex items-center space-x-2">
+//           <Input
+//             type="text"
+//             placeholder="Type your comment..."
+//             value={newComment}
+//             onChange={(e) => setNewComment(e.target.value)}
+//             className="flex-grow"
+//             disabled={isSubmitting}
+//           />
+//           <Button type="submit" className="bg-blue-500 hover:bg-blue-600" size="icon" disabled={isSubmitting}>
+//             {isSubmitting ? "..." : <Send className="h-4 w-4" />}
+//           </Button>
+//         </form>
+//       </div>
+//     </div>
+//   );
+// };

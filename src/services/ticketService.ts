@@ -228,7 +228,6 @@ export const deleteTicketById = async (id: string) => {
 };
 
 export async function updateResolvedRemarks(ticketId: string, remarks: string) {
-  // This can now just call the main update function
   return await updateTicketById(ticketId, { resolvedRemarks: remarks });
 }
 // export async function updateResolvedRemarks(ticketId: string, remarks: string) {
