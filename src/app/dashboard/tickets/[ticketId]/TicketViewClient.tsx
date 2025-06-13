@@ -27,14 +27,14 @@ const CATEGORY_OPTIONS: Ticket["category"][] = [
   "new feature",
   "others",
 ];
-const ORGANIZATION_OPTIONS: Ticket["Organization"][] = [
+const ORGANIZATION_OPTIONS: Ticket["orgId"][] = [
   "MSIL",
   "Rohtak",
   "Tag Avenue",
   "Udhyog Vihar",
 ];
 
-const PLATFORM_OPTIONS: Ticket["platformName"][] = [
+const PLATFORM_OPTIONS: Ticket["platformId"][] = [
   "Light house",
   "Learn Tank",
   "Home Certify",
@@ -134,6 +134,24 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
       let updatedFields: any = {};
       let activityEntry: ActivityLogEntry;
 
+          // 1. Label for activity log
+    const getFieldLabel = (field: string) => {
+      switch (field) {
+        case "orgId":
+          return "Organization";
+        case "platformId":
+          return "Platform";
+        case "priority":
+          return "Priority";
+        case "status":
+          return "Status";
+        case "category":
+          return "Category";
+        default:
+          return field.charAt(0).toUpperCase() + field.slice(1);
+      }
+    };
+
       if (typeof fieldName === "string" && fieldName.startsWith("subject.")) {
         const subField = fieldName.split(".")[1] as "title" | "description";
         activityEntry = createActivityLogEntry(
@@ -154,7 +172,7 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
         }));
       } else {
         activityEntry = createActivityLogEntry(
-          `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} Changed`,
+          `${getFieldLabel(fieldName)} Changed`,
           originalValue,
           newValue
         );
@@ -732,19 +750,19 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
                 )}
               />
               <EditableField
-                label="Organization"
-                value={ticket.Organization}
+                label="Organization"  
+                value={ticket.organizationName || ""}
                 options={ORGANIZATION_OPTIONS}
                 onValueChange={(newVal) =>
-                  handleFieldUpdate("Organization", newVal, ticket.Organization)
+                  handleFieldUpdate("orgId", newVal, ticket.organizationName)
                 }
               />
               <EditableField
                 label="Platform"
-                value={ticket.platformName}
+                value={ticket.platformName || ""}
                 options={PLATFORM_OPTIONS}
                 onValueChange={(newVal) =>
-                  handleFieldUpdate("platformName", newVal, ticket.platformName)
+                  handleFieldUpdate("platformId", newVal, ticket.platformName)
                 }
               />
             </div>
@@ -753,8 +771,8 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
               <div>
                 <h3 className="text-sm font-semibold text-gray-500 mb-2">Attachments</h3>
                 <div className="max-h-64 overflow-y-auto pr-1 space-y-3">
-                  {ticket.attachments.map((url: string, index: number) => {
-                    const fileName = url.split("/").pop();
+                  {ticket.attachments.map((attachment: { url: string; originalName: string; }, index: number) => {
+                    const fileName = attachment.url.split("/").pop();
                     const fileExt = fileName?.split(".").pop()?.toLowerCase();
                     const isImage = ["jpg", "jpeg", "png", "gif", "webp"].includes(fileExt || "");
 
@@ -764,10 +782,10 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
                         className="flex items-center gap-3 p-2 border rounded bg-white shadow-sm"
                       >
                         {isImage ? (
-                          <a href={url} target="_blank" rel="noopener noreferrer">
+                          <a href={attachment.url} target="_blank" rel="noopener noreferrer">
                             <img
-                              src={url}
-                              alt={`attachment-${index}`}
+                              src={attachment.url}
+                              alt={`attachment-${index+1}`}
                               className="w-16 h-16 object-cover rounded"
                             />
                           </a>
@@ -779,15 +797,15 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
 
                         <div className="flex flex-col gap-1 truncate">
                           <a
-                            href={url}
+                            href={attachment.url}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-blue-600 text-sm hover:underline truncate max-w-[180px]"
                           >
-                            {fileName}
+                            {attachment.originalName}
                           </a>
                           <a
-                            href={url}
+                            href={attachment.url}
                             download
                             className="text-xs text-gray-600 hover:text-black"
                           >
