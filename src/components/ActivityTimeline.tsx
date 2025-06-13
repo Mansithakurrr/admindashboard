@@ -1,9 +1,9 @@
 // src/components/ActivityTimeline.tsx
-"use client"
+"use client";
 
-import React, { useState, useMemo } from 'react';
-import { ActivityLogEntry } from '@/types/ticket';
-import { Button } from '@/components/ui/button';
+import React, { useState, useMemo } from "react";
+import { ActivityLogEntry } from "@/types/ticket";
+import { Button } from "@/components/ui/button";
 
 interface ActivityTimelineProps {
   activities: ActivityLogEntry[];
@@ -11,7 +11,9 @@ interface ActivityTimelineProps {
 
 const ITEMS_PER_PAGE = 5; // You can adjust how many activities to show per page
 
-export const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ activities }) => {
+export const ActivityTimeline: React.FC<ActivityTimelineProps> = ({
+  activities,
+}) => {
   const [currentPage, setCurrentPage] = useState(1);
 
   // Memoize sorted activities to avoid re-sorting on every render
@@ -29,7 +31,10 @@ export const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ activities }
   const totalPages = Math.ceil(sortedActivities.length / ITEMS_PER_PAGE);
   const indexOfLastItem = currentPage * ITEMS_PER_PAGE;
   const indexOfFirstItem = indexOfLastItem - ITEMS_PER_PAGE;
-  const currentActivities = sortedActivities.slice(indexOfFirstItem, indexOfLastItem);
+  const currentActivities = sortedActivities.slice(
+    indexOfFirstItem,
+    indexOfLastItem
+  );
 
   const handleNextPage = () => {
     setCurrentPage((prev) => Math.min(prev + 1, totalPages));
@@ -39,9 +44,12 @@ export const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ activities }
     setCurrentPage((prev) => Math.max(prev - 1, 1));
   };
 
-
   if (!activities || activities.length === 0) {
-    return <p className="text-center text-gray-500 mt-4">No activity has been recorded for this ticket.</p>;
+    return (
+      <p className="text-center text-gray-500 mt-4">
+        No activity has been recorded for this ticket.
+      </p>
+    );
   }
 
   return (
@@ -55,11 +63,12 @@ export const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ activities }
             <div className="absolute left-0 top-1">
               <span className="absolute left-[-5.5px] top-0 block h-3 w-3 rounded-full bg-blue-500 ring-4 ring-white"></span>
               {/* Only draw a line if it's not the last item on the page AND not the last item overall */}
-              {(index < currentActivities.length - 1 || currentPage < totalPages) && (
-                  <span className="absolute left-0 top-3 block h-full w-0.5 bg-gray-200"></span>
+              {(index < currentActivities.length - 1 ||
+                currentPage < totalPages) && (
+                <span className="absolute left-0 top-3 block h-full w-0.5 bg-gray-200"></span>
               )}
             </div>
-            
+
             <div className="bg-white p-4 rounded-lg shadow-sm border">
               <div className="flex justify-between items-center mb-1 flex-wrap">
                 <p className="font-semibold text-gray-700">{activity.action}</p>
@@ -73,15 +82,17 @@ export const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ activities }
               {activity.user && (
                 <p className="text-xs text-gray-500 mb-2">by {activity.user}</p>
               )}
-              {/* {activity.from && activity.to && (
-                <p className="text-sm text-gray-600">
-                  Changed from <span className="font-medium text-red-600">{activity.from}</span> to <span className="font-medium text-green-600">{activity.to}</span>
-                </p>
-              )} */}
               {activity.details && (
-                <p className="text-sm text-gray-600 mt-1 bg-gray-50 p-2 rounded break-words">
+                <p className="text-sm text-gray-600 mt-1 bg-gray-50 p-2 border rounded break-words">
                   {activity.details}
                 </p>
+
+              )}
+              {activity.from && (
+                <p className="text-xs font-semibold text-gray-500 mb-2">from {activity.from}</p>
+              )}
+              {activity.to && (
+                <p className="text-xs font-semibold text-gray-500 mb-2">to {activity.to}</p>
               )}
             </div>
           </div>
@@ -113,6 +124,5 @@ export const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ activities }
         </div>
       )}
     </div>
-    
   );
 };
