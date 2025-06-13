@@ -44,6 +44,7 @@ export type Ticket = {
 
 // Assuming you have a Comment type
 export type Comment = {
+  createdAt: string | number | Date;
   _id: string; // Or however your comment IDs are structured
   text: string;
   author: string;

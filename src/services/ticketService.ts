@@ -426,49 +426,49 @@ export async function patchTicket(id: string, updates: any) {
   return await updateTicketById(id, updates);
 }
 
-export const updateTicketById = async (id: string, updates: any) => {
-  if (!isValidObjectId(id)) return null;
+// export const updateTicketById = async (id: string, updates: any) => {
+//   if (!isValidObjectId(id)) return null;
   
-  const ticket = await Ticket.findById(id);
-  if (!ticket) return null;
+//   const ticket = await Ticket.findById(id);
+//   if (!ticket) return null;
 
-  const fieldsToIgnore = ["_id", "__v", "comments"];
-  const allowedFields = [
-    "status",
-    "priority",
-    "category",
-    "subject",
-    "resolvedRemarks",
-    "activityLog",
-    "attachments",
-  ];
+//   const fieldsToIgnore = ["_id", "__v", "comments"];
+//   const allowedFields = [
+//     "status",
+//     "priority",
+//     "category",
+//     "subject",
+//     "resolvedRemarks",
+//     "activityLog",
+//     "attachments",
+//   ];
 
-  // Append activity log if provided
-  if (Array.isArray(updates.activityLog)) {
-    ticket.activityLog.push(...updates.activityLog);
-  }
+//   // Append activity log if provided
+//   if (Array.isArray(updates.activityLog)) {
+//     ticket.activityLog.push(...updates.activityLog);
+//   }
 
 
-  // Update allowed fields
-  for (const [key, value] of Object.entries(updates)) {
-    if (!fieldsToIgnore.includes(key) && allowedFields.includes(key)) {
-      if (key === "subject" && typeof value === "object") {
-        ticket.subject = {
-          ...ticket.subject,
-          ...value,
-        };
-      } else if (key !== "activityLog") {
-        (ticket as any)[key] = value;
-      }
-    }
-  }
+//   // Update allowed fields
+//   for (const [key, value] of Object.entries(updates)) {
+//     if (!fieldsToIgnore.includes(key) && allowedFields.includes(key)) {
+//       if (key === "subject" && typeof value === "object") {
+//         ticket.subject = {
+//           ...ticket.subject,
+//           ...value,
+//         };
+//       } else if (key !== "activityLog") {
+//         (ticket as any)[key] = value;
+//       }
+//     }
+//   }
 
-  ticket.updatedAt = new Date();
-  await ticket.save();
+//   ticket.updatedAt = new Date();
+//   await ticket.save();
 
-  // Return formatted ticket using existing formatter
-  return await getTicketById(ticket._id.toString());
-};
+//   // Return formatted ticket using existing formatter
+//   return await getTicketById(ticket._id.toString());
+// };
 
 
 export const deleteTicketById = async (id: string) => {
@@ -478,7 +478,6 @@ export const deleteTicketById = async (id: string) => {
 };
 
 export async function updateResolvedRemarks(ticketId: string, remarks: string) {
-  // This can now just call the main update function
   return await updateTicketById(ticketId, { resolvedRemarks: remarks });
 }
 
