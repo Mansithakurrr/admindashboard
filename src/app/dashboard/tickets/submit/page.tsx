@@ -162,29 +162,69 @@ export default function SubmitTicketForm() {
   const errorClass = "border border-red-500";
 
   // ✅ Confirmation Screen
-  if (isSubmitted) {
-    return (
-      <div className="max-w-xl mx-auto mt-10 text-center bg-white p-8 rounded shadow">
-        <h2 className="text-2xl font-semibold text-green-600 mb-4">Ticket Submitted!</h2>
-        {/* <p className="text-gray-700 mb-2">Thank you for reaching out.</p> */}
-        {ticketId && (
-          <p className="text-sm text-gray-600">
-            Your Ticket ID: <span className="font-mono">{ticketId}</span>
-          </p>
-        )}
-              <div className="flex flex-col sm:flex-row justify-center gap-4">
 
-        <Button className="mt-6 bg-blue-600 hover:bg-blue-700" onClick={() => setIsSubmitted(false)}>
-          Submit Another Ticket
-        </Button>
-        
-        <Button className="mt-6 bg-blue-600 hover:bg-blue-700" onClick={() => router.push("/dashboard")}>
-          Go to Dashboard
-        </Button>
-          </div>
+  // ✅ Enhanced Confirmation Screen
+if (isSubmitted) {
+  return (
+    <div className="bg-white p-8 rounded-2xl shadow-lg max-w-xl mx-auto mt-12 border border-green-300">
+      <div className="text-center">
+        <h2 className="text-2xl font-bold text-green-600 mb-3">
+          ✅ Ticket Submitted!
+        </h2>
+
+        <div className="bg-gray-100 p-4 rounded-lg">
+          {ticketId ? (
+            <p className="font-semibold text-gray-800">
+              Your Ticket ID: <span className="font-mono">{ticketId}</span>
+            </p>
+          ) : (
+            <p className="text-gray-600">Your ticket has been submitted successfully.</p>
+          )}
+        </div>
+
+        <div className="flex flex-col sm:flex-row justify-center gap-4 mt-6">
+          <Button
+            className="bg-blue-600 hover:bg-blue-700"
+            onClick={() => setIsSubmitted(false)}
+          >
+            Submit Another Ticket
+          </Button>
+
+          <Button
+            className="bg-blue-600 hover:bg-blue-700"
+            onClick={() => router.push("/dashboard")}
+          >
+            Go to Dashboard
+          </Button>
+        </div>
       </div>
-    );
-  }
+    </div>
+  );
+}
+
+  // if (isSubmitted) {
+  //   return (
+  //     <div className="max-w-xl mx-auto mt-10 text-center bg-white p-8 rounded shadow">
+  //       <h2 className="text-2xl font-semibold text-green-600 mb-4">Ticket Submitted!</h2>
+  //       {/* <p className="text-gray-700 mb-2">Thank you for reaching out.</p> */}
+  //       {ticketId && (
+  //         <p className="text-sm text-gray-600">
+  //           Your Ticket ID: <span className="font-mono">{ticketId}</span>
+  //         </p>
+  //       )}
+  //       <div className="flex flex-col sm:flex-row justify-center gap-4">
+
+  //         <Button className="mt-6 bg-blue-600 hover:bg-blue-700" onClick={() => setIsSubmitted(false)}>
+  //           Submit Another Ticket
+  //         </Button>
+
+  //         <Button className="mt-6 bg-blue-600 hover:bg-blue-700" onClick={() => router.push("/dashboard")}>
+  //           Go to Dashboard
+  //         </Button>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white shadow rounded-md mt-6 w-full">
@@ -193,6 +233,9 @@ export default function SubmitTicketForm() {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
+            <label className="block mb-1 font-medium">
+              Name <span className="text-red-500">*</span>
+            </label>
             <Input
               name="name"
               placeholder="Name"
@@ -204,6 +247,9 @@ export default function SubmitTicketForm() {
           </div>
 
           <div>
+            <label className="block mb-1 font-medium">
+              Email <span className="text-red-500">*</span>
+            </label>
             <Input
               name="email"
               placeholder="Email"
@@ -216,6 +262,9 @@ export default function SubmitTicketForm() {
           </div>
 
           <div>
+            <label className="block mb-1 font-medium">
+              Organization <span className="text-red-500">*</span>
+            </label>
             <Select
               value={formData.organization}
               onValueChange={(val) => handleSelectChange("organization", val)}
@@ -235,6 +284,9 @@ export default function SubmitTicketForm() {
           </div>
 
           <div>
+            <label className="block mb-1 font-medium">
+              Platform <span className="text-red-500">*</span>
+            </label>
             <Select
               value={formData.platform}
               onValueChange={(val) => handleSelectChange("platform", val)}
@@ -254,6 +306,9 @@ export default function SubmitTicketForm() {
           </div>
 
           <div>
+            <label className="block mb-1 font-medium">
+              Subject <span className="text-red-500">*</span>
+            </label>
             <Input
               name="title"
               placeholder="Subject"
@@ -270,6 +325,8 @@ export default function SubmitTicketForm() {
           </div>
 
           <div>
+            <label className="block mb-1 font-medium">
+              Contact Number</label>
             <Input
               name="contactNumber"
               placeholder="Contact Number"
@@ -283,6 +340,9 @@ export default function SubmitTicketForm() {
           </div>
 
           <div>
+            <label className="block mb-1 font-medium">
+              Category <span className="text-red-500">*</span>
+            </label>
             <Select
               value={formData.category}
               onValueChange={(val) => handleSelectChange("category", val)}
@@ -292,8 +352,8 @@ export default function SubmitTicketForm() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="bugs">Bugs</SelectItem>
-                <SelectItem value="tech-support">Tech Support</SelectItem>
-                <SelectItem value="feature-request">Feature Request</SelectItem>
+                <SelectItem value="Tech support">Tech Support</SelectItem>
+                <SelectItem value="new feature">New Feature</SelectItem>
                 <SelectItem value="others">Others</SelectItem>
               </SelectContent>
             </Select>
@@ -301,6 +361,9 @@ export default function SubmitTicketForm() {
           </div>
 
           <div>
+            <label className="block mb-1 font-medium">
+              Priority <span className="text-red-500">*</span>
+            </label>
             <Select
               value={formData.priority}
               onValueChange={(val) => handleSelectChange("priority", val)}
@@ -319,6 +382,9 @@ export default function SubmitTicketForm() {
         </div>
 
         <div>
+          <label className="block mb-1 font-medium">
+            Description <span className="text-red-500">*</span>
+          </label>
           <Textarea
             name="description"
             placeholder="Describe your issue"

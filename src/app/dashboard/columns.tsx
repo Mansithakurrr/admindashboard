@@ -122,6 +122,22 @@ const PLATFORM_COLUMN_FILTER_OPTIONS: (string | "All Platforms")[] = [
   "Home Certify",
 ];
 
+const ORGANIZATION_COLUMN_FILTER_OPTIONS: (string | "All Organizations")[] = [
+  "All Organizations",
+  "MSIL",
+  "Rohtak",
+  "Tag Avenue",
+  "Udhyog Vihar",
+];
+
+const CATEGORY_COLUMN_FILTER_OPTIONS: (Ticket["category"] | "All Categories")[] = [
+  "All Categories",
+  "bugs",
+  "Tech support",
+  "new feature",
+  "others",
+];
+
 const PRIORITY_COLUMN_FILTER_OPTIONS: (Ticket["priority"] | "All Priorities")[] = [
   "All Priorities",
   "low",
@@ -174,20 +190,6 @@ export const columns: ColumnDef<Ticket>[] = [
     
       return <TicketSubject title={title} description={description} />;
     },
-    // cell: ({ row }) => {
-    //   const subject = row.original.subject;
-    //   const capitalize = (text: string) =>
-    //     text.charAt(0).toUpperCase() + text.slice(1);
-
-    //   return (
-
-    //     <TicketSubject
-    //       title={capitalize(subject.title)}
-    //       description={capitalize(subject.description)}
-    //     />
-
-    //   );
-    // },
   },
 
   // Name Column
@@ -214,15 +216,56 @@ export const columns: ColumnDef<Ticket>[] = [
   // Category Column
   {
     accessorKey: "category",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      >
-        <span className="w-full text-center">Category</span>
-        {/* <ArrowUpDown className="ml-2 h-4 w-4" /> */}
-      </Button>
-    ),
+    header: ({ column }) => {
+      const currentFilterValue = column.getFilterValue() as string | undefined;
+      return (
+        <div className="flex items-center">
+          <span className="w-full text-center">Category</span>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="ml-1 h-7 w-7 data-[state=open]:bg-accent"
+              >
+                <ChevronDown
+                  className={`h-3.5 w-3.5 transition-transform duration-200 ${
+                    currentFilterValue && currentFilterValue !== "All Categories"
+                      ? "text-primary rotate-180"
+                      : "text-muted-foreground/70"
+                  }`}
+                />
+                <span className="sr-only">Filter by Category</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              <DropdownMenuLabel>Filter by category</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {CATEGORY_COLUMN_FILTER_OPTIONS.map((catOption) => (
+                <DropdownMenuItem
+                  key={catOption}
+                  onClick={() => {
+                    if (catOption === "All Categories") {
+                      column.setFilterValue(undefined);
+                    } else {
+                      column.setFilterValue(catOption);
+                    }
+                  }}
+                  className={
+                    currentFilterValue === catOption &&
+                    catOption !== "All Categories"
+                      ? "bg-accent font-semibold"
+                      : ""
+                  }
+                >
+                  {catOption}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      );
+    },
     cell: ({ row }) => {
       const category = row.getValue("category") as Ticket["category"];
       return (
@@ -234,14 +277,60 @@ export const columns: ColumnDef<Ticket>[] = [
   },
 
   // Organization Column
-  {
-    accessorKey: "organizationName", // Matches your provided code
-    header: "Organization",
-    cell: ({ row }) => {
-      const organization = row.getValue("organizationName") as string;
-      return <div className="font-medium text-center">{organization}</div>;
-    },
+{
+  accessorKey: "organizationName",
+  header: ({ column }) => {
+    const currentFilterValue = column.getFilterValue() as string | undefined;
+    return (
+      <div className="flex items-center">
+        <span className="w-full text-center">Organization</span>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="ml-1 h-7 w-7 data-[state=open]:bg-accent"
+            >
+              <ChevronDown
+                className={`h-3.5 w-3.5 transition-transform duration-200 ${
+                  currentFilterValue && currentFilterValue !== "All Organizations"
+                    ? "text-primary rotate-180"
+                    : "text-muted-foreground/70"
+                }`}
+              />
+              <span className="sr-only">Filter by Organization</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start">
+            <DropdownMenuLabel>Filter by organization</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            {ORGANIZATION_COLUMN_FILTER_OPTIONS.map((orgOption) => (
+              <DropdownMenuItem
+                key={orgOption}
+                onClick={() => {
+                  if (orgOption === "All Organizations") {
+                    column.setFilterValue(undefined); // Clear filter
+                  } else {
+                    column.setFilterValue(orgOption);
+                  }
+                }}
+                className={
+                  currentFilterValue === orgOption &&
+                  orgOption !== "All Organizations"
+                    ? "bg-accent font-semibold"
+                    : ""
+                }
+              >
+                {orgOption}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    );
   },
+  cell: ({ row }) => row.getValue("organizationName"),
+},
 
   // Platform Column
   {
