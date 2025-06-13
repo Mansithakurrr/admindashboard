@@ -1,14 +1,13 @@
 // src/app/api/tickets/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from "@/lib/db";
-import { postTicket, fetchTickets } from '@/controllers/ticketController';
+import { fetchTickets, createTicketHandler } from '@/controllers/ticketController';
 
 // GET function can remain as is, if you have one for fetchTickets
 export async function GET(req: NextRequest) {
     try {
       await connectDB();
       const url = new URL(req.url);
-      // console.log(url,"-----------------urlurlurl")
       const result: any = await fetchTickets(url.searchParams); 
       return NextResponse.json(result);
     } catch (error: any) {
@@ -17,50 +16,55 @@ export async function GET(req: NextRequest) {
     }
   }
   
+
   export async function POST(req: NextRequest) {
-    await connectDB();
-  
-    try {
-      const body = await req.json();
-  
-      const ticketData = {
-        name: body.name,
-        email: body.email,
-        contactNumber: body.contactNumber,
-        platformName: body.platform,
-        Organization: body.organization,
-        category: body.category,
-        priority: body.priority,
-        type: body.type,
-        subject: {
-          title: body.subject,
-          description: body.description,
-        },
-        attachments: body.attachments || [],
-        activityLog: [
-          {
-            id: Date.now().toString(),
-            timestamp: new Date(),
-            user: body.email,
-            action: "Ticket Created",
-            from: "",
-            to: "New",
-            details: "Initial submission via support form.",
-          },
-        ],
-      };
-  
-      const result = await postTicket(ticketData);
-  
-      return NextResponse.json({ success: true, ticket: result }, { status: 201 });
-    } catch (err: any) {
-      console.error("Error creating ticket:", err);
-      return NextResponse.json(
-        { success: false, message: "Error creating ticket: " + err.message },
-        { status: 500 }
-      );
-    }
+    return createTicketHandler(req);
   }
+  
+  // export async function POST(req: NextRequest) {
+  //   await connectDB();
+  
+  //   try {
+  //     const body = await req.json();
+  
+  //     const ticketData = {
+  //       name: body.name,
+  //       email: body.email,
+  //       contactNumber: body.contactNumber,
+  //       platformName: body.platform,
+  //       orgName: body.organization,
+  //       category: body.category,
+  //       priority: body.priority,
+  //       type: body.type,
+  //       subject: {
+  //         title: body.subject,
+  //         description: body.description,
+  //       },
+  //       attachments: body.attachments || [],
+  //       activityLog: [
+  //         {
+  //           id: Date.now().toString(),
+  //           timestamp: new Date(),
+  //           user: body.email,
+  //           action: "Ticket Created",
+  //           from: "",
+  //           to: "New",
+  //           details: "Initial submission via support form.",
+  //         },
+  //       ],
+  //     };
+  
+  //     const result = await postTicket(ticketData);
+  
+  //     return NextResponse.json({ success: true, ticket: result }, { status: 201 });
+  //   } catch (err: any) {
+  //     console.error("Error creating ticket:", err);
+  //     return NextResponse.json(
+  //       { success: false, message: "Error creating ticket: " + err.message },
+  //       { status: 500 }
+  //     );
+  //   }
+  // }
   
   
 

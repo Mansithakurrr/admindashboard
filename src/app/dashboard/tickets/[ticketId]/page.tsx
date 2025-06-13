@@ -12,13 +12,13 @@ import { Input } from "@/components/ui/input";
 import { Ticket, Priority } from "@/types/ticket"; // Import Ticket type
 // Assume you have a fetchTicketById function in lib/api.ts or similar
 // This function would fetch from `${process.env.NEXT_PUBLIC_APP_URL}/api/tickets/${id}`
-import { fetchTicketById } from "@/lib/api";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StatusBadge } from "../../columns";
 import { CategoryBadge } from "../../columns";
 // import { PriorityBadge } from "../../columns";
 import TicketViewClient from "./TicketViewClient";
-
+import { getTicketById } from "@/services/ticketService";
 const STATUS_OPTIONS: Ticket["status"][] = [
   "New",
   "Open",
@@ -41,7 +41,7 @@ interface TicketInfoPageProps {
   };
 }
 export default async function TicketInfoPage({ params }: TicketInfoPageProps) {
-  const ticketData = await fetchTicketById(params?.ticketId);
+  const ticketData = await getTicketById(params?.ticketId);
 
   if (!ticketData) {
     return (

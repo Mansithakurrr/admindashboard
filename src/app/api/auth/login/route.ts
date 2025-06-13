@@ -1,14 +1,18 @@
-import { NextRequest, NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
+import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
-import { connectDB } from "@/lib/db";
-import Admin from "@/models/Admin";
-import { cookies } from "next/headers";
+import jwt from "jsonwebtoken";
+import { connectDB } from "@/lib/db"; // your MongoDB connection helper
+import Admin from "@/models/Admin"; // Your Mongoose Admin model
 
-export async function POST(req: NextRequest) {
+export async function POST(request: Request) {
   try {
+    const { email, password } = await request.json();
+
+    if (!email || !password) {
+      return NextResponse.json({ error: "Email and password are required" }, { status: 400 });
+    }
+
     await connectDB();
-    const { email, password } = await req.json();
 
     const admin = await Admin.findOne({ email });
     if (!admin) {
@@ -20,21 +24,32 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
 
-    const token = jwt.sign({ id: admin._id, email: admin.email }, process.env.JWT_SECRET!, {
-      expiresIn: "1d",
-    });
+    // Create JWT
+    const token = jwt.sign(
+      {
+        id: admin._id.toString(),
+        email: admin.email,
+        role: "admin",
+      },
+      process.env.JWT_SECRET!,
+      { expiresIn: "1h" }
+    );
 
-    cookies().set("token", token, {
+    // Set token as HttpOnly cookie
+    const response = NextResponse.json({ message: "Login successful" });
+    response.cookies.set({
+      name: "token",
+      value: token,
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      path: "/",
-      maxAge: 86400,
+      maxAge: 60 * 60, // 1 hour
+      path: "/", // cookie available across site
+      sameSite: "lax",
     });
 
-    return NextResponse.json({ message: "Login successful" }, { status: 200 });
-
+    return response;
   } catch (error) {
     console.error("Login error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

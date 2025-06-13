@@ -44,6 +44,7 @@ export const StatusBadge = ({ status }: { status: Ticket["status"] }) => {
     Hold: "bg-red-100 text-red-800",
     Resolved: "bg-green-100 text-green-800",
     Closed: "bg-gray-300 text-black", // Matched your existing color
+    
   };
 
   const capitalize = (text: string) =>
@@ -90,8 +91,9 @@ export const PriorityBadge = ({
     high: "bg-orange-200 text-orange-800",
     // urgent: "bg-red-100 text-red-800", // Assuming 'urgent' is part of your Priority type if used
   };
-  const capitalize = (text: string) =>
-    text.charAt(0).toUpperCase() + text.slice(1);
+  const capitalize = (text?: string) =>
+    text ? text.charAt(0).toUpperCase() + text.slice(1) : '';
+  
   // @ts-ignore
   return (
     <span
@@ -163,16 +165,29 @@ export const columns: ColumnDef<Ticket>[] = [
       const subject = row.original.subject;
       const capitalize = (text: string) =>
         text.charAt(0).toUpperCase() + text.slice(1);
-
-      return (
-
-        <TicketSubject
-          title={capitalize(subject.title)}
-          description={capitalize(subject.description)}
-        />
-
-      );
+    
+      // Provide default values to avoid undefined errors
+      const title = subject?.title ? capitalize(subject.title) : "No Title";
+      const description = subject?.description
+        ? capitalize(subject.description)
+        : "No Description";
+    
+      return <TicketSubject title={title} description={description} />;
     },
+    // cell: ({ row }) => {
+    //   const subject = row.original.subject;
+    //   const capitalize = (text: string) =>
+    //     text.charAt(0).toUpperCase() + text.slice(1);
+
+    //   return (
+
+    //     <TicketSubject
+    //       title={capitalize(subject.title)}
+    //       description={capitalize(subject.description)}
+    //     />
+
+    //   );
+    // },
   },
 
   // Name Column
@@ -220,10 +235,10 @@ export const columns: ColumnDef<Ticket>[] = [
 
   // Organization Column
   {
-    accessorKey: "Organization", // Matches your provided code
+    accessorKey: "organizationName", // Matches your provided code
     header: "Organization",
     cell: ({ row }) => {
-      const organization = row.getValue("Organization") as string;
+      const organization = row.getValue("organizationName") as string;
       return <div className="font-medium text-center">{organization}</div>;
     },
   },
