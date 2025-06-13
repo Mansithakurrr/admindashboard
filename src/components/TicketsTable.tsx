@@ -17,8 +17,10 @@ interface Ticket {
   // subject: string;
   name: string;
   // description: string;
+  platformId: string;
+  orgId: string;
   platformName: string;
-  Organization: string;
+  organizationName: string;
   status: "New" | "Open" | "Hold" | "InProgress" | "Resolved" | "Closed";
   category: "bugs" | "Tech support" | "new feature" | "others";
   priority: "low" | "medium" | "high";
@@ -52,9 +54,9 @@ const columns: ColumnDef<Ticket>[] = [
     accessorFn: (row) => row.name,
   },
   {
-    accessorKey: "Organization",
+    accessorKey: "organizationName",
     header: "Organization",
-    accessorFn: (row) => row.Organization,
+    accessorFn: (row) => row.organizationName,
   },
   {
     accessorKey: "platformName",
@@ -161,10 +163,10 @@ const TicketsTable: React.FC<TicketsTableProps> = ({ tickets }) => {
                   {ticket.name}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {ticket.Organization}
+                  {ticket.orgId}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {ticket.platformName}
+                  {ticket.platformId}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   <StatusBadge status={ticket.status} />
