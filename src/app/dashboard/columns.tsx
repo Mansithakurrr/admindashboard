@@ -16,7 +16,6 @@ import {
 import TicketSubject from "@/components/TicketSubject";
 import { Ticket } from "@/types/ticket"; // Your Ticket type
 
-// Re-defining the Ticket type here for clarity within this file
 
 // export type Ticket = {
 //   _id: string; // MongoDB document ID
@@ -162,7 +161,6 @@ export const columns: ColumnDef<Ticket>[] = [
       const serialNumber = row.getValue("serialNumber") as string;
       return <div className="font-medium text-center w-20">{serialNumber}</div>;
     },
-    // enableHiding: false, // Optional: if you don't want users to hide this column
   },
 
   // 2. Subject Column

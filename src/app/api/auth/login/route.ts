@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { connectDB } from "@/lib/db"; // your MongoDB connection helper
-import Admin from "@/models/Admin"; // Your Mongoose Admin model
+import { connectDB } from "@/lib/db";
+import Admin from "@/models/Admin";
 
 export async function POST(request: Request) {
   try {
@@ -24,7 +24,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
 
-    // Create JWT
     const token = jwt.sign(
       {
         id: admin._id.toString(),
@@ -36,15 +35,14 @@ export async function POST(request: Request) {
       { expiresIn: "1h" }
     );
 
-    // Set token as HttpOnly cookie
     const response = NextResponse.json({ message: "Login successful" });
     response.cookies.set({
       name: "token",
       value: token,
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      maxAge: 60 * 60, // 1 hour
-      path: "/", // cookie available across site
+      maxAge: 60 * 60,
+      path: "/",
       sameSite: "lax",
     });
 

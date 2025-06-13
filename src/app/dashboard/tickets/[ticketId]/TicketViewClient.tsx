@@ -126,7 +126,11 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
   };
 
   const handleFieldUpdate = async (
-    fieldName: keyof Ticket | `subject.${"title" | "description"}`,
+    fieldName:
+      | keyof Ticket
+      | `subject.${"title" | "description"}`
+      | "platformData"
+      | "organizationData",
     newValue: any,
     originalValue: any
   ) => {
@@ -134,26 +138,28 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
       let updatedFields: any = {};
       let activityEntry: ActivityLogEntry;
 
-          // 1. Label for activity log
-    const getFieldLabel = (field: string) => {
-      switch (field) {
-        case "orgId":
-          return "Organization";
-        case "platformId":
-          return "Platform";
-        case "priority":
-          return "Priority";
-        case "status":
-          return "Status";
-        case "category":
-          return "Category";
-        default:
-          return field.charAt(0).toUpperCase() + field.slice(1);
-      }
-    };
+      const getFieldLabel = (field: string) => {
+        switch (field) {
+          case "orgId":
+          case "organizationData":
+            return "Organization";
+          case "platformId":
+          case "platformData":
+            return "Platform";
+          case "priority":
+            return "Priority";
+          case "status":
+            return "Status";
+          case "category":
+            return "Category";
+          default:
+            return field.charAt(0).toUpperCase() + field.slice(1);
+        }
+      };
 
       if (typeof fieldName === "string" && fieldName.startsWith("subject.")) {
         const subField = fieldName.split(".")[1] as "title" | "description";
+
         activityEntry = createActivityLogEntry(
           `${subField.charAt(0).toUpperCase() + subField.slice(1)} Updated`,
           originalValue,
@@ -170,7 +176,55 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
           subject: { ...prev!.subject, [subField]: newValue },
           activityLog: [...(prev?.activityLog || []), activityEntry],
         }));
-      } else {
+      }
+
+      else if (fieldName === "platformData") {
+        const { platformId, platformName } = newValue;
+
+        activityEntry = createActivityLogEntry(
+          "Platform Changed",
+          originalValue.platformName,
+          platformName
+        );
+
+        updatedFields = {
+          platformId,
+          platformName,
+          $push: { activityLog: activityEntry },
+        };
+
+        setTicket((prev) => ({
+          ...prev!,
+          platformId,
+          platformName,
+          activityLog: [...(prev?.activityLog || []), activityEntry],
+        }));
+      }
+
+      else if (fieldName === "organizationData") {
+        const { orgId, organizationName } = newValue;
+
+        activityEntry = createActivityLogEntry(
+          "Organization Changed",
+          originalValue.organizationName,
+          organizationName
+        );
+
+        updatedFields = {
+          orgId,
+          organizationName,
+          $push: { activityLog: activityEntry },
+        };
+
+        setTicket((prev) => ({
+          ...prev!,
+          orgId,
+          organizationName,
+          activityLog: [...(prev?.activityLog || []), activityEntry],
+        }));
+      }
+
+      else {
         activityEntry = createActivityLogEntry(
           `${getFieldLabel(fieldName)} Changed`,
           originalValue,
@@ -189,7 +243,6 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
         }));
       }
 
-      // Send update to backend
       const response = await fetch(`/api/tickets/${ticket._id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -316,8 +369,8 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
       timestamp: new Date().toISOString(),
       user: author,
       action: "Comment Added",
-      from: undefined,
-      to: undefined,
+      // from: undefined,
+      // to: undefined,
       details: commentText,
     };
 
@@ -332,11 +385,11 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
 
       if (!res.ok) throw new Error("Failed to add comment");
 
-      // Optionally update local state
-      setTicket((prev) => ({
-        ...prev!,
-        activityLog: [...(prev?.activityLog || []), newEntry],
-      }));
+      // Refetch updated ticket from backend
+      const updatedTicket = await fetch(`/api/tickets/${ticket._id}`).then((r) =>
+        r.json()
+      );
+      setTicket(updatedTicket);
     } catch (error) {
       console.error("Error adding comment:", error);
     }
@@ -379,7 +432,6 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
       setIsSaving(false);
     }
   };
-  // This constant defines all possible statuses for reference and sorting.
   const ALL_POSSIBLE_STATUSES: Ticket["status"][] = [
     "New",
     "Open",
@@ -449,22 +501,19 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
   const availableStatusOptions = useMemo(() => {
     if (!ticket) return []; // If ticket isn't loaded yet, return empty array
     return getAllowedNextStatuses(ticket.status);
-  }, [ticket?.status]); // Recalculate these options only when ticket.status changes
+  }, [ticket?.status]); 
 
   if (!ticket) {
     return <div>Loading...</div>;
   }
   return (
     <div className="flex flex-col h-full">
-      {/* Removed h-screen, parent will control height */}
       <Tabs
         value={activeTab}
         onValueChange={setActiveTab}
         className="flex-1 flex flex-col"
       >
         <TabsList className="mx-4 mt-4 sticky top-0 z-10 flex-shrink-0 flex justify-center w-full">
-          {/* Removed bg-white and border-b from TabsList */}
-          {/* The active TabTrigger will provide its own bottom border */}
           <TabsTrigger
             value="details"
             className="px-12 py-3 text-sm font-medium rounded-lg focus-visible:ring-0 focus-visible:ring-offset-0 transition-colors text-blue-700 hover:bg-blue-100 data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-sm"
@@ -685,7 +734,7 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
                     value={remarksText || ""}
                     onChange={(e) => setRemarksText(e.target.value)}
                     rows={5}
-                    className="w-full border-primary" // Highlight the box
+                    className="w-full border-primary"
                     disabled={isSaving}
                   />
                   <div className="flex justify-end space-x-2">
@@ -750,22 +799,39 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
                 )}
               />
               <EditableField
-                label="Organization"  
+                label="Organization"
                 value={ticket.organizationName || ""}
                 options={ORGANIZATION_OPTIONS}
-                onValueChange={(newVal) =>
-                  handleFieldUpdate("orgId", newVal, ticket.organizationName)
-                }
+                onValueChange={(newVal) => {
+                  const selectedOption = ORGANIZATION_OPTIONS.find((opt) => opt === newVal);
+                  handleFieldUpdate("organizationData", {
+                    orgId: newVal,
+                    organizationName: selectedOption || "",
+                  }, {
+                    orgId: ticket.orgId,
+                    organizationName: ticket.organizationName,
+                  });
+                }}
               />
+
+
               <EditableField
                 label="Platform"
                 value={ticket.platformName || ""}
                 options={PLATFORM_OPTIONS}
-                onValueChange={(newVal) =>
-                  handleFieldUpdate("platformId", newVal, ticket.platformName)
-                }
+                onValueChange={(newVal) => {
+                  const selectedOption = PLATFORM_OPTIONS.find((opt) => opt === newVal);
+                  handleFieldUpdate("platformData", {
+                    platformId: newVal,
+                    platformName: selectedOption || "",
+                  }, {
+                    platformId: ticket.platformId,
+                    platformName: ticket.platformName,
+                  });
+                }}
               />
-              
+
+
             </div>
 
             {ticket.attachments?.length > 0 && (
@@ -786,7 +852,7 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
                           <a href={attachment.url} target="_blank" rel="noopener noreferrer">
                             <img
                               src={attachment.url}
-                              alt={`attachment-${index+1}`}
+                              alt={`attachment-${index + 1}`}
                               className="w-16 h-16 object-cover rounded"
                             />
                           </a>
@@ -819,8 +885,6 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
                 </div>
               </div>
             )}
-
-
 
             <div>
               <label className="text-xs font-semibold text-gray-500">

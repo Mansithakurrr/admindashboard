@@ -25,21 +25,6 @@ export async function GET(
   }
 }
 
-// export async function PATCH(
-//   req: NextRequest,
-//   { params }: { params: { id: string } }
-// ) {
-//   await connectDB();
-//   const updates = await req.json();
-//   const updated = await patchTicket(params?.id, updates);
-//   if (!updated) {
-//     return NextResponse.json({ message: "Ticket not found" }, { status: 404 });
-//   }
-//   return NextResponse.json(updated);
-// }
-
-
-
 export async function PATCH(
   req: NextRequest,
   { params }: { params: { id: string } }

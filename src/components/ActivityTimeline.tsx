@@ -9,25 +9,22 @@ interface ActivityTimelineProps {
   activities: ActivityLogEntry[];
 }
 
-const ITEMS_PER_PAGE = 5; // You can adjust how many activities to show per page
+const ITEMS_PER_PAGE = 5;
 
 export const ActivityTimeline: React.FC<ActivityTimelineProps> = ({
   activities,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Memoize sorted activities to avoid re-sorting on every render
   const sortedActivities = useMemo(() => {
     if (!activities) return [];
-    // Sort activities by timestamp, most recent first, to paginate from the latest activity
     return [...activities].sort((a, b) => {
       const dateA = new Date(a.timestamp).getTime();
       const dateB = new Date(b.timestamp).getTime();
-      return dateB - dateA; // Descending order (newest first)
+      return dateB - dateA;
     });
   }, [activities]);
 
-  // Pagination Logic
   const totalPages = Math.ceil(sortedActivities.length / ITEMS_PER_PAGE);
   const indexOfLastItem = currentPage * ITEMS_PER_PAGE;
   const indexOfFirstItem = indexOfLastItem - ITEMS_PER_PAGE;
@@ -53,16 +50,12 @@ export const ActivityTimeline: React.FC<ActivityTimelineProps> = ({
   }
 
   return (
-    // This root div no longer controls scrolling. It just arranges its children (timeline + pagination).
     <div className="max-h-[calc(100vh-150px)] overflow-y-auto p-6">
-      {/* Timeline List */}
       <div className="space-y-6">
         {currentActivities.map((activity, index) => (
           <div key={activity.id || index} className="relative pl-8">
-            {/* Timeline Dot and Line */}
             <div className="absolute left-0 top-1">
               <span className="absolute left-[-5.5px] top-0 block h-3 w-3 rounded-full bg-blue-500 ring-4 ring-white"></span>
-              {/* Only draw a line if it's not the last item on the page AND not the last item overall */}
               {(index < currentActivities.length - 1 ||
                 currentPage < totalPages) && (
                 <span className="absolute left-0 top-3 block h-full w-0.5 bg-gray-200"></span>
@@ -99,7 +92,6 @@ export const ActivityTimeline: React.FC<ActivityTimelineProps> = ({
         ))}
       </div>
 
-      {/* Pagination Controls */}
       {totalPages > 1 && (
         <div className="flex items-center justify-center space-x-4 pt-6 mt-4 border-t">
           <Button

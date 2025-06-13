@@ -1,12 +1,11 @@
 // src/services/ticketService.ts
 import Ticket from '@/models/Ticket';
-import Counter from '@/models/Counter'; // Your Counter model
+import Counter from '@/models/Counter';
 import Platform from '@/models/Platform';
 import Organization from '@/models/Organization';
 import { isValidObjectId } from "mongoose";
-import mongoose from "mongoose"; // for ObjectId check
+import mongoose from "mongoose";
 
-// Helper function to get the next sequence for serialNumber
 async function getNextFormattedSerialNumber(): Promise<string> {
   console.log("SERVICE: Attempting to find/update counter with name: 'ticket'");
   try {
@@ -22,7 +21,6 @@ async function getNextFormattedSerialNumber(): Promise<string> {
     }
 
     const nextSequence = counter.value;
-    // Format the serial number (e.g., T-00001)
     const plainSerialNumber = String(nextSequence);
     console.log("SERVICE: Generated plain serialNumber:", plainSerialNumber);
     return plainSerialNumber;
@@ -40,7 +38,7 @@ const createLogEntry = (
   details?: string
 ) => {
   return {
-    id: Date.now().toString(), // Or use a UUID library
+    id: Date.now().toString(),
     timestamp: new Date(),
     user: user || "System",
     action,
@@ -52,22 +50,16 @@ const createLogEntry = (
 
 // --- THIS IS THE MAIN FUNCTION TO UPDATE ---
 export const updateTicketById = async (id: string, updates: any) => {
-  // 'updates' is the object from the frontend, e.g., { status: 'Resolved' } or { subject: { title: 'New Title' } }
-
-  // 1. Fetch the ticket first to get its current state for comparison
   const currentTicket = await Ticket.findById(id);
   if (!currentTicket) {
     throw new Error("Ticket not found for update.");
   }
 
-  // 2. Prepare the payload for MongoDB
   const updatePayload: any = { $set: {} };
   const activitiesToLog: any[] = [];
 
-  // Iterate over the keys in the 'updates' object
   for (const key in updates) {
     if (Object.prototype.hasOwnProperty.call(updates, key)) {
-      // Handle nested subject updates
       if (key === "subject" && typeof updates.subject === "object") {
         if (
           updates.subject.title &&
@@ -92,7 +84,6 @@ export const updateTicketById = async (id: string, updates: any) => {
             updates.subject.description;
         }
       }
-      // Handle top-level field updates like status, priority, etc.
       else if (
         currentTicket[key as keyof typeof currentTicket] !== updates[key]
       ) {
@@ -124,33 +115,34 @@ export const updateTicketById = async (id: string, updates: any) => {
             )
           );
         }
-        // Add more 'else if' blocks here for other fields you want to log
-
-        // Add the field to the update payload
         updatePayload.$set[key] = updates[key];
       }
     }
   }
-
-  // 3. Add any new activity log entries to be pushed to the array
   if (activitiesToLog.length > 0) {
     updatePayload.$push = {
       activityLog: { $each: activitiesToLog, $position: 0 },
-    }; // $each to add multiple, $position: 0 to add to the start (newest first)
+    };
   }
 
-  // 4. Ensure there's something to update to avoid an empty database call
   if (Object.keys(updatePayload.$set).length === 0 && !updatePayload.$push) {
     console.log("No actual changes detected. Returning current ticket.");
     return currentTicket;
   }
 
-  // Add the automatic updatedAt timestamp
   updatePayload.$set.updatedAt = new Date();
 
-  // 5. Perform the update with both $set (for fields) and $push (for activity log)
   return await Ticket.findByIdAndUpdate(id, updatePayload, { new: true });
 };
+
+
+export async function patchTicket(id: string, updates: any) {
+  return await updateTicketById(id, updates);
+}
+export async function updateResolvedRemarks(ticketId: string, remarks: string) {
+  return await updateTicketById(ticketId, { resolvedRemarks: remarks });
+}
+
 
 export async function createTicket(data: any) {
   const {
@@ -166,7 +158,6 @@ export async function createTicket(data: any) {
     type,
   } = data;
 
-  // Validate subject
   if (!subject || !subject.title || !subject.description) {
     throw new Error("Subject title and description are required");
   }
@@ -181,25 +172,23 @@ export async function createTicket(data: any) {
     throw new Error(`Invalid priority. Must be one of: ${validPriorities.join(", ")}`);
   }
 
-  // Resolve platform
-let platformId;
-if (mongoose.Types.ObjectId.isValid(platform)) {
-  platformId = platform;
-} else {
-  const platformDoc = await Platform.findOne({ name: platform });
-  if (!platformDoc) throw new Error("Invalid platform name");
-  platformId = platformDoc._id;
-}
+  let platformId;
+  if (mongoose.Types.ObjectId.isValid(platform)) {
+    platformId = platform;
+  } else {
+    const platformDoc = await Platform.findOne({ name: platform });
+    if (!platformDoc) throw new Error("Invalid platform name");
+    platformId = platformDoc._id;
+  }
 
-// Resolve organization
-let orgId;
-if (mongoose.Types.ObjectId.isValid(organization)) {
-  orgId = organization;
-} else {
-  const orgDoc = await Organization.findOne({ name: organization });
-  if (!orgDoc) throw new Error("Invalid organization name");
-  orgId = orgDoc._id;
-}
+  let orgId;
+  if (mongoose.Types.ObjectId.isValid(organization)) {
+    orgId = organization;
+  } else {
+    const orgDoc = await Organization.findOne({ name: organization });
+    if (!orgDoc) throw new Error("Invalid organization name");
+    orgId = orgDoc._id;
+  }
 
   const serialNumber = await getNextFormattedSerialNumber();
 
@@ -246,13 +235,13 @@ export const getTickets = async (query: any, page: number, limit: number) => {
       .lean();  // <-- Add this
 
 
-      const tickets = ticketsArray.map(ticket => ({
-        ...ticket,
-        platformName: ticket.platformId?.name || '',
-        organizationName: ticket.orgId?.name || ticket.orgId,
-        platformId: ticket.platformId?._id || ticket.platformId,
-        orgId: ticket.orgId?._id || ticket.orgId,
-      }));
+    const tickets = ticketsArray.map(ticket => ({
+      ...ticket,
+      platformName: ticket.platformId?.name || '',
+      organizationName: ticket.orgId?.name || ticket.orgId,
+      platformId: ticket.platformId?._id || ticket.platformId,
+      orgId: ticket.orgId?._id || ticket.orgId,
+    }));
 
     const totalPages = Math.ceil(total / limit);
 
@@ -268,6 +257,7 @@ export const getTickets = async (query: any, page: number, limit: number) => {
 };
 
 
+
 export const getTicketById = async (id: string) => {
   if (!isValidObjectId(id)) return null;
 
@@ -278,7 +268,6 @@ export const getTicketById = async (id: string) => {
 
   if (!ticketDoc) return null;
 
-  // Helper to convert _id to string inside arrays
   const sanitizeArray = (arr: any[]) =>
     arr.map((item) => ({
       ...item,
@@ -329,37 +318,9 @@ export const getTicketById = async (id: string) => {
 
 
 
-export async function patchTicket(id: string, updates: any) {
-  return await updateTicketById(id, updates);
-}
 
 export const deleteTicketById = async (id: string) => {
   if (!isValidObjectId(id)) return null;
 
   return await Ticket.findByIdAndDelete(id);
 };
-
-export async function updateResolvedRemarks(ticketId: string, remarks: string) {
-  return await updateTicketById(ticketId, { resolvedRemarks: remarks });
-}
-
-// export async function updateResolvedRemarks(ticketId: string, remarks: string) {
-//   if (!isValidObjectId(ticketId)) return null;
-
-//   const ticket = await Ticket.findById(ticketId);
-//   if (!ticket) return null;
-
-//   const newLog = {
-//     id: Date.now().toString(),
-//     timestamp: new Date(),
-//     user: "You", // or pass user from frontend if available
-//     action: "Resolved Remarks Updated",
-//     details: `Remarks added/updated: "${remarks}"`
-//   };
-
-//   ticket.resolvedRemarks = remarks;
-//   ticket.activityLog.push(newLog);
-//   await ticket.save();
-
-//   return ticket.toObject();
-// }

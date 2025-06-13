@@ -133,9 +133,9 @@ export default function SubmitTicketForm() {
       const result = await res.json();
 
       if (res.ok && result.success) {
-        // toast.success("Ticket submitted successfully!");
-        setTicketId(result.data?._id || null); // ✅ Capture Ticket ID
-        setIsSubmitted(true); // ✅ Show confirmation screen
+        toast.success("Ticket submitted successfully!");
+        setTicketId(result.data?._id || null);
+        setIsSubmitted(true);
 
         setFormData({
           name: "",
@@ -161,70 +161,43 @@ export default function SubmitTicketForm() {
 
   const errorClass = "border border-red-500";
 
-  // ✅ Confirmation Screen
+  if (isSubmitted) {
+    return (
+      <div className="bg-white p-8 rounded-2xl shadow-lg max-w-xl mx-auto mt-12 border border-green-300">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-green-600 mb-3">
+            ✅ Ticket Submitted!
+          </h2>
 
-  // ✅ Enhanced Confirmation Screen
-if (isSubmitted) {
-  return (
-    <div className="bg-white p-8 rounded-2xl shadow-lg max-w-xl mx-auto mt-12 border border-green-300">
-      <div className="text-center">
-        <h2 className="text-2xl font-bold text-green-600 mb-3">
-          ✅ Ticket Submitted!
-        </h2>
+          <div className="bg-gray-100 p-4 rounded-lg">
+            {ticketId ? (
+              <p className="font-semibold text-gray-800">
+                Your Ticket ID: <span className="font-mono">{ticketId}</span>
+              </p>
+            ) : (
+              <p className="text-gray-600">Your ticket has been submitted successfully.</p>
+            )}
+          </div>
 
-        <div className="bg-gray-100 p-4 rounded-lg">
-          {ticketId ? (
-            <p className="font-semibold text-gray-800">
-              Your Ticket ID: <span className="font-mono">{ticketId}</span>
-            </p>
-          ) : (
-            <p className="text-gray-600">Your ticket has been submitted successfully.</p>
-          )}
-        </div>
+          <div className="flex flex-col sm:flex-row justify-center gap-4 mt-6">
+            <Button
+              className="bg-blue-600 hover:bg-blue-700"
+              onClick={() => setIsSubmitted(false)}
+            >
+              Submit Another Ticket
+            </Button>
 
-        <div className="flex flex-col sm:flex-row justify-center gap-4 mt-6">
-          <Button
-            className="bg-blue-600 hover:bg-blue-700"
-            onClick={() => setIsSubmitted(false)}
-          >
-            Submit Another Ticket
-          </Button>
-
-          <Button
-            className="bg-blue-600 hover:bg-blue-700"
-            onClick={() => router.push("/dashboard")}
-          >
-            Go to Dashboard
-          </Button>
+            <Button
+              className="bg-blue-600 hover:bg-blue-700"
+              onClick={() => router.push("/dashboard")}
+            >
+              Go to Dashboard
+            </Button>
+          </div>
         </div>
       </div>
-    </div>
-  );
-}
-
-  // if (isSubmitted) {
-  //   return (
-  //     <div className="max-w-xl mx-auto mt-10 text-center bg-white p-8 rounded shadow">
-  //       <h2 className="text-2xl font-semibold text-green-600 mb-4">Ticket Submitted!</h2>
-  //       {/* <p className="text-gray-700 mb-2">Thank you for reaching out.</p> */}
-  //       {ticketId && (
-  //         <p className="text-sm text-gray-600">
-  //           Your Ticket ID: <span className="font-mono">{ticketId}</span>
-  //         </p>
-  //       )}
-  //       <div className="flex flex-col sm:flex-row justify-center gap-4">
-
-  //         <Button className="mt-6 bg-blue-600 hover:bg-blue-700" onClick={() => setIsSubmitted(false)}>
-  //           Submit Another Ticket
-  //         </Button>
-
-  //         <Button className="mt-6 bg-blue-600 hover:bg-blue-700" onClick={() => router.push("/dashboard")}>
-  //           Go to Dashboard
-  //         </Button>
-  //       </div>
-  //     </div>
-  //   );
-  // }
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white shadow rounded-md mt-6 w-full">
