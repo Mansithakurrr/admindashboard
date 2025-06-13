@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Send, MessageSquareText } from "lucide-react";
 
-// Assuming a Comment type is defined in your types file
 interface Comment {
   _id: string;
   text: string;
@@ -29,11 +28,9 @@ export const CommentSection = ({
   const [isLoadingComments, setIsLoadingComments] = useState(true);
   const [currentUser, setCurrentUser] = useState<string | null>(null);
 
-  // Ref for the scrollable comments list to scroll to the bottom
   const commentsEndRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    // Auto-scroll to the bottom when new comments are added
     commentsEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [comments]);
 
@@ -43,60 +40,62 @@ export const CommentSection = ({
       try {
         const res = await fetch("/api/auth/me", { credentials: "include" });
         if (!res.ok) return;
-  
+
         const data = await res.json();
         setCurrentUser(data.name || data.email); // or use data.name if available
       } catch (err) {
         console.error("Failed to fetch current admin:", err);
       }
     };
-  
+
     fetchCurrentUser();
   }, []);
 
-  
-  useEffect(() => {
-    const fetchComments = async () => {
-      if (!ticketId) {
-        setIsLoadingComments(false);
+  const fetchComments = async () => {
+    if (!ticketId) {
+      setIsLoadingComments(false);
+      return;
+    }
+    setIsLoadingComments(true);
+    try {
+      const res = await fetch(`/api/comments?ticketId=${ticketId}`);
+      if (!res.ok) {
+        console.error("Failed to fetch comments, status:", res.status);
+        setComments([]);
         return;
       }
-      setIsLoadingComments(true);
-      try {
-        const res = await fetch(`/api/comments?ticketId=${ticketId}`);
-        if (!res.ok) {
-          console.error("Failed to fetch comments, status:", res.status);
-          setComments([]);
-          return;
-        }
-        const data = await res.json();
-        if (Array.isArray(data)) {
-          const updated = data.map((comment: any) => ({
-            ...comment,
-            formattedTimestamp: new Date(comment.createdAt).toLocaleString(
-              "en-IN",
-              { dateStyle: "medium", timeStyle: "short" }
-            ),
-          }));
-          setComments(updated);
-        } else {
-          console.error("Fetched comments data is not an array:", data);
-          setComments([]);
-        }
-      } catch (error) {
-        console.error("Error fetching comments:", error);
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        const updated = data.map((comment: any) => ({
+          ...comment,
+          formattedTimestamp: new Date(comment.createdAt).toLocaleString(
+            "en-IN",
+            { dateStyle: "medium", timeStyle: "short" }
+          ),
+        }));
+        setComments(updated);
+      } else {
+        console.error("Fetched comments data is not an array:", data);
         setComments([]);
-      } finally {
-        setIsLoadingComments(false);
       }
-    };
+    } catch (error) {
+      console.error("Error fetching comments:", error);
+      setComments([]);
+    } finally {
+      setIsLoadingComments(false);
+    }
+  };
+
+
+  useEffect(() => {
     fetchComments();
   }, [ticketId]);
 
   const handleCommentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newComment.trim() === "") return;
-    const author = currentUser || "You"; // Replace with actual logged-in user
+
+    const author = currentUser || "You";
 
     try {
       const res = await fetch("/api/comments", {
@@ -111,24 +110,10 @@ export const CommentSection = ({
 
       if (!res.ok) {
         const errorData = await res.json();
-        alert(
-          `Error submitting comment: ${
-            errorData.message || "Please try again."
-          }`
-        );
+        alert(`Error submitting comment: ${errorData.message || "Please try again."}`);
         return;
       }
-      const savedComment = await res.json();
-
-      const newDisplayComment: Comment = {
-        ...savedComment,
-        formattedTimestamp: new Date(savedComment.createdAt).toLocaleString(
-          "en-IN",
-          { dateStyle: "medium", timeStyle: "short" }
-        ),
-      };
-      setComments((prev) => [...prev, newDisplayComment]);
-      onCommentAdded(savedComment.text, savedComment.author);
+      await fetchComments();
       setNewComment("");
     } catch (error) {
       console.error("Error submitting comment:", error);
@@ -136,8 +121,8 @@ export const CommentSection = ({
     }
   };
 
+
   return (
-    // Main container: a flex column that fills the height given by its parent
     <div className="flex flex-col h-full bg-gray-50 overflow-hidden">
       <div className="flex-shrink-0 p-2 bg-white border-gray-200 rounded-lg">
         <form
@@ -160,8 +145,6 @@ export const CommentSection = ({
           </Button>
         </form>
       </div>
-      {/* ===== Comments List Area (Scrollable) ===== */}
-      {/* This div grows to fill available space and scrolls internally */}
       <div className="flex-1 overflow-y-auto p-2 space-y-4 min-h-0">
         {isLoadingComments && (
           <div className="flex justify-center items-center h-full">
@@ -195,7 +178,6 @@ export const CommentSection = ({
             </div>
           </div>
         ))}
-        {/* Empty div at the end of the list to act as the auto-scroll target */}
         <div ref={commentsEndRef} />
       </div>
 
