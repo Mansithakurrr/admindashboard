@@ -1,14 +1,11 @@
+// src/lib/auth.ts 
 import jwt from "jsonwebtoken";
-import { cookies } from "next/headers";
 
-export function getAdminFromToken() {
-  const token = cookies().get("token")?.value;
-  if (!token) return null;
-
+export function getAdminFromToken(token: string) {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET!);
-    return decoded;
-  } catch {
+    return decoded as { id: string; email: string; role: string };
+  } catch (err) {
     return null;
   }
 }

@@ -15,24 +15,29 @@ export type ActivityLogEntry = {
 export type Ticket = {
   resolvedRemarks: string;
   _id: string;
-  serialNumber?: string; // Now that you have a Mongoose model with it
+  serialNumber: string; // Now that you have a Mongoose model with it
   subject: {
     title: string;
     description: string;
   };
   name: string;
-  platformName: string;
-  Organization: string;
+  email: string;
+  contactNumber: string;
+  platformId: string;
+  orgId: string;
+  platformName?: string;
+  organizationName?: string;
   status: "New" | "Open" | "Hold" | "InProgress" | "Resolved" | "Closed";
   category: "bugs" | "Tech support" | "new feature" | "others";
   priority: Priority;
   type: "Support" | "Complaint" | "Feedback";
-  // days: number;
   createdAt: string; // API returns ISO string
   updatedAt: string; // API returns ISO string
-  attachments: string[];
-  activityLog: ActivityLogEntry[];// Array to hold the ticket's history
-
+  attachments: {
+    url: string;
+    originalName: string;
+  }[];
+  activityLog: ActivityLogEntry[]; // Array to hold the ticket's history
   comments?: Comment[]; // Optional: if comments are part of the ticket document
   __v?: number;
 };

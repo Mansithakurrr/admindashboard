@@ -5,9 +5,9 @@ import { useState } from 'react';
 import toast from 'react-hot-toast';
 
 type UploadedFile = {
-  name: string;
+  originalName: string;
   type: string;
-  url: string; // public URL to store in DB
+  url: string;
 };
 
 interface FileUploaderProps {
@@ -32,7 +32,6 @@ export default function FileUploader({ onUpload }: FileUploaderProps) {
 
     for (const file of acceptedFiles) {
       try {
-        // Step 1: Get signed URL and public URL from backend
         const res = await fetch('/api/s3-upload', {
           method: 'POST',
           body: JSON.stringify({
@@ -44,7 +43,6 @@ export default function FileUploader({ onUpload }: FileUploaderProps) {
 
         const { signedUrl, publicUrl } = await res.json();
 
-        // Step 2: Upload file to S3 using the signed URL
         await fetch(signedUrl, {
           method: 'PUT',
           body: file,
@@ -52,9 +50,9 @@ export default function FileUploader({ onUpload }: FileUploaderProps) {
         });
 
         results.push({
-          name: file.name,
-          type: file.type,
           url: publicUrl,
+          originalName: file.name,
+          type: file.type,
         });
       } catch (error) {
         console.error('Upload error:', error);
@@ -64,7 +62,7 @@ export default function FileUploader({ onUpload }: FileUploaderProps) {
 
     const updatedFiles = [...uploadedFiles, ...results];
     setUploadedFiles(updatedFiles);
-    onUpload(updatedFiles); // Notify parent
+    onUpload(updatedFiles);
     setUploading(false);
   };
 
@@ -100,7 +98,7 @@ export default function FileUploader({ onUpload }: FileUploaderProps) {
         <ul className="mt-4 text-left text-sm space-y-1">
           {uploadedFiles.map((file) => (
             <li key={file.url} className="flex justify-between items-center border rounded px-2 py-1 bg-white">
-              <span className="truncate max-w-[220px]">✅ {file.name}</span>
+              <span className="truncate max-w-[220px]">✅ {file.originalName}</span>
               <button
                 type="button"
                 onClick={() => handleRemoveFile(file.url)}

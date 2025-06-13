@@ -1,27 +1,23 @@
-// import Link from "next/link";
+// // src/app/page.tsx
+// import AdminLoginForm from "@/components/AdminLoginForm";
+// import { redirect } from "next/navigation";
 
 // export default function Home() {
-//   return (
-//     <main className="flex min-h-screen flex-col items-center justify-between p-24">
-//       {/* Keeping the default Next.js styling for context */}
-//       <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-//         {/* Your existing Home page content... */}
-//         {/* ADD THIS LINK */}
-//         <div className="mt-8">
-//           <Link href="/dashboard" className="text-blue-500 hover:underline">
-//             Go to My Dashboard &rarr;
-//           </Link>
-//         </div>
-//       </div>
-//     </main>
-//   );
+//   return <AdminLoginForm />;
 // }
 
 
-import AdminLoginForm from "@/components/AdminLoginForm";
+import { cookies } from "next/headers";
+import { getAdminFromToken } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
-export default function Home() {
-  // redirect("/login"); // Redirect to login page
-  return <AdminLoginForm />;
+export default function RootPage() {
+  const token = cookies().get("token")?.value;
+  const admin = token ? getAdminFromToken(token) : null;
+
+  if (admin) {
+    redirect("/dashboard");
+  } else {
+    redirect("/login");
+  }
 }
