@@ -64,7 +64,7 @@ const TicketSchema = new mongoose.Schema(
     attachments: [AttachmentSchema],
     resolvedRemarks: String,
     closedAt: Date,
-    activityLog: [ActivityLogEntrySchema], // Add schema if needed
+    activityLog: [ActivityLogEntrySchema],
   },
   { timestamps: true }
 );

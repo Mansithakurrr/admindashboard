@@ -6,7 +6,7 @@ import {
   getTicketById,
   updateTicketById,
   deleteTicketById,
-  patchTicket,
+  // patchTicket,
 } from '@/services/ticketService'; // Correct path to your service
 import { updateResolvedRemarks } from "@/services/ticketService";
 import { Ticket } from 'lucide-react';
@@ -107,7 +107,7 @@ export async function fetchTicket(id: string) {
 export async function patchTicketHandler(req: NextRequest, id: string) {
   try {
     const updates = await req.json();
-    const updatedTicket = await patchTicket(id, updates);
+    const updatedTicket = await updateTicketById(id, updates);
 
     if (!updatedTicket) {
       return NextResponse.json({ message: "Ticket not found or invalid ID" }, { status: 404 });

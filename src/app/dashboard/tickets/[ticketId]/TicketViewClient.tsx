@@ -27,18 +27,32 @@ const CATEGORY_OPTIONS: Ticket["category"][] = [
   "new feature",
   "others",
 ];
-const ORGANIZATION_OPTIONS: Ticket["orgId"][] = [
-  "MSIL",
-  "Rohtak",
-  "Tag Avenue",
-  "Udhyog Vihar",
+// const ORGANIZATION_OPTIONS: Ticket["orgId"][] = [
+//   "MSIL",
+//   "Rohtak",
+//   "Tag Avenue",
+//   "Udhyog Vihar",
+// ];
+
+export const ORGANIZATION_OPTIONS = [
+  { label: "Rohtak", value: "6849543dd4fb3a9519889b28" },
+  { label: "MSIL", value: "6849543dd4fb3a9519889b27" },
+  { label: "Tag Avenue", value: "6849543dd4fb3a9519889b2a" },
+  { label: "Udhyog Vihar", value: "6849543dd4fb3a9519889b29" },
 ];
 
-const PLATFORM_OPTIONS: Ticket["platformId"][] = [
-  "Light house",
-  "Learn Tank",
-  "Home Certify",
+
+export const PLATFORM_OPTIONS = [
+  { label: "Light house", value: "6849543dd4fb3a9519889b2b" },
+  { label: "Learn Tank", value: "6849543dd4fb3a9519889b2c" },
+  { label: "Home Certify", value: "6849543dd4fb3a9519889b2d" },
 ];
+
+// const PLATFORM_OPTIONS: Ticket["platformId"][] = [
+//   "Light house",
+//   "Learn Tank",
+//   "Home Certify",
+// ];
 
 interface TicketViewClientProps {
   initialTicket: Ticket;
@@ -501,7 +515,7 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
   const availableStatusOptions = useMemo(() => {
     if (!ticket) return []; // If ticket isn't loaded yet, return empty array
     return getAllowedNextStatuses(ticket.status);
-  }, [ticket?.status]); 
+  }, [ticket?.status]);
 
   if (!ticket) {
     return <div>Loading...</div>;
@@ -798,38 +812,101 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
                   <CategoryBadge category={value as Ticket["category"]} />
                 )}
               />
-              <EditableField
+              {/* <EditableField
                 label="Organization"
                 value={ticket.organizationName || ""}
                 options={ORGANIZATION_OPTIONS}
                 onValueChange={(newVal) => {
-                  const selectedOption = ORGANIZATION_OPTIONS.find((opt) => opt === newVal);
+                  const selectedOption = ORGANIZATION_OPTIONS.find((opt) => opt.value === newVal);
                   handleFieldUpdate("organizationData", {
-                    orgId: newVal,
-                    organizationName: selectedOption || "",
+                    orgId: newVal, // ✅ this is the ObjectId
+                    organizationName: selectedOption?.label || "", // ✅ human-readable name
                   }, {
                     orgId: ticket.orgId,
                     organizationName: ticket.organizationName,
                   });
                 }}
+                
+                // onValueChange={(newVal) => {
+                //   const selectedOption = ORGANIZATION_OPTIONS.find((opt) => opt === newVal);
+                //   handleFieldUpdate("organizationData", {
+                //     orgId: newVal,
+                //     organizationName: selectedOption || "",
+                //   }, {
+                //     orgId: ticket.orgId,
+                //     organizationName: ticket.organizationName,
+                //   });
+                // }}
+              /> */}
+
+              <EditableField
+                label="Organization"
+                value={ticket.organizationName || ""}
+                options={ORGANIZATION_OPTIONS.map((opt) => opt.label)}
+                onValueChange={(newLabel) => {
+                  const selectedOption = ORGANIZATION_OPTIONS.find((opt) => opt.label === newLabel);
+                  if (!selectedOption) return;
+                  handleFieldUpdate(
+                    "organizationData",
+                    {
+                      orgId: selectedOption.value,         // ✅ Mongo ObjectId
+                      organizationName: selectedOption.label, // ✅ Readable name
+                    },
+                    {
+                      orgId: ticket.orgId,
+                      organizationName: ticket.organizationName,
+                    }
+                  );
+                }}
               />
-
-
               <EditableField
                 label="Platform"
                 value={ticket.platformName || ""}
+                options={PLATFORM_OPTIONS.map((opt) => opt.label)}
+                onValueChange={(newLabel) => {
+                  const selectedOption = PLATFORM_OPTIONS.find((opt) => opt.label === newLabel);
+                  if (!selectedOption) return;
+                  handleFieldUpdate(
+                    "platformData",
+                    {
+                      platformId: selectedOption.value,
+                      platformName: selectedOption.label,
+                    },
+                    {
+                      platformId: ticket.platformId,
+                      platformName: ticket.platformName,
+                    }
+                  );
+                }}
+              />
+
+
+              {/* <EditableField
+                label="Platform"
+                value={ticket.platformName || ""}
                 options={PLATFORM_OPTIONS}
+                // onValueChange={(newVal) => {
+                //   const selectedOption = PLATFORM_OPTIONS.find((opt) => opt === newVal);
+                //   handleFieldUpdate("platformData", {
+                //     platformId: newVal,
+                //     platformName: selectedOption || "",
+                //   }, {
+                //     platformId: ticket.platformId,
+                //     platformName: ticket.platformName,
+                //   });
+                // }}
                 onValueChange={(newVal) => {
-                  const selectedOption = PLATFORM_OPTIONS.find((opt) => opt === newVal);
+                  const selectedOption = PLATFORM_OPTIONS.find((opt) => opt.value === newVal);
                   handleFieldUpdate("platformData", {
                     platformId: newVal,
-                    platformName: selectedOption || "",
+                    platformName: selectedOption?.label || "",
                   }, {
                     platformId: ticket.platformId,
                     platformName: ticket.platformName,
                   });
                 }}
-              />
+
+              /> */}
 
 
             </div>
