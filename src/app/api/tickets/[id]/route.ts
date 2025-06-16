@@ -25,13 +25,23 @@ export async function GET(
   }
 }
 
+// export async function PATCH(
+//   req: NextRequest,
+//   { params }: { params: { id: string } }
+// ) {
+//   await connectDB();
+//   return patchTicketHandler(req, params.id);
+// }
+
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   await connectDB();
-  return patchTicketHandler(req, params.id);
+  const { id } = context.params;
+  return patchTicketHandler(req, id);
 }
+
 
 export async function DELETE(
   _: NextRequest,

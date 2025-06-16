@@ -84,39 +84,96 @@ export const updateTicketById = async (id: string, updates: any) => {
             updates.subject.description;
         }
       }
-      else if (
-        currentTicket[key as keyof typeof currentTicket] !== updates[key]
-      ) {
+      else if (key === "platformData" && typeof updates[key] === "object") {
+        const { platformId, platformName } = updates[key];
+        if (currentTicket.platformId !== platformId) {
+          activitiesToLog.push(
+            createLogEntry("Admin", "Platform Changed", currentTicket.platformName, platformName)
+          );
+          updatePayload.$set["platformId"] = platformId;
+          updatePayload.$set["platformName"] = platformName;
+        }
+      } else if (key === "organizationData" && typeof updates[key] === "object") {
+        const { orgId, organizationName } = updates[key];
+        if (currentTicket.orgId !== orgId) {
+          activitiesToLog.push(
+            createLogEntry("Admin", "Organization Changed", currentTicket.organizationName, organizationName)
+          );
+          updatePayload.$set["orgId"] = orgId;
+          updatePayload.$set["organizationName"] = organizationName;
+        }
+      }
+      else if (currentTicket[key as keyof typeof currentTicket] !== updates[key]) {
         if (key === "status") {
           activitiesToLog.push(
-            createLogEntry(
-              "Admin",
-              "Status Changed",
-              currentTicket.status,
-              updates[key]
-            )
+            createLogEntry("Admin", "Status Changed", currentTicket.status, updates[key])
           );
         } else if (key === "priority") {
           activitiesToLog.push(
-            createLogEntry(
-              "Admin",
-              "Priority Changed",
-              currentTicket.priority,
-              updates[key]
-            )
+            createLogEntry("Admin", "Priority Changed", currentTicket.priority, updates[key])
           );
         } else if (key === "category") {
           activitiesToLog.push(
+            createLogEntry("Admin", "Category Changed", currentTicket.category, updates[key])
+          );
+        }else if (key === "orgId") {
+          activitiesToLog.push(
             createLogEntry(
               "Admin",
-              "Category Changed",
-              currentTicket.category,
-              updates[key]
+              "Organization Changed",
+              currentTicket.organizationName,
+              updates.organizationName
+            )
+          );
+        } else if (key === "platformId") {
+          activitiesToLog.push(
+            createLogEntry(
+              "Admin",
+              "Platform Changed",
+              currentTicket.platformName,
+              updates.platformName
             )
           );
         }
+      
+
         updatePayload.$set[key] = updates[key];
       }
+      
+
+      // else if (
+      //   currentTicket[key as keyof typeof currentTicket] !== updates[key]
+      // ) {
+      //   if (key === "status") {
+      //     activitiesToLog.push(
+      //       createLogEntry(
+      //         "Admin",
+      //         "Status Changed",
+      //         currentTicket.status,
+      //         updates[key]
+      //       )
+      //     );
+      //   } else if (key === "priority") {
+      //     activitiesToLog.push(
+      //       createLogEntry(
+      //         "Admin",
+      //         "Priority Changed",
+      //         currentTicket.priority,
+      //         updates[key]
+      //       )
+      //     );
+      //   } else if (key === "category") {
+      //     activitiesToLog.push(
+      //       createLogEntry(
+      //         "Admin",
+      //         "Category Changed",
+      //         currentTicket.category,
+      //         updates[key]
+      //       )
+      //     );
+      //   }
+      //   updatePayload.$set[key] = updates[key];
+      // }
     }
   }
   if (activitiesToLog.length > 0) {
@@ -136,9 +193,9 @@ export const updateTicketById = async (id: string, updates: any) => {
 };
 
 
-export async function patchTicket(id: string, updates: any) {
-  return await updateTicketById(id, updates);
-}
+// export async function patchTicket(id: string, updates: any) {
+//   return await updateTicketById(id, updates);
+// }
 export async function updateResolvedRemarks(ticketId: string, remarks: string) {
   return await updateTicketById(ticketId, { resolvedRemarks: remarks });
 }
