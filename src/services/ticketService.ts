@@ -196,9 +196,9 @@ export const updateTicketById = async (id: string, updates: any) => {
 // export async function patchTicket(id: string, updates: any) {
 //   return await updateTicketById(id, updates);
 // }
-export async function updateResolvedRemarks(ticketId: string, remarks: string) {
-  return await updateTicketById(ticketId, { resolvedRemarks: remarks });
-}
+// export async function updateResolvedRemarks(ticketId: string, remarks: string) {
+//   return await updateTicketById(ticketId, { resolvedRemarks: remarks });
+// }
 
 
 export async function createTicket(data: any) {
