@@ -38,7 +38,7 @@ export async function PATCH(
   context: { params: { id: string } }
 ) {
   await connectDB();
-  const { id } = context.params;
+  const { id } = await context.params;
   return patchTicketHandler(req, id);
 }
 
