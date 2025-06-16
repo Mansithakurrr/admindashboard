@@ -7,12 +7,13 @@ import { getAdminFromToken } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const token = cookies().get("token")?.value;
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
   const admin = token ? getAdminFromToken(token) : null;
 
     if (!admin || admin.role !== "admin") {

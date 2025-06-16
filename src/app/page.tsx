@@ -11,8 +11,9 @@ import { cookies } from "next/headers";
 import { getAdminFromToken } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
-export default function RootPage() {
-  const token = cookies().get("token")?.value;
+export default async function RootPage() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
   const admin = token ? getAdminFromToken(token) : null;
 
   if (admin) {
