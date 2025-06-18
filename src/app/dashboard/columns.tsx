@@ -123,7 +123,7 @@ const PLATFORM_COLUMN_FILTER_OPTIONS: (string | "All Platforms")[] = [
 
 const ORGANIZATION_COLUMN_FILTER_OPTIONS: (string | "All Organizations")[] = [
   "All Organizations",
-  "MSIL",
+  "Msil",
   "Rohtak",
   "Tag Avenue",
   "Udyog Vihar",

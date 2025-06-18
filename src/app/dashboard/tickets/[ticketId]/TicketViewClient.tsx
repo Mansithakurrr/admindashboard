@@ -28,14 +28,14 @@ const CATEGORY_OPTIONS: Ticket["category"][] = [
   "others",
 ];
 // const ORGANIZATION_OPTIONS: Ticket["orgId"][] = [
-//   "MSIL",
+//   "Msil",
 //   "Rohtak",
 //   "Tag Avenue",
 //   "Udyog Vihar",
 // ];
 
 export const ORGANIZATION_OPTIONS = [
-  { label: "MSIL", value: "68526cb27c6225d158ad1ded" },
+  { label: "Msil", value: "68526cb27c6225d158ad1ded" },
   { label: "Rohtak", value: "68526cb37c6225d158ad1dee" },
   { label: "Udyog Vihar", value: "68526cb37c6225d158ad1def" },
   { label: "Tag Avenue", value: "68526cb37c6225d158ad1df0" },

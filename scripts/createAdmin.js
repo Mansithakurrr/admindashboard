@@ -12,8 +12,8 @@ const AdminSchema = new mongoose.Schema({
 const Admin = mongoose.model("Admin", AdminSchema);
 
 async function createAdmin() {
-  const email = "mansi@bigplutolabs.com";
-  const plainPassword = "mansi@123";
+  const email = "ticketDB@bigpluto.com";
+  const plainPassword = "ticketDB";
   const hashedPassword = await bcrypt.hash(plainPassword, 10);
 
   await Admin.create({ email, password: hashedPassword });
