@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "seedData": "npx ts-node scripts/seedData.ts"
+    "seedData": "npx ts-node scripts/seedData.ts",
+    "createAdmin": "npx ts-node scripts/createAdmin.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.824.0",
