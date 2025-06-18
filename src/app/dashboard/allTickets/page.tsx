@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useRef } from "react"; // Make sure useRef is imported
-import { Ticket } from "@/types/ticket";
+import { Ticket } from "@/types/ticketTypes";
 import { columns } from "../columns";
 import { TicketsDataTable } from "@/components/TicketsDataTable";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,7 @@ async function fetchPaginatedTickets(
 ): Promise<{ tickets: Ticket[]; totalPages: number; total: number }> {
   const baseUrl =
     process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_APP_URL;
-  const fetchUrl = `${baseUrl}/api/tickets?page=${page}&limit=${limit}`;
+  const fetchUrl = `/api/tickets?page=${page}&limit=${limit}`;
   // console.log(`AllTicketsPage: Fetching from URL: ${fetchUrl}`); // Keep this log
   const response = await fetch(fetchUrl, { cache: "no-store" });
   if (!response.ok) {

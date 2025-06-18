@@ -36,7 +36,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 // import { Ticket } from "@/lib/mockData"; // Assuming Ticket type is needed here or passed via TData
-import { Ticket } from "../types/ticket";
+import { Ticket } from "../types/ticketTypes";
 
 // 1. IMPORT SHADCN UI SELECT COMPONENTS
 // import {

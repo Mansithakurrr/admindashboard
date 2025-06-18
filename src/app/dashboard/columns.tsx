@@ -14,7 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import TicketSubject from "@/components/TicketSubject";
-import { Ticket } from "@/types/ticket"; // Your Ticket type
+import { Ticket } from "@/types/ticketTypes";
 
 
 // export type Ticket = {

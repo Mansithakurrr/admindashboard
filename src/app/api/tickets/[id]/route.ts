@@ -9,7 +9,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   _: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: any }
 ) {
   await connectDB();
   try {
@@ -35,7 +35,7 @@ export async function GET(
 
 export async function PATCH(
   req: NextRequest,
-  context: { params: { id: string } }
+  context: { params: any }
 ) {
   await connectDB();
   const { id } = await context.params;
@@ -45,10 +45,10 @@ export async function PATCH(
 
 export async function DELETE(
   _: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: any }
 ) {
   await connectDB();
-  const deleted = await removeTicket(params.id);
+  const deleted = await removeTicket( await params.id);
   if (!deleted) {
     return NextResponse.json({ message: "Ticket not found" }, { status: 404 });
   }
