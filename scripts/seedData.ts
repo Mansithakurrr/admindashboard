@@ -1,13 +1,14 @@
 import "dotenv/config"; // 👈 Load .env variables early
 import mongoose from "mongoose";
-import Organization from "@/models/Organization";
-import Platform from "@/models/Platform";
+import Organization from "../src/models/Organization";
+import Platform from "../src/models/Platform";
+import process from "process";
 
 // Optional debug output
 console.log("MONGO_URI from env:", process.env.MONGO_URI);
 
 mongoose.connect(process.env.MONGO_URI!, {
-  dbName: "admindashboard", // Optional: only if you're not using it in the URI
+  dbName: "ticketDB",
 })
 .then(async () => {
   console.log("Connected to DB");

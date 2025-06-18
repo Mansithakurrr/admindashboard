@@ -342,21 +342,21 @@ export const getTicketById = async (id: string) => {
     email: ticketDoc.email || "",
     contactNumber: ticketDoc.contactNumber || "",
     platformId:
-      typeof ticketDoc.platformId === "object" && "_id" in ticketDoc.platformId
-        ? ticketDoc.platformId._id.toString()
-        : "",
-    orgId:
-      typeof ticketDoc.orgId === "object" && "_id" in ticketDoc.orgId
-        ? ticketDoc.orgId._id.toString()
-        : "",
-    platformName:
-      typeof ticketDoc.platformId === "object" && "name" in ticketDoc.platformId
-        ? ticketDoc.platformId.name
-        : "",
-    organizationName:
-      typeof ticketDoc.orgId === "object" && "name" in ticketDoc.orgId
-        ? ticketDoc.orgId.name
-        : "",
+    ticketDoc.platformId && typeof ticketDoc.platformId === "object" && "_id" in ticketDoc.platformId
+      ? ticketDoc.platformId._id.toString()
+      : "",
+  orgId:
+    ticketDoc.orgId && typeof ticketDoc.orgId === "object" && "_id" in ticketDoc.orgId
+      ? ticketDoc.orgId._id.toString()
+      : "",
+  platformName:
+    ticketDoc.platformId && typeof ticketDoc.platformId === "object" && "name" in ticketDoc.platformId
+      ? ticketDoc.platformId.name
+      : "",
+  organizationName:
+    ticketDoc.orgId && typeof ticketDoc.orgId === "object" && "name" in ticketDoc.orgId
+      ? ticketDoc.orgId.name
+      : "",
     status: ticketDoc.status,
     category: ticketDoc.category,
     priority: ticketDoc.priority,
