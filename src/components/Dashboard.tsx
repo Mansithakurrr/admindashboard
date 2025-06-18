@@ -33,12 +33,12 @@ export default function Dashboard() {
       setIsLoading(true);
       setError(null);
       
-      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_APP_URL;
-      if (!baseUrl) {
-        setError("API base URL is not configured");
-        setIsLoading(false);
-        return;
-      }
+      // const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_APP_URL;
+      // if (!baseUrl) {
+      //   setError("API base URL is not configured");
+      //   setIsLoading(false);
+      //   return;
+      // }
 
       try {
         // Use Promise.all to fetch both sets of data concurrently
