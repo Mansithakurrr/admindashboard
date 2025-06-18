@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { ActivityLogEntry } from "@/types/ticket";
+import { ActivityLogEntry } from "@/types/ticketTypes";
 import { Button } from "@/components/ui/button";
 
 interface ActivityTimelineProps {

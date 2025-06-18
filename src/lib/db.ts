@@ -1,14 +1,14 @@
-  import mongoose from "mongoose";
+import mongoose from "mongoose";
 
-  const MONGO_URI = process.env.MONGO_URI as string;
+const MONGO_URI = process.env.MONGO_URI as string;
 
-  if (!MONGO_URI) throw new Error("MONGO_URI is not defined in .env");
+if (!MONGO_URI) throw new Error("MONGO_URI is not defined in .env");
 
-  export const connectDB = async () => {
-    if (mongoose.connection.readyState >= 1) return;
+export const connectDB = async () => {
+  if (mongoose.connection.readyState >= 1) return;
 
-    return mongoose.connect(MONGO_URI);
-  };
+  return mongoose.connect(MONGO_URI);
+};
 
 // export async function connectDB() {
 //   if (mongoose.connection.readyState >= 1) return;

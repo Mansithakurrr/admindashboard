@@ -1,6 +1,9 @@
 'use client';
-import UserTicketForm from '@/components/UserTicketForm';
 
+import React, { Suspense } from 'react';
+export const dynamic = 'force-dynamic';
+
+import UserTicketForm from '@/components/UserTicketForm';
 export default function SupportPage() {
   return (
     <main className="min-h-screen bg-gray-50 py-10 px-6">
@@ -8,7 +11,9 @@ export default function SupportPage() {
         <img src="/bpllogo.png" alt="Bigpluto logo" className="h-16 w-auto" />
         {/* <span className="text-xl font-bold">Help Desk</span> */}
       </div>
-      <UserTicketForm />
+      <Suspense fallback={<div>Loading form...</div>}>
+        <UserTicketForm />
+      </Suspense>
     </main>
   );
 }

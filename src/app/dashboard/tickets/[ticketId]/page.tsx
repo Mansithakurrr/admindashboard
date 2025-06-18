@@ -1,8 +1,9 @@
+// src/app/dashboard/tickets/[ticketId]/page.tsx
+
 import Link from "next/link";
-import { Ticket, Priority } from "@/types/ticket";
+import { Ticket, Priority } from "@/types/ticketTypes";
 import TicketViewClient from "./TicketViewClient";
 import { getTicketById } from "@/services/ticketService";
-
 const STATUS_OPTIONS: Ticket["status"][] = [
   "New",
   "Open",
@@ -19,13 +20,18 @@ const CATEGORY_OPTIONS: Ticket["category"][] = [
   "others",
 ];
 
-export default async function TicketInfoPage({
-  params,
-}: {
-  params: Promise<{ ticketId: string }>;
-}) {
-  const resolvedParams = await params;
-  const ticketId = resolvedParams.ticketId;
+interface TicketInfoPageProps {
+  params: {
+    ticketId: string;
+  };
+}
+
+// interface TicketInfoPageProps {
+//   params: { ticketId: string } | Promise<{ ticketId: string }>;
+// }
+
+export default async function TicketInfoPage({ params }: any) {
+  const { ticketId } = await params;
 
   const ticketData = await getTicketById(ticketId);
 

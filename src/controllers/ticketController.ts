@@ -144,6 +144,6 @@ async function getNextSequenceValue(sequenceName: string): Promise<number> {
   return counter.seq;
 }
 
-// export async function patchResolvedRemarks(id: string, remarks: string) {
-//   return await updateResolvedRemarks(id, remarks);
-// }
+export async function patchResolvedRemarks(id: string, remarks: string) {
+  return await updateResolvedRemarks(id, remarks);
+}

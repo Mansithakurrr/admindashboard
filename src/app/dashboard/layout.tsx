@@ -12,8 +12,7 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
+  const token = (await cookies()).get("token")?.value;
   const admin = token ? getAdminFromToken(token) : null;
 
     if (!admin || admin.role !== "admin") {

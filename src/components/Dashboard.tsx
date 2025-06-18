@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 import StatCard from './StatCard';
 import { TicketsDataTable } from './TicketsDataTable';
 import { columns } from '../app/dashboard/columns'; // Your column definitions
-import { Ticket } from '@/types/ticket';
+import { Ticket } from '@/types/ticketTypes';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
@@ -33,18 +33,18 @@ export default function Dashboard() {
       setIsLoading(true);
       setError(null);
       
-      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_APP_URL;
-      if (!baseUrl) {
-        setError("API base URL is not configured");
-        setIsLoading(false);
-        return;
-      }
+      // const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_APP_URL;
+      // if (!baseUrl) {
+      //   setError("API base URL is not configured");
+      //   setIsLoading(false);
+      //   return;
+      // }
 
       try {
         // Use Promise.all to fetch both sets of data concurrently
         const [ticketsResponse, statsResponse] = await Promise.all([
-          fetch(`${baseUrl}/api/tickets?page=1&limit=${DASHBOARD_TICKET_LIMIT}`), // For the table
-          fetch(`${baseUrl}/api/tickets/stats`) // For the stat cards
+          fetch(`/api/tickets?page=1&limit=${DASHBOARD_TICKET_LIMIT}`), // For the table
+          fetch(`/api/tickets/stats`) // For the stat cards
         ]);
 
         // Handle tickets response for the table

@@ -7,7 +7,7 @@ import {
   Priority,
   ActivityLogEntry,
   Comment as CommentType,
-} from "@/types/ticket";
+} from "@/types/ticketTypes";
 import Link from "next/link";
 import { CommentSection } from "@/components/CommentSection"; // You'll need to pass update functions to this
 import { ActivityTimeline } from "@/components/ActivityTimeline";
