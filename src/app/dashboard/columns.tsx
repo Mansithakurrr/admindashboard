@@ -126,7 +126,7 @@ const ORGANIZATION_COLUMN_FILTER_OPTIONS: (string | "All Organizations")[] = [
   "MSIL",
   "Rohtak",
   "Tag Avenue",
-  "Udhyog Vihar",
+  "Udyog Vihar",
 ];
 
 const CATEGORY_COLUMN_FILTER_OPTIONS: (Ticket["category"] | "All Categories")[] = [

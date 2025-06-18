@@ -31,21 +31,21 @@ const CATEGORY_OPTIONS: Ticket["category"][] = [
 //   "MSIL",
 //   "Rohtak",
 //   "Tag Avenue",
-//   "Udhyog Vihar",
+//   "Udyog Vihar",
 // ];
 
 export const ORGANIZATION_OPTIONS = [
-  { label: "Rohtak", value: "6849543dd4fb3a9519889b28" },
-  { label: "MSIL", value: "6849543dd4fb3a9519889b27" },
-  { label: "Tag Avenue", value: "6849543dd4fb3a9519889b2a" },
-  { label: "Udhyog Vihar", value: "6849543dd4fb3a9519889b29" },
+  { label: "MSIL", value: "68526cb27c6225d158ad1ded" },
+  { label: "Rohtak", value: "68526cb37c6225d158ad1dee" },
+  { label: "Udyog Vihar", value: "68526cb37c6225d158ad1def" },
+  { label: "Tag Avenue", value: "68526cb37c6225d158ad1df0" },
 ];
 
 
 export const PLATFORM_OPTIONS = [
-  { label: "Light house", value: "6849543dd4fb3a9519889b2b" },
-  { label: "Learn Tank", value: "6849543dd4fb3a9519889b2c" },
-  { label: "Home Certify", value: "6849543dd4fb3a9519889b2d" },
+  { label: "Light house", value: "68526cb37c6225d158ad1df1" },
+  { label: "Learn Tank", value: "68526cb37c6225d158ad1df2" },
+  { label: "Home Certify", value: "68526cb37c6225d158ad1df3" },
 ];
 
 // const PLATFORM_OPTIONS: Ticket["platformId"][] = [
