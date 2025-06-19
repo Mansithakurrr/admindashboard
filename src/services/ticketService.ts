@@ -5,6 +5,7 @@ import Platform from '@/models/Platform';
 import Organization from '@/models/Organization';
 import { isValidObjectId } from "mongoose";
 import mongoose from "mongoose";
+import { connectDB } from '@/lib/db';
 
 async function getNextFormattedSerialNumber(): Promise<string> {
   console.log("SERVICE: Attempting to find/update counter with name: 'ticket'");
@@ -316,6 +317,7 @@ export const getTickets = async (query: any, page: number, limit: number) => {
 
 
 export const getTicketById = async (id: string) => {
+  await connectDB();
   if (!isValidObjectId(id)) return null;
 
   const ticketDoc = await Ticket.findById(id)

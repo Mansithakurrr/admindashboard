@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useDropzone } from 'react-dropzone';
+import { useRouter } from 'next/navigation';
 
 type TicketConfirmation = {
   serialNumber: string;
@@ -12,7 +13,7 @@ type TicketConfirmation = {
 
 export default function UserTicketForm() {
   const searchParams = useSearchParams();
-
+  const router = useRouter();
   const name = searchParams.get('name') || '';
   const email = searchParams.get('email') || '';
   const platform = searchParams.get('platformId') || '';
@@ -139,11 +140,21 @@ export default function UserTicketForm() {
             </p>
           </div>
           <button
+      className="mt-6 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+      onClick={() => {
+        setConfirmation(null);
+        router.push('/dashboard');
+      }}
+    >
+      Close
+    </button>
+
+          {/* <button
             className="mt-6 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
             onClick={() => setConfirmation(null)}
           >
             Close
-          </button>
+          </button> */}
         </div>
       </div>
     );

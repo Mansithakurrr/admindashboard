@@ -16,12 +16,12 @@ interface Comment {
 
 interface CommentSectionProps {
   ticketId: string;
-  onCommentAdded: (commentText: string, author: string) => void;
+  onCommentAdded: (commentText: string, author: string) => void; // This prop is key!
 }
 
 export const CommentSection = ({
   ticketId,
-  onCommentAdded,
+  onCommentAdded, // Destructure the prop
 }: CommentSectionProps) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
@@ -34,7 +34,6 @@ export const CommentSection = ({
     commentsEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [comments]);
 
-
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
@@ -42,7 +41,7 @@ export const CommentSection = ({
         if (!res.ok) return;
 
         const data = await res.json();
-        setCurrentUser(data.name || data.email); // or use data.name if available
+        setCurrentUser(data.name || data.email);
       } catch (err) {
         console.error("Failed to fetch current admin:", err);
       }
@@ -86,7 +85,6 @@ export const CommentSection = ({
     }
   };
 
-
   useEffect(() => {
     fetchComments();
   }, [ticketId]);
@@ -110,17 +108,24 @@ export const CommentSection = ({
 
       if (!res.ok) {
         const errorData = await res.json();
-        alert(`Error submitting comment: ${errorData.message || "Please try again."}`);
+        alert(
+          `Error submitting comment: ${errorData.message || "Please try again."}`
+        );
         return;
       }
+
+      // Re-fetch comments for the comment section itself
       await fetchComments();
+
+      // NEW: Call the onCommentAdded callback to inform the parent component
+      onCommentAdded(newComment, author);
+
       setNewComment("");
     } catch (error) {
       console.error("Error submitting comment:", error);
       alert("An error occurred while submitting your comment.");
     }
   };
-
 
   return (
     <div className="flex flex-col h-full bg-gray-50 overflow-hidden">
@@ -180,7 +185,6 @@ export const CommentSection = ({
         ))}
         <div ref={commentsEndRef} />
       </div>
-
     </div>
   );
 };
