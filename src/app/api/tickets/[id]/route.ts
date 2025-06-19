@@ -1,4 +1,5 @@
 // app/api/tickets/[id]/route.ts
+import Ticket from '@/models/Ticket'; // Your Mongoose Ticket model
 import { connectDB } from "@/lib/db";
 import {
   fetchTicket,
@@ -31,6 +32,24 @@ export async function GET(
 // ) {
 //   await connectDB();
 //   return patchTicketHandler(req, params.id);
+// }
+
+
+
+// export async function GET(req: NextRequest, { params }: { params: { ticketId: string } }) {
+//     await connectDB();
+//     const { ticketId } = params;
+
+//     try {
+//         const ticket = await Ticket.findById(ticketId);
+//         if (!ticket) {
+//             return NextResponse.json({ message: "Ticket not found" }, { status: 404 });
+//         }
+//         return NextResponse.json(ticket);
+//     } catch (error: any) {
+//         console.error("API Error fetching ticket by ID:", error);
+//         return NextResponse.json({ message: "Failed to fetch ticket", error: error.message }, { status: 500 });
+//     }
 // }
 
 export async function PATCH(
