@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
     if (!ticketId) {
         return NextResponse.json({ error: "Missing ticketId" }, { status: 400 });
     }
-    const comments = await Comment.find({ ticketId }).sort({ createdAt: 1 });
+    const comments = await Comment.find({ ticketId }).sort({ createdAt: -1 });
     return NextResponse.json(comments);
 }
 

@@ -1,14 +1,11 @@
 // src/app/dashboard/page.tsx
 
-import { cookies } from "next/headers";
-import { getAdminFromToken } from "@/lib/auth";
+import { getAdminSession } from "@/lib/getAdminSession";
 import { redirect } from "next/navigation";
 import Dashboard from "@/components/Dashboard";
 
 export default async function DashboardPage() {
-  const cookieStore = cookies();
-  const token = (await cookieStore).get("token")?.value;
-  const admin = token ? getAdminFromToken(token) : null;
+  const admin = await getAdminSession();
 
   if (!admin) {
     redirect("/login");

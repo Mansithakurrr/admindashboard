@@ -1,18 +1,24 @@
+// src/app/api/auth/me/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminFromToken } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
-    const token = req.cookies.get("token")?.value;
+  const token = req.cookies.get("token")?.value;
 
-    if (!token) {
-        return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-    }
+  if (!token) {
+    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  }
 
-    const user = getAdminFromToken(token);
+  const admin = getAdminFromToken(token);
 
-    if (!user) {
-        return NextResponse.json({ error: "Invalid token" }, { status: 401 });
-    }
+  if (!admin) {
+    return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+  }
 
-    return NextResponse.json(user);
+  return NextResponse.json({
+    id: admin.id,
+    email: admin.email,
+    name: admin.name,
+    role: admin.role,
+  });
 }
