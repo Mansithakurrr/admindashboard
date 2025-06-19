@@ -1,21 +1,26 @@
 // src/types/ticket.ts
-export type Priority = "low" | "medium" | "high"; // Matches your API's lowercase
+export type Priority = "low" | "medium" | "high";
 
 // Define the structure for an activity log entry
 export type ActivityLogEntry = {
-  id: string; // Or Date.now().toString() or a UUID
-  timestamp: string; // Store as ISO string, format on display
-  user: string; // Who performed the action
-  action: string; // e.g., "Status changed", "Comment added"
-  from?: string; // Optional: previous value
-  to?: string;   // Optional: new value
-  details?: string; // Optional: e.g., the comment text
+  id: string;
+  timestamp: string;
+  user: string;
+  action: string;
+  from?: string;
+  to?: string;
+  details?: string;
 };
+export interface Attachment {
+  _id: string;
+  originalName: string;
+  url: string;
+}
 
 export type Ticket = {
   resolvedRemarks: string;
   _id: string;
-  serialNumber: string; // Now that you have a Mongoose model with it
+  serialNumber: string;
   subject: {
     title: string;
     description: string;
@@ -31,24 +36,21 @@ export type Ticket = {
   category: "bugs" | "Tech support" | "new feature" | "others";
   priority: Priority;
   type: "Support" | "Complaint" | "Feedback";
-  createdAt: string; // API returns ISO string
-  updatedAt: string; // API returns ISO string
-  attachments: {
-    url: string;
-    originalName: string;
-  }[];
-  activityLog: ActivityLogEntry[]; // Array to hold the ticket's history
-  comments?: Comment[]; // Optional: if comments are part of the ticket document
+  createdAt: string;
+  updatedAt: string;
+  attachments: Attachment[];
+  activityLog: ActivityLogEntry[];
+  comments?: Comment[];
   __v?: number;
 };
 
 // Assuming you have a Comment type
 export type Comment = {
   createdAt: string | number | Date;
-  _id: string; // Or however your comment IDs are structured
+  _id: string;
   text: string;
   author: string;
-  timestamp: string; // Store as ISO string
+  timestamp: string;
   formattedTimestamp?: string;
 };
 

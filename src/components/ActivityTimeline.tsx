@@ -75,18 +75,22 @@ export const ActivityTimeline: React.FC<ActivityTimelineProps> = ({
               {activity.user && (
                 <p className="text-xs text-gray-500 mb-2">by {activity.user}</p>
               )}
-              {activity.details && (
+
+              {/* === START OF MODIFIED LOGIC === */}
+              {activity.from !== undefined && activity.to !== undefined ? (
+                // If both 'from' and 'to' values are explicitly provided, display them together
+                <p className="text-sm text-gray-600 mt-1 bg-gray-50 p-2 border rounded break-words">
+                  from <span className="font-medium">"{activity.from}"</span> to{" "}
+                  <span className="font-medium">"{activity.to}"</span>
+                </p>
+              ) : activity.details ? (
+                // Otherwise, if 'details' exist, display them
                 <p className="text-sm text-gray-600 mt-1 bg-gray-50 p-2 border rounded break-words">
                   {activity.details}
                 </p>
+              ) : null}
+              {/* === END OF MODIFIED LOGIC === */}
 
-              )}
-              {activity.from && (
-                <p className="text-xs font-semibold text-gray-500 mb-2">from {activity.from}</p>
-              )}
-              {activity.to && (
-                <p className="text-xs font-semibold text-gray-500 mb-2">to {activity.to}</p>
-              )}
             </div>
           </div>
         ))}
