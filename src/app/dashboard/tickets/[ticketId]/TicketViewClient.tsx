@@ -20,11 +20,9 @@ interface Option {
   value: string; // This will be the actual MongoDB ObjectId string
 }
 
-// Interface for what the API returns (e.g., from your Mongoose models)
 interface ApiOrgPlatformData {
   _id: string;
   name: string;
-  // Add other properties if your API returns them but are not needed for Option mapping
 }
 
 interface TicketViewClientProps {
@@ -104,7 +102,6 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
         const orgsData: ApiOrgPlatformData[] = await orgsRes.json();
         const platformsData: ApiOrgPlatformData[] = await platformsRes.json();
 
-        // Map API response to the Option format { label, value }
         setOrganizationOptions(orgsData.map(org => ({ label: org.name, value: org._id })));
         setPlatformOptions(platformsData.map(plat => ({ label: plat.name, value: plat._id })));
 
@@ -117,7 +114,7 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
     };
 
     fetchDynamicOptions();
-  }, []); // Empty dependency array: runs only once on mount
+  }, []);
 
 
   // Helper function to create an activity log entry
@@ -304,7 +301,6 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
   // Handlers for Resolution Remarks
   const handleSaveRemarks = useCallback(async () => {
     if (!remarksText || remarksText.trim() === "") {
-      // TODO: Replace with a more user-friendly UI component (e.g., Shadcn Toast)
       alert("Resolution remarks are required to mark this ticket as Resolved.");
       return;
     }
@@ -314,7 +310,6 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
       const updatesToPersist: Partial<Ticket> = { resolvedRemarks: remarksText };
       const activityLogsToPersist: ActivityLogEntry[] = [];
 
-      // Add activity log for remarks update
       activityLogsToPersist.push(createActivityLogEntry(
         "Resolved Remarks Updated",
         originalRemarks,
@@ -322,9 +317,6 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
         "User added/updated resolution remarks."
       ));
 
-      // If the ticket's *original* status was not "Resolved", it means we are
-      // now confirming the resolution, so update the status on the backend.
-      // This ensures the status change is persisted only upon remarks save.
       if (originalStatus !== "Resolved") {
         updatesToPersist.status = "Resolved";
         activityLogsToPersist.push(createActivityLogEntry(
@@ -334,17 +326,14 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
         ));
       }
 
-      // Persist all changes (remarks and potentially status)
       await persistTicketUpdate(updatesToPersist, activityLogsToPersist);
 
-      // After successful save, update original states
       setOriginalRemarks(remarksText);
-      setOriginalStatus("Resolved"); // Confirm that 'Resolved' is now the new original status
+      setOriginalStatus("Resolved");
 
-      setIsEditingRemarks(false); // Exit editing mode
+      setIsEditingRemarks(false);
     } catch (error: any) {
-      console.error("Error during remarks save:", error.message);
-      // TODO: Replace with a more user-friendly UI component
+      console.error("Error saving remarks:", error.message);
       alert(`Error saving remarks: ${error.message}`);
     } finally {
       setIsSaving(false);
@@ -358,13 +347,11 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
   ]);
 
   const handleCancelEditRemarks = useCallback(() => {
-    setRemarksText(originalRemarks); // Revert remarks text to original
-    // If the status was optimistically changed to 'Resolved' for remarks, revert it to its original status
-    // if the remarks are cancelled.
+    setRemarksText(originalRemarks);
     if (ticket.status !== originalStatus) {
       setTicket((prev) => ({ ...prev!, status: originalStatus }));
     }
-    setIsEditingRemarks(false); // Exit editing mode
+    setIsEditingRemarks(false);
   }, [originalRemarks, originalStatus, ticket.status]);
 
 
@@ -384,17 +371,19 @@ const TicketViewClient: React.FC<TicketViewClientProps> = ({
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            $push: { activityLog: newEntry }, // Assuming backend handles $push for activityLog
+            $push: { activityLog: newEntry },
           }),
         });
 
         if (!res.ok) throw new Error("Failed to add comment");
 
         const updatedTicket = await res.json();
-        setTicket(updatedTicket); // Update local state with the new comment
+        setTicket((prev) => ({
+          ...prev!,
+          activityLog: updatedTicket.activityLog,
+        }));
       } catch (error) {
         console.error("Error adding comment:", error);
-        // Show user error (e.g., a toast)
       }
     },
     [ticket._id]

@@ -1,11 +1,17 @@
 // src/lib/auth.ts 
 import jwt from "jsonwebtoken";
 
-export function getAdminFromToken(token: string) {
+type AdminTokenPayload = {
+  id: string;
+  email: string;
+  name: string;
+  role: string;
+};
+
+export function getAdminFromToken(token: string): AdminTokenPayload | null {
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!);
-    return decoded as { id: string; email: string; name: string; role: string };
-  } catch (err) {
+    return jwt.verify(token, process.env.JWT_SECRET!) as AdminTokenPayload;
+  } catch {
     return null;
   }
 }

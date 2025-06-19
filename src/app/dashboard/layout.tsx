@@ -3,17 +3,11 @@ import React from "react";
 import Navbar from "@/components/Navbar";
 import { Toaster } from "react-hot-toast";
 import "../globals.css";
-import { getAdminFromToken } from "@/lib/auth";
+import { getAdminSession } from "@/lib/getAdminSession";
 import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
 
-export default async function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const token = (await cookies()).get("token")?.value;
-  const admin = token ? getAdminFromToken(token) : null;
+export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const admin = await getAdminSession();
 
     if (!admin || admin.role !== "admin") {
       redirect("/unauthorized");

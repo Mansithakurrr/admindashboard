@@ -16,12 +16,12 @@ interface Comment {
 
 interface CommentSectionProps {
   ticketId: string;
-  onCommentAdded: (commentText: string, author: string) => void; // This prop is key!
+  onCommentAdded: (commentText: string, author: string) => void;
 }
 
 export const CommentSection = ({
   ticketId,
-  onCommentAdded, // Destructure the prop
+  onCommentAdded,
 }: CommentSectionProps) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
@@ -29,10 +29,6 @@ export const CommentSection = ({
   const [currentUser, setCurrentUser] = useState<string | null>(null);
 
   const commentsEndRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    commentsEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [comments]);
 
   useEffect(() => {
     const fetchCurrentUser = async () => {
@@ -114,10 +110,8 @@ export const CommentSection = ({
         return;
       }
 
-      // Re-fetch comments for the comment section itself
       await fetchComments();
 
-      // NEW: Call the onCommentAdded callback to inform the parent component
       onCommentAdded(newComment, author);
 
       setNewComment("");

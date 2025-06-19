@@ -1,24 +1,9 @@
-// // src/app/page.tsx
-// import AdminLoginForm from "@/components/AdminLoginForm";
-// import { redirect } from "next/navigation";
+// src/app/page.tsx
 
-// export default function Home() {
-//   return <AdminLoginForm />;
-// }
-
-
-import { cookies } from "next/headers";
-import { getAdminFromToken } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import { getAdminSession } from "@/lib/getAdminSession";
 
 export default async function RootPage() {
-  const cookieStore = await cookies();
-  const token = (await cookieStore).get("token")?.value;
-  const admin = token ? getAdminFromToken(token) : null;
-
-  if (admin) {
-    redirect("/dashboard");
-  } else {
-    redirect("/login");
-  }
+  const admin = await getAdminSession();
+  redirect(admin ? "/dashboard" : "/login");
 }

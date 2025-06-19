@@ -1,16 +1,13 @@
 // app/admin/page.tsx
+
 import { redirect } from 'next/navigation'
-import { getAdminFromToken } from '@/lib/auth'
-import { cookies } from 'next/headers'
+import { getAdminSession } from '@/lib/getAdminSession'
 
 export default async function AdminPage() {
-  const cookieStore = await cookies();
-  const token = (await cookieStore).get("token")?.value;
-  const admin = token ? getAdminFromToken(token) : null;
+  const admin = await getAdminSession();
 
   if (!admin) {
     redirect('/login');
   }
-
   return <div>Welcome, Admin!</div>;
 }
